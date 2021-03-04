@@ -1,7 +1,13 @@
 class MainController {
-    constructor(model) {
-        this.model = model;
+    constructor(gridView) {
+        this.gridView = gridView;
     }
 
-    
+    getData() {
+        return data;
+    }
+
+    addLocation() {
+        data.addLocation(new Location());
+    }
 }

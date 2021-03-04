@@ -1,0 +1,5 @@
+class MainView {
+    constructor() {
+        
+    }
+}

@@ -1,17 +1,22 @@
 
+// const data = localStorage.getItem('data');
+const data = new Data();
+// if(data == null) {
+//     const data = new Data();
+//     localStorage.setItem('data', data);
+// }
+const mainView = new MainView();
+const navigationView = new NavigationView();
 
-start();
+const mainController = new MainController(mainView);
+const navigationController = new NavigationController(navigationView);
 
-function start() {
-    this.data = localStorage.getItem('data');
-    if(data == null) {
-        this.data = new Data();
-        localStorage.setItem('data', data);
-    }
-    this.gridView = new GridView();
-    this.navigationView = new NavigationView();
 
-    this.gameController = new MainController(gridView);
-    this.NavigationController = new NavigationController(navigationView);
+function test() {
+    console.log(mainController.getData());
+}
+
+function addLocation() {
+    mainController.addLocation();
 }
 

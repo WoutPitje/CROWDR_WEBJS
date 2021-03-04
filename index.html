@@ -5,9 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CROWDR</title>
-    <script src="../Models/Location.js" defer></script>
-    <script src="../Controllers/steps.js" defer></script>
-    <script src="../app.js" defer></script>
+    <script src="Models/data.js"></script>
+    <script src="Models/Location.js" defer></script>
+    <script src="Models/Tent.js" defer></script>
+    
+    <script src="Controllers/MainController.js" defer></script>
+    <script src="Controllers/NavigationController.js" defer></script>
+    <script src="Views/MainView.js"></script>
+    <script src="Views/NavigationView.js"></script>
+    <script src="app.js" defer></script>
+    
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <style>
         #grid {
@@ -39,7 +46,7 @@
                 
             </div>
 
-            <button class="p-5 bg-red-500 hover:bg-red-800 hover:text-white">
+            <button onclick="test()" class="p-5 bg-red-500 hover:bg-red-800 hover:text-white">
                 Reset configuratie
             </button>
         </div>
