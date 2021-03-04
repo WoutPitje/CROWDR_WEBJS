@@ -5,28 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CROWDR</title>
-    <script src="Models/data.js"></script>
+    <script src="Models/data.js" defer></script>
     <script src="Models/Location.js" defer></script>
     <script src="Models/Tent.js" defer></script>
     
     <script src="Controllers/MainController.js" defer></script>
     <script src="Controllers/NavigationController.js" defer></script>
-    <script src="Views/MainView.js"></script>
-    <script src="Views/NavigationView.js"></script>
+    <script src="Views/MainView.js" defer></script>
+    <script src="Views/NavigationView.js" defer></script>
     <script src="app.js" defer></script>
     
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        #grid {
-            width:750px;
-            height:750px;
-            position:relative;
-        }
-
-        .gridpane {
-            height: 50px;
-            width: 50px;
-        }
+        
     </style>
 
 </head>
@@ -50,7 +41,7 @@
                 Reset configuratie
             </button>
         </div>
-        <div id="grid" class="bg-white m-auto flex flex-wrap">
+        <div id="grid" class="bg-white m-auto">
             
         </div>
         <div class="w-1/5 h-full bg-gray-200 flex flex-col p-5">
