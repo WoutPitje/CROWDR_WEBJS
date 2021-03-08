@@ -11,6 +11,7 @@ const navigationView = new NavigationView();
 
 const mainController = new MainController(mainView);
 const navigationController = new NavigationController(navigationView);
+const stepController = new StepController(mainView);
 
 mainView.init();
 navigationView.init();

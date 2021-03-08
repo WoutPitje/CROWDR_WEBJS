@@ -4,6 +4,6 @@ class Location {
     }
 
     setAmountOfVisitors(amount) {
-        this.amount = amount;
+        this.visitors = visitors;
     }
 }
