@@ -1,0 +1,24 @@
+{
+  "name": "Crowdr",
+  "version": "1.0.0",
+  "description": "CROWDR in javascript",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WoutPitje/CROWDR_WEBJS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WoutPitje/CROWDR_WEBJS/issues"
+  },
+  "homepage": "https://github.com/WoutPitje/CROWDR_WEBJS#readme",
+  "devDependencies": {
+    "webpack": "^5.24.3",
+    "webpack-cli": "^4.5.0"
+  }
+}
