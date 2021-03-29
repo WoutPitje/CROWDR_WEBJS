@@ -25,18 +25,22 @@
     </div>
     <div class="bg-blue-100 flex-grow flex content-center">
         <div class="w-1/5 h-full bg-gray-200 flex flex-col justify-between p-5 space-y-5">
-            <h1 class="font-bold">Stap voor stap configuratie</h1>
-            <div id="configuration_block" lass="flex-grow flex flex-col space-y-5">
+            <h1 class="font-bold">Step by step configuration</h1>
+            <div id="errorbox" class="p-3 bg-red-200"></div>
+            <div id="configuration_block" class="flex-grow flex flex-col space-y-5">
                 
             </div>
 
-            <button onclick="test()" class="p-5 bg-red-500 hover:bg-red-800 hover:text-white">
-                Reset configuratie
+            <button id="resetConfig" class="p-5 bg-red-500 hover:bg-red-800 hover:text-white">
+                Reset configuration
             </button>
         </div>
+        <div class="flex flex-col w-3/5 justify-around">
+        <span class="m-auto" id="location_name"></span>
         <div id="grid" class="bg-white m-auto dropzones">
             
         </div>
+    </div>
         <div class="w-1/5 h-full bg-gray-200 flex flex-col p-5">
             <div id= "images_block" class="flex-grow">
 

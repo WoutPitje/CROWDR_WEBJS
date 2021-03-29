@@ -1,20 +1,18 @@
-import Grid from "../Models/Grid"
+import Grid from "../Models/Grid.js"
 
 export default class GridController {
-    constructor(data) {
+    constructor(mainController, data) {
         this.data = data;
-        this.mainGrid = new Grid();
-
-        this.tenten = 3;
-        this.eetkramen = 2;
-        this.drankkramen = 1;
-        this.toiletten = 4;
-        this.prullenbakken = 5;
-        this.hogebomen = 2;
-        this.bredebomen = 3;
-        this.schaduwbomen = 1;
+        this.mainController = mainController;
+        this.gridController = mainController.gridController;
+        this.gridView = mainController.gridView;
+        
     }
 
+    refreshGrid() {
+            this.gridView.generateGrid();
+            this.gridView.refresh(this.data);
+        }
     getData() {
         return data;
     }
@@ -28,7 +26,7 @@ export default class GridController {
         x = parseInt(x);
         y = parseInt(y);
         
-        let canPlace = this.mainGrid.canPlace(x,y,type);
+        let canPlace = this.data.getCurrentLocation().canPlace(x,y,type);
         return canPlace;
 
     }
@@ -39,7 +37,8 @@ export default class GridController {
         x = parseInt(x);
         y = parseInt(y);
         
-        this.mainGrid.placeItem(x,y,type);
+        let canPlace = this.data.getCurrentLocation().placeItem(x,y,type);
+        this.mainController.saveData();
         
     }
 
@@ -50,10 +49,10 @@ export default class GridController {
         y = parseInt(y);
         
 
-        this.mainGrid.deleteItem(x,y,type);
+        let canPlace = this.data.getCurrentLocation().deleteItem(x,y,type);
     }
     getItem(x,y) {
-        return this.mainGrid.getItem(x,y);
+        return this.data.getCurrentLocation().getItem(x,y);
     }
 
     updateGridImages(type){

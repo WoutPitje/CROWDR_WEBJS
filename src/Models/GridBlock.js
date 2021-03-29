@@ -1,20 +1,16 @@
 export default class GridBlock {
     
-    constructor() {
-        this.isFilled = false;
-        this.fillType = null;
-        this.id = null;
+    constructor(gridblock) {
+        this.fillType =null;
+        this.isFilled =null;
+        if(typeof gridblock.isFilled !== 'undefined') this.isFilled = gridblock.isFilled;
+        if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
     }
 
-    setId() {
-        this.id = new DateTime();
-    }
-    getId() {
-        return this.id;
-    }
+  
     setFilled(newIsFilled) {
         this.isFilled = newIsFilled;
-        this.setId();
+       
     }
 
     getFilled() {

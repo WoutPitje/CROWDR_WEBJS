@@ -2,72 +2,60 @@ export default class NavigationView {
     constructor() {
 
     }
-    init(mainController, navigationController, stepController) {
-        this.mainController = mainController;
+    init(navigationController) {
         this.navigationController = navigationController;
-        this.stepController = stepController;
+        
         const addLocationButton = document.getElementById('addLocation');
         
-        addLocationButton.addEventListener('click', () => {this.addLocation()});
-        this.navigationController.refreshNavigation();
-
-    
-       
-       
+        addLocationButton.addEventListener('click', () => {this.navigationController.addLocation()});
+        
     }
-
-    test() {
-        console.log(navigationController.getData());
-    }
-    
-    
-    deleteLocation(i) {
-        this.navigationController.deleteLocation(i);
-    }
-
-    addLocation() {
-        this.navigationController.addLocation();
-    }
-
-
     refreshNavigation(data) {
+        
         this.generateLocationMenu(data);
+        this.refreshLocationPage(data);
+    }
+
+    refreshLocationPage(data) {
+        let name = "name unknown";
+        if(data.getCurrentLocation().name != null)  name = data.getCurrentLocation().name;
+        document.getElementById("location_name").innerHTML = name;
     }
 
     generateLocationMenu(data) {
         this.clearNavigation();
-        const nav = document.getElementById("nav");
-        let i =1;
-        data.locations.forEach( function(location) {
-            let name = 'naam onbekend';
-            if(location.name != null) {
-                let name = location.name;
-            }
-            const navItem = document.createElement("button");
-            navItem.innerHTML = `Naam`;
-            navItem.className = `navbutton bg-gray-200 p-3 pb-2 hover:bg-gray-500 hover:text-white flex flex-row`;
-            navItem.id = `location${i}`;
-            
-            const deleteButton = document.createElement("button");
-            deleteButton.id = `deletelocation${i}`;
-            deleteButton.className = ` bg-red-500 hover:bg-red-800 hover:text-white ml-4 pr-2 pl-2`;
-            deleteButton.innerHTML = `X`;
-
-            navItem.appendChild(deleteButton);
-            nav.appendChild(navItem);
-            i++;
-        }
-        )
-        for(let i = 1; i <= data.locations.length; i++) {
-            let deletebutton = document.getElementById(`deletelocation${i}`);
-            console.log(deletebutton)
-            deletebutton.addEventListener('click', () => { this.deleteLocation(i)});
-        }   
+        const nav = document.getElementById("nav"); 
+        let i = 1;
+        data.locations.forEach((location) => {this.drawLocationButton(location, i,data); i++; });
         
     }
 
+    drawLocationButton(location, i,data) {
+            let name = "name unkown";
+            if(location.name != null)  name = location.name;
+            let navItem = document.createElement("div");
+            navItem.className = "flex flex-row navItem";
+            
+            
+            let navButton = document.createElement("button");
+            navButton.innerHTML = name;
+            navButton.addEventListener('click', () => { this.navigationController.setCurrentLocation(i); });
+
+            navButton.className = `navbutton bg-gray-200 p-3 pb-2 hover:bg-gray-500 hover:text-white flex flex-row`;
+                       
+            let deleteButton = document.createElement("button");
+            deleteButton.addEventListener('click', () => { if(confirm('Are you sure you want to delete this location?')) this.navigationController.deleteLocation(i); });
+            deleteButton.className = ` bg-red-500 hover:bg-red-800 hover:text-white pl-3 pr-3`;
+            deleteButton.innerHTML = `X`;
+
+            navItem.appendChild(navButton);
+            navItem.appendChild(deleteButton);
+            nav.appendChild(navItem);
+            
+    }
+
     clearNavigation() {
-        let elements = document.getElementsByClassName('navbutton');
+        let elements = document.getElementsByClassName('navItem');
         while(elements.length > 0){
             elements[0].parentNode.removeChild(elements[0]);
         }

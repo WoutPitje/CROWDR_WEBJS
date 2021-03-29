@@ -1,25 +1,36 @@
-import Location from "../Models/location"
+import Location from "../Models/Location"
 
 export default class NavigationController {
-    constructor(navigationView, data) {
+    constructor(mainController, data) {
         this.data = data;
-        this.navigationView = navigationView;
+        this.mainController = mainController;
+        this.navigationController = mainController.navigationController;
+        this.navigationView = mainController.navigationView;
+        this.mainGrid = this.data.getCurrentLocation().grid;
     }
 
     addLocation() {
-        this.data.addLocation(new Location());
-        localStorage.setItem('data', JSON.stringify(this.data));
+        this.data.addLocation(new Location({}));
+        this.data.setCurrentLocation(this.data.locations.length);
+        this.mainController.saveData();
 
         this.navigationView.refreshNavigation(this.data);
+        this.mainController.refreshLocationScreen();
 
     }
 
     deleteLocation(location) {
+        if(this.data.locations.length <= 1) {
+            alert('You can not delete all locations');
+            return;
+        }
         this.data.deleteLocation(location);
-        localStorage.setItem('data', JSON.stringify(this.data));
-
+        if(this.data.currentLocation == location) {
+            this.data.setCurrentLocation(1);
+        }
+        this.mainController.saveData();
         this.navigationView.refreshNavigation(this.data);
-        
+        this.mainController.refreshLocationScreen();
     }
 
     getData() {
@@ -28,5 +39,15 @@ export default class NavigationController {
 
     refreshNavigation() {
         this.navigationView.refreshNavigation(this.data);
+    }
+
+    setCurrentLocation(location) {
+        this.data.setCurrentLocation(location);
+        this.navigationView.refreshNavigation(this.data);
+        this.mainController.refreshLocationScreen();
+    }
+
+    getCurrentLocation() {
+        return this.data.currentLocation();
     }
 }

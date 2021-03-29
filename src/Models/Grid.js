@@ -2,57 +2,22 @@ import GridBlock from "../Models/GridBlock";
 
 export default class Grid {
     
-    constructor() {
+    constructor(grid) {
+
         this.array = [];
         for (var i = 0; i < 15; i++) {
             this.array[i] = [];
             for (var j = 0; j < 15; j++) {
-                this.array[i][j] = new GridBlock();
+                if(grid == null) {
+                    this.array[i][j] = new GridBlock({});
+                } else{
+                this.array[i][j] = new GridBlock(grid.array[i][j]);
+                }
             }
         }
     }
 
-    canPlace(x,y, type) {
-        switch (type) {
-            case "tent": return this.canPlaceTent(x,y);
-            case "drinkStand":return this.canPlaceDrinkStand(x,y);
-            case "foodStand": return this.canPlaceFoodStand(x,y);
-            case "toiletBuilding": return this.canPlaceToilets(x,y);
-            case "trashcan": return this.canPlaceTrashcans(x,y);
-            case "highTree": return this.canPlaceHighTrees(x,y);
-            case "wideTree": return this.canPlaceWideTrees(x,y);
-            case "shadowTree": return this.canPlaceShadowTrees(x,y);
-            case "default": return true;
-        }
-    }
-
-    placeItem(x,y,type) {
-        switch (type) {
-            case "tent": this.placeTent(x,y); break;
-            case "drinkStand": this.placeDrinkStand(x,y);break;
-            case "foodStand": this.placeFoodStand(x,y);break;
-            case "toiletBuilding": this.placeToilets(x,y);break;
-            case "trashcan": this.placeTrashcans(x,y);break;
-            case "highTree": this.placeHighTrees(x,y);break;
-            case "wideTree": this.placeWideTrees(x,y);break;
-            case "shadowTree": this.placeShadowTrees(x,y);break;
-        }
-
-        
-    }
-    deleteItem(x,y,type) {
-        switch (type) {
-            case "tent": this.deleteTent(x,y);
-            case "drinkStand": this.deleteDrinkStand(x,y);break;
-            case "foodStand": this.deleteFoodStand(x,y);break;
-            case "toiletBuilding": this.deleteToilets(x,y);break;
-            case "trashcan": this.deleteTrashcans(x,y);break;
-            case "highTree": this.deleteHighTrees(x,y);break;
-            case "wideTree": this.deleteWideTrees(x,y);break;
-            case "shadowTree": this.deleteShadowTrees(x,y);break;
-            
-        }
-    }
+    
 
     getItem(x,y) {
         return this.array[x][y].getFillType();
