@@ -138,62 +138,34 @@ export default class MainView {
     dropEvents(){
         const dropzones = document.querySelector('.dropzones');
 
-        let el = null;
-        let pastCoordinates = null;
-        let newNode = null;
-
+        let element = null;
+        let event = null;
+        function startEvent(e) {
+            element = e.target;
+        }
         document
             .querySelector('.draggable-items')
-            .addEventListener('dragstart', e => {
-            
-                el = e.target.cloneNode(true)            
-        });
+            .addEventListener('dragstart', startEvent, false);
 
         dropzones.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
 
         dropzones.addEventListener('drop', (e) => {
+            
             e.preventDefault();
 
-            let coordinates = e.target.id;
-
-            if(coordinates[0] != 'x'){
-                coordinates = e.target.parentNode.id;
-            }
-
-            if(!this.mainController.isGridFilled(coordinates)){
-
-                e.target.appendChild(el);
+                e.target.appendChild(element);
+                element.removeEventListener('dragstart', startEvent, false)
 
                 e.target.addEventListener('dragstart', e => {
             
-                    el = e.target.cloneNode(true)            
-                    newNode = el;
-                });
+                    
+                    element = e.target;            
+            });
+            
+        });       
 
-                if(el.hasAttribute('draggable')){
-                    el.removeAttribute('draggable');
-                    pastCoordinates = null;
-                }
-
-                if(pastCoordinates != null){
-
-                    this.mainController.setGridFill(pastCoordinates, false);
-                    let pastImage = document.getElementById(pastCoordinates);
-
-                    while (pastImage.firstChild) {
-                        pastImage.removeChild(pastImage.firstChild);
-                      }
-                }
-
-                pastCoordinates = coordinates;
-                this.mainController.setGridFill(coordinates, true);
-                this.mainController.updateGridImages(el.id);
-                let block = document.getElementById("imageList");
-                block.remove();
-                this.generateImages();
-            }
-        });
+        
     }
 } 
