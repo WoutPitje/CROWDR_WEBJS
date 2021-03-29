@@ -27,13 +27,28 @@ export default class GridController {
         return this.mainGrid.array[x][y].getFilled();
     }
 
-    setGridFill(coordinates, setFill){
+    setGridFill(coordinates, type){
 
         let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
         let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
+        
 
-        this.mainGrid.array[x][y].setFilled(setFill);
-        console.log(this.mainGrid.array[x][y]);
+        this.mainGrid.placeItem(x,y,type);
+    }
+
+    deleteGridFill(coordinates, type) {
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
+        
+
+        this.mainGrid.deleteItem(x,y,type);
+    }
+    getItem(x,y) {
+        return this.mainGrid.getItem(x,y);
     }
 
     updateGridImages(type){
