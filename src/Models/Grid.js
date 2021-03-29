@@ -13,7 +13,17 @@ export default class Grid {
     }
 
     canPlace(x,y, type) {
-        return false;
+        switch (type) {
+            case "tent": return this.canPlaceTent(x,y);
+            case "drinkStand":return this.canPlaceDrinkStand(x,y);
+            case "foodStand": return this.canPlaceFoodStand(x,y);
+            case "toiletBuilding": return this.canPlaceToilets(x,y);
+            case "trashcan": return this.canPlaceTrashcans(x,y);
+            case "highTree": return this.canPlaceHighTrees(x,y);
+            case "wideTree": return this.canPlaceWideTrees(x,y);
+            case "shadowTree": return this.canPlaceShadowTrees(x,y);
+            case "default": return true;
+        }
     }
 
     placeItem(x,y,type) {
@@ -59,17 +69,7 @@ export default class Grid {
         this.array[x][y].setFillType("tent");
     }
 
-    deleteTent(x,y) {
-        this.array[x-1][y-1].setFillType(null);
-        this.array[x][y-1].setFillType(null);
-        this.array[x+1][y-1].setFillType(null);
-        this.array[x-1][y].setFillType(null);
-        this.array[x+1][y].setFillType(null);
-        this.array[x-1][y+1].setFillType(null);
-        this.array[x][y+1].setFillType(null);
-        this.array[x+1][y+1].setFillType(null);
-        this.array[x][y].setFillType(null);
-    }
+    
 
     placeFoodStand(x,y) {
         this.array[x][y].setFillType("foodStand");
@@ -82,7 +82,7 @@ export default class Grid {
     placeToilets(x,y) {
         this.array[x][y-1].setFillType("toiletSurface");
         this.array[x][y+1].setFillType("toiletSurface");
-        this.array[x][y].setFillType("toiletStand");
+        this.array[x][y].setFillType("toilet");
     }
 
     placeHighTrees(x,y) {
@@ -109,6 +109,17 @@ export default class Grid {
 
     placeTrashcans( x,y) {
         this.array[x][y].setFillType("trashcan");
+    }
+    deleteTent(x,y) {
+        this.array[x-1][y-1].setFillType(null);
+        this.array[x][y-1].setFillType(null);
+        this.array[x+1][y-1].setFillType(null);
+        this.array[x-1][y].setFillType(null);
+        this.array[x+1][y].setFillType(null);
+        this.array[x-1][y+1].setFillType(null);
+        this.array[x][y+1].setFillType(null);
+        this.array[x+1][y+1].setFillType(null);
+        this.array[x][y].setFillType(null);
     }
     deleteFoodStand(x,y) {
         this.array[x][y].setFillType(null);
@@ -149,8 +160,92 @@ export default class Grid {
     deleteTrashcans( x,y) {
         this.array[x][y].setFillType(null);
     }
-    
-    
+    canPlaceTent(x,y) {
+        
+        if(x < 1 || y < 1 || x > 13 || y > 13) {
+            return false;
+        }
+        if(this.array[x-1][y-1].getFillType() != null || this.array[x][y-1].getFillType() != null || this.array[x+1][y-1].getFillType() != null) {
+            return false;
+        }
+        if(this.array[x-1][y].getFillType() != null || this.array[x+1][y].getFillType() != null || this.array[x-1][y+1].getFillType() != null) {
+            return false;
+        }
+        if(this.array[x][y+1].getFillType() != null || this.array[x+1][y+1].getFillType() != null || this.array[x][y].getFillType() != null) {
+            return false;
+
+        }
+        
+        return true;
+
+    }
+    canPlaceFoodStand(x,y) {
+        if(this.array[x][y].getFillType() != null) {
+            return false;
+        }
+        return true;
+    }
+
+    canPlaceDrinkStand(x,y) {
+        if(y < 1) {
+            return false;
+        }
+        if(this.array[x][y].getFillType() != null || this.array[x][y-1].getFillType() != null) {
+            return false;
+        }
+        return true;
+    }
+    canPlaceToilets(x,y) {
+        if(y < 1 || y > 13) {
+            return false;
+        }
+        if(this.array[x][y].getFillType() != null || this.array[x][y-1].getFillType() != null|| this.array[x][y+1].getFillType() != null) {
+            return false;
+        }
+        return true;
+    }
+
+    canPlaceHighTrees(x,y) {
+        if(this.array[x][y].getFillType() != null) {
+            return false;
+        }
+        return true;
+    }
+
+    canPlaceWideTrees(x,y) {
+        if(x > 13) {
+            return false;
+        }
+        if(this.array[x][y].getFillType() != null || this.array[x+1][y].getFillType() != null) {
+            return false;
+        }
+        return true;
+    }
+    canPlaceShadowTrees(x,y) {
+        if(x < 1 || y < 1 || x > 13 || y > 13) {
+            return false;
+        }
+        if(this.array[x-1][y-1].getFillType() != null || this.array[x][y-1].getFillType() != null || this.array[x+1][y-1].getFillType() != null) {
+            return false;
+        }
+        if(this.array[x-1][y].getFillType() != null || this.array[x+1][y].getFillType() != null || this.array[x-1][y+1].getFillType() != null) {
+            return false;
+        }
+        if(this.array[x][y+1].getFillType() != null || this.array[x+1][y+1].getFillType() != null || this.array[x][y].getFillType() != null) {
+            return false;
+
+        }
+        return true;
+    }
+
+    canPlaceTrashcans( x,y) {
+        if(this.array[x][y].getFillType() != null) {
+            return false;
+        }
+        return true;
+    }
+
+        
 
 
 }

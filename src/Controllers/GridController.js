@@ -19,27 +19,28 @@ export default class GridController {
         return data;
     }
 
-    isGridFilled(coordinates){
-
-        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
-        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
-
-        return this.mainGrid.array[x][y].getFilled();
-    }
-
-    setGridFill(coordinates, type){
-        
+    canPlace(coordinates, type) {
+        if(!coordinates.includes("x") && !coordinates.includes("y")) {
+            return false;
+        }
         let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
         let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
         x = parseInt(x);
         y = parseInt(y);
         
         let canPlace = this.mainGrid.canPlace(x,y,type);
-        if(canPlace) {
-            alert("You can't place this item right here");
-            return;
-        }
+        return canPlace;
+
+    }
+
+    setGridFill(coordinates, type){
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
+        
         this.mainGrid.placeItem(x,y,type);
+        
     }
 
     deleteGridFill(coordinates, type) {

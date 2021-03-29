@@ -1,9 +1,5 @@
 export default class MainView {
-    constructor() {
-       this.windowSize = 750;
-       this.gridSize = 15;
-       this.paneSize = this.windowSize / this.gridSize;
-    }
+    
 
     init(mainController, navigationController, stepController) {
         this.mainController = mainController;

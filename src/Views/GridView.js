@@ -49,14 +49,19 @@ export default class GridView {
                 let type = this.gridController.getItem(x,y);
                 console.log(type);
                 document.getElementById('x' + x + 'y' + y).style.backgroundColor = "white";
-                if(type == "tentSurface") {
+                if(type == "tentSurface" || type == "tent") {
                     document.getElementById('x' + x + 'y' + y).style.backgroundColor = "yellow";
-                } else if(type =="drinkStandSurface") {
+                } else if(type =="drinkStandSurface" || type == "drinkStand") {
                     document.getElementById('x' + x + 'y' + y).style.backgroundColor = "red";
-                } else if(type =="toiletSurface") {
+                } else if(type =="toiletSurface" || type == "toilet") {
                     document.getElementById('x' + x + 'y' + y).style.backgroundColor = "grey";
-                } else if(type =="highTreeSurface" || type =="wideTreeSurface" || type == "shadowTreeSurface") {
+                } else if(type =="highTreeSurface" || type =="wideTreeSurface" || type == "shadowTreeSurface" || type=="highTree" || type == "wideTree" || type=="shadowTree") {
                     document.getElementById('x' + x + 'y' + y).style.backgroundColor = "green";
+                } else if(type =="foodStand") {
+                    document.getElementById('x' + x + 'y' + y).style.backgroundColor = "brown";
+                }
+                 else if(type =="trashcan") {
+                document.getElementById('x' + x + 'y' + y).style.backgroundColor = "grey";
                 }
             }
         }
@@ -86,20 +91,28 @@ export default class GridView {
     } 
 
     generateImage(type, imageBlock, name, amount){
-
-        var image = document.createElement("img");
-        image.src = "../src/images/"+ type +".png";
-        image.id = type;
-        image.setAttribute('draggable', 'true');
-
+        let inputblock = document.createElement("div");
+        
+        inputblock.className = "mb-4 flex flex-col w-full";
+        let itemBlock = document.createElement("div");
+        itemBlock.className = "flex flex-row w-full";
+        for(let i =0;i<= amount;i++){
+            let image = document.createElement("img");
+            image.src = "../src/images/"+ type +".png";
+            image.id = type;
+            image.setAttribute('draggable', 'true');
+            itemBlock.appendChild(image);
+        }
+        
+        
         let amountInputLabel = document.createElement("label");
         amountInputLabel.htmlFor = 'amountInput';
         amountInputLabel.innerHTML = name + '=' + amount;
 
-        let inputblock = document.createElement("div");
-        inputblock.appendChild(image);
+        
+        
         inputblock.appendChild(amountInputLabel);
-        inputblock.className = "mb-4 flex flex-col w-full";
+        inputblock.appendChild(itemBlock);
 
         imageBlock.appendChild(inputblock);
     }
@@ -118,12 +131,14 @@ export default class GridView {
 
         dropzones.addEventListener('dragover', (e) => {
             e.preventDefault();
-            
+            if(element.parentNode.id != ""){
+                this.gridController.deleteGridFill(element.parentNode.id,element.id);
+                }
         }); 
 
         dropzones.addEventListener('drop', (e) => {
-            
-            e.preventDefault();
+            if(this.gridController.canPlace(e.target.id, element.id)) {
+                e.preventDefault();
                 if(element.parentNode.id != ""){
                 this.gridController.deleteGridFill(element.parentNode.id,element.id);
                 }
@@ -134,7 +149,14 @@ export default class GridView {
 
                 element.addEventListener('dragstart', startEvent);
                 this.drawGridItems();
-            e.stopImmediatePropagation()
+                e.stopImmediatePropagation()
+            } else {
+                alert("you cant place your item right here");
+                
+                this.gridController.setGridFill(e.target.id, element.id);
+                this.drawGridItems();
+                e.stopImmediatePropagation()
+            }
             
         });       
 
