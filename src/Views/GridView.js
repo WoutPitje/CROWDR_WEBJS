@@ -118,6 +118,7 @@ export default class GridView {
 
         dropzones.addEventListener('dragover', (e) => {
             e.preventDefault();
+            
         }); 
 
         dropzones.addEventListener('drop', (e) => {

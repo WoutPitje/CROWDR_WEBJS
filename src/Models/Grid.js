@@ -12,6 +12,10 @@ export default class Grid {
         }
     }
 
+    canPlace(x,y, type) {
+        return false;
+    }
+
     placeItem(x,y,type) {
         switch (type) {
             case "tent": this.placeTent(x,y); break;
@@ -29,6 +33,13 @@ export default class Grid {
     deleteItem(x,y,type) {
         switch (type) {
             case "tent": this.deleteTent(x,y);
+            case "drinkStand": this.deleteDrinkStand(x,y);break;
+            case "foodStand": this.deleteFoodStand(x,y);break;
+            case "toiletBuilding": this.deleteToilets(x,y);break;
+            case "trashcan": this.deleteTrashcans(x,y);break;
+            case "highTree": this.deleteHighTrees(x,y);break;
+            case "wideTree": this.deleteWideTrees(x,y);break;
+            case "shadowTree": this.deleteShadowTrees(x,y);break;
             
         }
     }
@@ -98,6 +109,45 @@ export default class Grid {
 
     placeTrashcans( x,y) {
         this.array[x][y].setFillType("trashcan");
+    }
+    deleteFoodStand(x,y) {
+        this.array[x][y].setFillType(null);
+    }
+
+    deleteDrinkStand(x,y) {
+        this.array[x][y-1].setFillType(null);
+        this.array[x][y].setFillType(null);
+    }
+    deleteToilets(x,y) {
+        this.array[x][y-1].setFillType(null);
+        this.array[x][y+1].setFillType(null);
+        this.array[x][y].setFillType(null);
+    }
+
+    deleteHighTrees(x,y) {
+        this.array[x][y].setFillType(null);
+        
+    }
+
+    deleteWideTrees(x,y) {
+        this.array[x][y].setFillType(null);
+        this.array[x+1][y].setFillType(null);
+        
+    }
+    deleteShadowTrees(x,y) {
+        this.array[x-1][y-1].setFillType(null);
+        this.array[x][y-1].setFillType(null);
+        this.array[x+1][y-1].setFillType(null);
+        this.array[x-1][y].setFillType(null);
+        this.array[x+1][y].setFillType(null);
+        this.array[x-1][y+1].setFillType(null);
+        this.array[x][y+1].setFillType(null);
+        this.array[x+1][y+1].setFillType(null);
+        this.array[x][y].setFillType(null);
+    }
+
+    deleteTrashcans( x,y) {
+        this.array[x][y].setFillType(null);
     }
     
     
