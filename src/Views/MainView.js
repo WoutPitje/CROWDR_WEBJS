@@ -12,7 +12,8 @@ export default class MainView {
 
         this.generateGrid();
         let step = stepController.setStep(1);
-        
+        this.generateImages();
+        this.dropEvents();
     }
 
     generateStep(data, step, location) {
@@ -46,22 +47,15 @@ export default class MainView {
 
         let inputblock2 = document.createElement("div");
 
-        
         let submitButton = document.createElement("button");
         submitButton.innerHTML = 'next step';
         submitButton.className = 'p-2 bg-green-500 hover:bg-green-800 hover:text-white w-full';
         
-       
-
-        
-
         inputblock1.className = "mb-5 flex flex-col";
         inputblock2.className = "mb-5 flex flex-col";
 
         inputblock2.appendChild(visitorsInputLabel);
         inputblock2.appendChild(visitorsInput);
-
-        
 
         block.appendChild(inputblock1);
         block.appendChild(inputblock2);
@@ -88,16 +82,118 @@ export default class MainView {
                     }
                     function addGridPane(x, y) {
                         const gridPane = document.createElement("div");
-                        gridPane.className =  `border gridpane absolute border border-black hover:bg-gray-400`;
+                        gridPane.className =  `border gridpane absolute border border-black hover:bg-gray-400 dropzone`;
                         gridPane.id = `x${x}y${y}`;
                         gridPane.style.left = `${x * paneSize}px`;
                         gridPane.style.top = `${y * paneSize}px`;
                         gridPane.style.height = `${paneSize}px`;
                         gridPane.style.width = `${paneSize}px`;
-                        gridPane.style.position = "absolute"
+                        gridPane.style.position = "absolute";
                         grid.appendChild(gridPane);
                     }
     }
    
-    
-}
+    generateImages() {
+        let block = document.getElementById("images_block");
+        block.className = 'h-full draggable-items';
+
+        let imageBlock = document.createElement("div");
+        imageBlock.className = "mb-5 flex flex-col";
+        imageBlock.id = "imageList"
+        imageBlock.setAttribute('draggable', 'true');
+        imageBlock.style.width = 50 + "px";
+        imageBlock.style.height = 50 + "px";
+
+        if(this.mainController.tenten > 0) this.generateImage('tent', imageBlock, 'Tenten', this.mainController.tenten);
+        if(this.mainController.drankkramen > 0)this.generateImage('drink', imageBlock, 'Drankkramen', this.mainController.drankkramen);
+        if(this.mainController.eetkramen > 0)this.generateImage('food', imageBlock, 'Eetkramen', this.mainController.eetkramen);
+        if(this.mainController.toiletten > 0)this.generateImage('toilet', imageBlock, 'Toiletten', this.mainController.toiletten);
+        if(this.mainController.bredebomen > 0)this.generateImage('bredeboom', imageBlock, 'Bredebomen', this.mainController.bredebomen);
+        if(this.mainController.hogebomen > 0)this.generateImage('hogeboom', imageBlock, 'Hogebomen', this.mainController.hogebomen);
+        if(this.mainController.prullenbakken > 0)this.generateImage('prullenbak', imageBlock, 'Prullenbakken', this.mainController.prullenbakken);
+        if(this.mainController.schaduwbomen > 0)this.generateImage('schaduwboom', imageBlock, 'Schaduwbomen', this.mainController.schaduwbomen);
+
+        block.appendChild(imageBlock);
+    } 
+
+    generateImage(type, imageBlock, name, amount){
+
+        var image = document.createElement("img");
+        image.src = "../src/images/"+ type +".png";
+        image.id = type;
+        image.setAttribute('draggable', 'true');
+
+        let amountInputLabel = document.createElement("label");
+        amountInputLabel.htmlFor = 'amountInput';
+        amountInputLabel.innerHTML = name + '=' + amount;
+
+        let inputblock = document.createElement("div");
+        inputblock.appendChild(image);
+        inputblock.appendChild(amountInputLabel);
+        inputblock.className = "mb-4 flex flex-col w-full";
+
+        imageBlock.appendChild(inputblock);
+    }
+
+    dropEvents(){
+        const dropzones = document.querySelector('.dropzones');
+
+        let el = null;
+        let pastCoordinates = null;
+        let newNode = null;
+
+        document
+            .querySelector('.draggable-items')
+            .addEventListener('dragstart', e => {
+            
+                el = e.target.cloneNode(true)            
+        });
+
+        dropzones.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        dropzones.addEventListener('drop', (e) => {
+            e.preventDefault();
+
+            let coordinates = e.target.id;
+
+            if(coordinates[0] != 'x'){
+                coordinates = e.target.parentNode.id;
+            }
+
+            if(!this.mainController.isGridFilled(coordinates)){
+
+                e.target.appendChild(el);
+
+                e.target.addEventListener('dragstart', e => {
+            
+                    el = e.target.cloneNode(true)            
+                    newNode = el;
+                });
+
+                if(el.hasAttribute('draggable')){
+                    el.removeAttribute('draggable');
+                    pastCoordinates = null;
+                }
+
+                if(pastCoordinates != null){
+
+                    this.mainController.setGridFill(pastCoordinates, false);
+                    let pastImage = document.getElementById(pastCoordinates);
+
+                    while (pastImage.firstChild) {
+                        pastImage.removeChild(pastImage.firstChild);
+                      }
+                }
+
+                pastCoordinates = coordinates;
+                this.mainController.setGridFill(coordinates, true);
+                this.mainController.updateGridImages(el.id);
+                let block = document.getElementById("imageList");
+                block.remove();
+                this.generateImages();
+            }
+        });
+    }
+} 

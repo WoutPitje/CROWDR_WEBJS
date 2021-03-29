@@ -1,33 +1,66 @@
+import Grid from "../Models/Grid"
+
 export default class MainController {
-    constructor(gridView, data) {
+    constructor(data) {
         this.data = data;
-        this.gridView = gridView;
+        this.mainGrid = new Grid();
+
+        this.tenten = 3;
+        this.eetkramen = 2;
+        this.drankkramen = 1;
+        this.toiletten = 4;
+        this.prullenbakken = 5;
+        this.hogebomen = 2;
+        this.bredebomen = 3;
+        this.schaduwbomen = 1;
     }
 
-    
     getData() {
         return data;
     }
 
-    generateGrid() {
-        function generateGrid() {
-            paneSize = 50;
-            let rows = 15;
-                        let cols = 15;
-                        for(let i = 0; i < rows; i++) {
-                            for(let j = 0; j < cols; j++) {
-                                addGridPane(j, i);
-                            }
-                        }
-                        function addGridPane(x, y) {
-                            const gridPane = document.createElement("div");
-                            gridPane.className =  `border gridpane absolute border border-black hover:bg-gray-400`;
-                            gridPane.id = `x${x}y${y}`;
-                            gridPane.style.left = `${x * paneSize}px`;
-                            gridPane.style.top = `${y * paneSize}px`;
-                            const grid = document.getElementById("grid");
-                            grid.appendChild(gridPane);
-                        }
+    isGridFilled(coordinates){
+
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+
+        return this.mainGrid.array[x][y].getFilled();
+    }
+
+    setGridFill(coordinates, setFill){
+
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+
+        this.mainGrid.array[x][y].setFilled(setFill);
+    }
+
+    updateGridImages(type){
+        switch(type){
+            case "tent":
+                this.tenten--;
+                break;
+            case "drink":
+                this.drankkramen--;
+                break;
+            case "food":
+                this.eetkramen--;
+                break;
+            case "toilet":
+                this.toiletten--;
+                break;
+            case "prullenbak":
+                this.prullenbakken--;
+                break;
+            case "hogeboom":
+                this.hogebomen--;
+                break;
+            case "bredeboom":
+                this.bredebomen--;
+                break;
+            case "schaduwboom":
+                this.schaduwbomen--;
+                break;
         }
     }
 }
