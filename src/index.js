@@ -6,6 +6,7 @@ import MainView from './Views/MainView.js'
 import NavigationView from './Views/NavigationView.js'
 
 import Data from './Models/Data.js'
+import StepView from './Views/StepView.js'
 
 let jsonString = localStorage.getItem('data');
 let dataobject = JSON.parse(jsonString);
@@ -18,13 +19,16 @@ localStorage.setItem('data', JSON.stringify(data));
 
 const mainView = new MainView();
 const navigationView = new NavigationView();
+const stepView = new StepView();
 
 const mainController = new MainController(mainView,data);
-const navigationController = new NavigationController(navigationView,data);
-const stepController = new StepController(mainView,data);
+const stepController = new StepController(stepView, navigationView, data);
+const navigationController = new NavigationController(navigationView, stepView, stepController, data);
+
 
 mainView.init(mainController, navigationController, stepController);
 navigationView.init(mainController, navigationController, stepController);
+stepView.init(mainView, navigationController, stepController )
 
 
 
