@@ -5,12 +5,12 @@ export default class StepController {
     }
 
     setStep(loc) {
-        let location = this.data.getLocation(loc);
+        // let location = this.data.getLocation(loc);
 
-        console.log(location);
+        // console.log(location);
 
-        if(location.name == null || locations.visitors == null) {
-            this.mainView.generateStep(this.data,1, location);
-        }
+        // if(location.name == null || locations.visitors == null) {
+        //     this.mainView.generateStep(this.data,1, location);
+        // }
     }
 }
