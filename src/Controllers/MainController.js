@@ -31,6 +31,7 @@ export default class MainController {
     }
 
     refreshLocationScreen() {
+        
         this.stepController.setStep();
         this.gridController.refreshGrid();
     }

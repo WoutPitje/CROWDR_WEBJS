@@ -6,7 +6,6 @@ export default class NavigationController {
         this.mainController = mainController;
         this.navigationController = mainController.navigationController;
         this.navigationView = mainController.navigationView;
-        this.mainGrid = this.data.getCurrentLocation().grid;
     }
 
     addLocation() {
@@ -31,10 +30,6 @@ export default class NavigationController {
         this.mainController.saveData();
         this.navigationView.refreshNavigation(this.data);
         this.mainController.refreshLocationScreen();
-    }
-
-    getData() {
-        return this.data;
     }
 
     refreshNavigation() {

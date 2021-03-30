@@ -18,6 +18,7 @@ export default class Data {
                 this.locations.push(new Location(element));
             });
             this.currentLocation = dataobject.currentLocation;
+            
         } else {
             this.locations = [new Location({})];
             this.currentLocation = 1;

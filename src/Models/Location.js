@@ -3,15 +3,23 @@ import Grid from './Grid.js'
 export default class Location {
 
     constructor(location) {
+        this.treesAreSet = false;
+        this.stepsAreSet = false;
+        
+        this.grid = new Grid(null);
+        if(typeof location.treesAreSet !== 'undefined') this.treesAreSet = location.treesAreSet;
+
+        if(typeof location.stepsAreSet !== 'undefined') this.stepsAreSet = location.stepsAreSet;
+        
         if(typeof location.name !== 'undefined') this.name = location.name;
         
         if(typeof location.visitors !== 'undefined') this.visitors = location.visitors;
 
         if(typeof location.tents !== 'undefined') this.tents = location.tents;
 
-        if(typeof location.eatingStalls !== 'undefined') this.eatingStalls = location.eatingStalls;
+        if(typeof location.eatingStands !== 'undefined') this.eatingStands = location.eatingStands;
 
-        if(typeof location.drinkStalls !== 'undefined') this.drinkStalls = location.drinkStalls;
+        if(typeof location.drinkStands !== 'undefined') this.drinkStands = location.drinkStands;
         
         if(typeof location.highTrees !== 'undefined') this.highTrees = location.highTrees;
  
@@ -23,12 +31,8 @@ export default class Location {
 
         if(typeof location.trashcans !== 'undefined') this.trashcans = location.trashcans;
 
+        if(typeof location.grid !== 'undefined') this.grid = new Grid(location.grid);
         
-        if(typeof location.grid !== 'undefined') {
-            this.grid = new Grid(location.grid);
-        } else {
-            this.grid = new Grid(null);
-        }
     
         
     }
@@ -49,8 +53,8 @@ export default class Location {
     placeItem(x,y,type) {
         switch (type) {
             case "tent": this.tents--;this.grid.placeTent(x,y); break;
-            case "drinkStand": this.drinkStalls--;this.grid.placeDrinkStand(x,y);break;
-            case "foodStand": this.eatingStalls--;this.grid.placeFoodStand(x,y);break;
+            case "drinkStand": this.drinkStands--;this.grid.placeDrinkStand(x,y);break;
+            case "foodStand": this.eatingStands--;this.grid.placeFoodStand(x,y);break;
             case "toilet":this.toiletBuildings--; this.grid.placeToilets(x,y);break;
             case "trashcan": this.trashcans--;this.grid.placeTrashcans(x,y);break;
             case "highTree":this.highTrees--; this.grid.placeHighTrees(x,y);break;
@@ -62,7 +66,7 @@ export default class Location {
     }
     deleteItem(x,y,type) {
         switch (type) {
-            case "tent": this.grid.deleteTent(x,y);
+            case "tent": this.grid.deleteTent(x,y); break;
             case "drinkStand": this.grid.deleteDrinkStand(x,y);break;
             case "foodStand": this.grid.deleteFoodStand(x,y);break;
             case "toilet": this.grid.deleteToilets(x,y);break;
@@ -73,6 +77,53 @@ export default class Location {
             
         }
     }
+
+    addItem(type) {
+        switch (type) {
+            case "tent": this.tents++; return;
+            case "drinkStand": this.drinkStands++; return;
+            case "foodStand": this.eatingStands++; return;
+            case "toilet":this.toiletBuildings++; return;
+            case "trashcan": this.trashcans++; return;
+            case "highTree":this.highTrees++; return;
+            case "wideTree": this.wideTrees++; return;
+            case "shadowTree": this.shadowTrees++; return;
+        }
+    }
+    setTrees() {
+        this.treesAreSet = true;
+        for(let i = 0; this.highTrees; i++) {
+            let x = Math.floor(Math.random() * (14 + 1)); 
+            let y = Math.floor(Math.random() * (14 + 1)); 
+            while(!this.canPlace(x,y,"highTree")) {
+                x = Math.floor(Math.random() * (14 + 1)); 
+                y = Math.floor(Math.random() * (14 + 1));
+            }
+            this.placeItem(x,y,"highTree");
+        }
+        for(let i = 0; this.wideTrees; i++) {
+            let x = Math.floor(Math.random() * (14 + 1)); 
+            let y = Math.floor(Math.random() * (14 + 1)); 
+            while(!this.canPlace(x,y,"wideTree")) {
+                x = Math.floor(Math.random() * (14 + 1)); 
+                y = Math.floor(Math.random() * (14 + 1));
+            }
+            this.placeItem(x,y,"wideTree");
+        }
+        for(let i = 0; this.shadowTrees; i++) {
+            let x = Math.floor(Math.random() * (14 + 1)); 
+            let y = Math.floor(Math.random() * (14 + 1)); 
+            while(!this.canPlace(x,y,"shadowTree")) {
+                x = Math.floor(Math.random() * (14 + 1)); 
+                y = Math.floor(Math.random() * (14 + 1));
+            }
+            this.placeItem(x,y,"shadowTree");
+        }
+    }
+    setStepsAreSet(boolean) {
+        this.stepsAreSet = boolean;
+    }
+    
     setName(name) {
         this.name = name;
     }
@@ -91,12 +142,12 @@ export default class Location {
         this.tents = tents;
     }
 
-    setAmountOfEatingStalls(stalls) {
-        this.eatingStalls = stalls;
+    setAmountOfEatingStands(stands) {
+        this.eatingStands = stands;
     }
 
-    setAmountOfDrinkStalls(stalls) {
-        this.drinkStalls = stalls;
+    setAmountOfDrinkStands(stands) {
+        this.drinkStands = stands;
     }
 
     setAmountOfHighTrees(trees) {
@@ -121,8 +172,8 @@ export default class Location {
     getAmountOfFieldsFilled() {
         let filled = 0;
         filled = this.tents * 9;
-        filled = filled + (this.eatingStalls);
-        filled = filled + (this.drinkStalls * 2);
+        filled = filled + (this.eatingStands);
+        filled = filled + (this.drinkStands * 2);
         filled = filled + (this.highTrees);
         filled = filled + (this.wideTrees * 2);
         filled = filled + (this.shadowTrees * 9);

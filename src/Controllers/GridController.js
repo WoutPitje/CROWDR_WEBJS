@@ -10,8 +10,13 @@ export default class GridController {
     }
 
     refreshGrid() {
+            console.log(this.data.getCurrentLocation().treesAreSet)
+            if(!this.data.getCurrentLocation().treesAreSet && this.data.getCurrentLocation().stepsAreSet) {
+                this.data.getCurrentLocation().setTrees();
+            }
             this.gridView.generateGrid();
             this.gridView.refresh(this.data);
+            this.mainController.saveData();
         }
     getData() {
         return data;
@@ -39,6 +44,7 @@ export default class GridController {
         
         let canPlace = this.data.getCurrentLocation().placeItem(x,y,type);
         this.mainController.saveData();
+       
         
     }
 
@@ -50,6 +56,15 @@ export default class GridController {
         
 
         let canPlace = this.data.getCurrentLocation().deleteItem(x,y,type);
+        this.mainController.saveData();
+        
+    }
+
+    dropBack(type) {
+        this.data.getCurrentLocation().addItem(type);
+        
+        this.mainController.saveData();
+        
     }
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);

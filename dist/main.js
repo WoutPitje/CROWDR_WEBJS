@@ -25,8 +25,13 @@ class GridController {
     }
 
     refreshGrid() {
+            console.log(this.data.getCurrentLocation().treesAreSet)
+            if(!this.data.getCurrentLocation().treesAreSet && this.data.getCurrentLocation().stepsAreSet) {
+                this.data.getCurrentLocation().setTrees();
+            }
             this.gridView.generateGrid();
             this.gridView.refresh(this.data);
+            this.mainController.saveData();
         }
     getData() {
         return data;
@@ -54,6 +59,7 @@ class GridController {
         
         let canPlace = this.data.getCurrentLocation().placeItem(x,y,type);
         this.mainController.saveData();
+       
         
     }
 
@@ -65,6 +71,15 @@ class GridController {
         
 
         let canPlace = this.data.getCurrentLocation().deleteItem(x,y,type);
+        this.mainController.saveData();
+        
+    }
+
+    dropBack(type) {
+        this.data.getCurrentLocation().addItem(type);
+        
+        this.mainController.saveData();
+        
     }
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);
@@ -152,6 +167,7 @@ class MainController {
     }
 
     refreshLocationScreen() {
+        
         this.stepController.setStep();
         this.gridController.refreshGrid();
     }
@@ -182,7 +198,6 @@ class NavigationController {
         this.mainController = mainController;
         this.navigationController = mainController.navigationController;
         this.navigationView = mainController.navigationView;
-        this.mainGrid = this.data.getCurrentLocation().grid;
     }
 
     addLocation() {
@@ -207,10 +222,6 @@ class NavigationController {
         this.mainController.saveData();
         this.navigationView.refreshNavigation(this.data);
         this.mainController.refreshLocationScreen();
-    }
-
-    getData() {
-        return this.data;
     }
 
     refreshNavigation() {
@@ -249,25 +260,22 @@ class StepController {
         this.mainController = mainController;
         this.stepController = mainController.stepController;
         this.stepView = mainController.stepView;
-        this.mainGrid = this.data.getCurrentLocation().grid;
     }
 
     
     setStep() {
         let location = this.data.getCurrentLocation();
-        if(typeof location !== 'undefined') {
-            this.stepView.generateStep1();
-        }
+        
         if(location.name == null || location.visitors == null) {
             this.stepView.generateStep1();
         }
         else if(location.tents == null) {
             this.stepView.generateStep2();
         }
-        else if(location.eatingStalls == null) {
+        else if(location.eatingStands == null) {
             this.stepView.generateStep3();
         }
-        else if(location.drinkStalls == null) {
+        else if(location.drinkStands == null) {
             this.stepView.generateStep4();
         }
         else if(location.highTrees == null) {
@@ -347,47 +355,47 @@ class StepController {
     }
 
     //post step3 
-    step3 (eatingStalls) {
+    step3 (eatingStands) {
         _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(eatingStalls.length <= 0) {
+        if(eatingStands.length <= 0) {
             _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
             return;
         }
-        eatingStalls = parseInt(eatingStalls);
-        let maxEatingStalls;
+        eatingStands = parseInt(eatingStands);
+        let maxEatingStands;
         if(this.data.getCurrentLocation().tents >= 1) {
-            maxEatingStalls = 3;
+            maxEatingStands = 3;
         } else {
-            maxEatingStalls = 6;
+            maxEatingStands = 6;
         }
-        if(eatingStalls > maxEatingStalls) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxEatingStalls + " eating stalls");
+        if(eatingStands > maxEatingStands) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
             return;
         }
-        this.data.getCurrentLocation().setAmountOfEatingStalls(eatingStalls);
+        this.data.getCurrentLocation().setAmountOfEatingStands(eatingStands);
         this.stepView.generateStep4();
         localStorage.setItem('data', JSON.stringify(this.data));
     }
 
     //post step4
-    step4 (drinkStalls) {
+    step4 (drinkStands) {
         _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(drinkStalls.length <= 0) {
+        if(drinkStands.length <= 0) {
             _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
             return;
         }
-        drinkStalls = parseInt(drinkStalls);
-        let maxdrinkStalls
+        drinkStands = parseInt(drinkStands);
+        let maxDrinkStands
         if(this.data.getCurrentLocation().tents >= 1) {
-            maxdrinkStalls = 2;
+            maxDrinkStands = 2;
         } else {
-            maxdrinkStalls = 4;
+            maxDrinkStands = 4;
         }
-        if(drinkStalls > maxdrinkStalls) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxdrinkStalls + " drink stalls");
+        if(drinkStands > maxDrinkStands) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
             return;
         }
-        this.data.getCurrentLocation().setAmountOfDrinkStalls(drinkStalls);
+        this.data.getCurrentLocation().setAmountOfDrinkStands(drinkStands);
         this.stepView.generateStep5();
         localStorage.setItem('data', JSON.stringify(this.data));
         
@@ -468,7 +476,7 @@ class StepController {
         }
 
         this.data.getCurrentLocation().setAmountOfTrashCans(trashcans);
-
+        this.data.getCurrentLocation().setStepsAreSet(true);
         localStorage.setItem('data', JSON.stringify(this.data));
         this.stepView.generateFinal();
         this.mainController.refreshLocationScreen();
@@ -508,6 +516,7 @@ class Data {
                 this.locations.push(new _Location__WEBPACK_IMPORTED_MODULE_0__.default(element));
             });
             this.currentLocation = dataobject.currentLocation;
+            
         } else {
             this.locations = [new _Location__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
@@ -827,15 +836,23 @@ __webpack_require__.r(__webpack_exports__);
 class Location {
 
     constructor(location) {
+        this.treesAreSet = false;
+        this.stepsAreSet = false;
+        
+        this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(null);
+        if(typeof location.treesAreSet !== 'undefined') this.treesAreSet = location.treesAreSet;
+
+        if(typeof location.stepsAreSet !== 'undefined') this.stepsAreSet = location.stepsAreSet;
+        
         if(typeof location.name !== 'undefined') this.name = location.name;
         
         if(typeof location.visitors !== 'undefined') this.visitors = location.visitors;
 
         if(typeof location.tents !== 'undefined') this.tents = location.tents;
 
-        if(typeof location.eatingStalls !== 'undefined') this.eatingStalls = location.eatingStalls;
+        if(typeof location.eatingStands !== 'undefined') this.eatingStands = location.eatingStands;
 
-        if(typeof location.drinkStalls !== 'undefined') this.drinkStalls = location.drinkStalls;
+        if(typeof location.drinkStands !== 'undefined') this.drinkStands = location.drinkStands;
         
         if(typeof location.highTrees !== 'undefined') this.highTrees = location.highTrees;
  
@@ -847,12 +864,8 @@ class Location {
 
         if(typeof location.trashcans !== 'undefined') this.trashcans = location.trashcans;
 
+        if(typeof location.grid !== 'undefined') this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(location.grid);
         
-        if(typeof location.grid !== 'undefined') {
-            this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(location.grid);
-        } else {
-            this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(null);
-        }
     
         
     }
@@ -873,8 +886,8 @@ class Location {
     placeItem(x,y,type) {
         switch (type) {
             case "tent": this.tents--;this.grid.placeTent(x,y); break;
-            case "drinkStand": this.drinkStalls--;this.grid.placeDrinkStand(x,y);break;
-            case "foodStand": this.eatingStalls--;this.grid.placeFoodStand(x,y);break;
+            case "drinkStand": this.drinkStands--;this.grid.placeDrinkStand(x,y);break;
+            case "foodStand": this.eatingStands--;this.grid.placeFoodStand(x,y);break;
             case "toilet":this.toiletBuildings--; this.grid.placeToilets(x,y);break;
             case "trashcan": this.trashcans--;this.grid.placeTrashcans(x,y);break;
             case "highTree":this.highTrees--; this.grid.placeHighTrees(x,y);break;
@@ -886,7 +899,7 @@ class Location {
     }
     deleteItem(x,y,type) {
         switch (type) {
-            case "tent": this.grid.deleteTent(x,y);
+            case "tent": this.grid.deleteTent(x,y); break;
             case "drinkStand": this.grid.deleteDrinkStand(x,y);break;
             case "foodStand": this.grid.deleteFoodStand(x,y);break;
             case "toilet": this.grid.deleteToilets(x,y);break;
@@ -897,6 +910,53 @@ class Location {
             
         }
     }
+
+    addItem(type) {
+        switch (type) {
+            case "tent": this.tents++; return;
+            case "drinkStand": this.drinkStands++; return;
+            case "foodStand": this.eatingStands++; return;
+            case "toilet":this.toiletBuildings++; return;
+            case "trashcan": this.trashcans++; return;
+            case "highTree":this.highTrees++; return;
+            case "wideTree": this.wideTrees++; return;
+            case "shadowTree": this.shadowTrees++; return;
+        }
+    }
+    setTrees() {
+        this.treesAreSet = true;
+        for(let i = 0; this.highTrees; i++) {
+            let x = Math.floor(Math.random() * (14 + 1)); 
+            let y = Math.floor(Math.random() * (14 + 1)); 
+            while(!this.canPlace(x,y,"highTree")) {
+                x = Math.floor(Math.random() * (14 + 1)); 
+                y = Math.floor(Math.random() * (14 + 1));
+            }
+            this.placeItem(x,y,"highTree");
+        }
+        for(let i = 0; this.wideTrees; i++) {
+            let x = Math.floor(Math.random() * (14 + 1)); 
+            let y = Math.floor(Math.random() * (14 + 1)); 
+            while(!this.canPlace(x,y,"wideTree")) {
+                x = Math.floor(Math.random() * (14 + 1)); 
+                y = Math.floor(Math.random() * (14 + 1));
+            }
+            this.placeItem(x,y,"wideTree");
+        }
+        for(let i = 0; this.shadowTrees; i++) {
+            let x = Math.floor(Math.random() * (14 + 1)); 
+            let y = Math.floor(Math.random() * (14 + 1)); 
+            while(!this.canPlace(x,y,"shadowTree")) {
+                x = Math.floor(Math.random() * (14 + 1)); 
+                y = Math.floor(Math.random() * (14 + 1));
+            }
+            this.placeItem(x,y,"shadowTree");
+        }
+    }
+    setStepsAreSet(boolean) {
+        this.stepsAreSet = boolean;
+    }
+    
     setName(name) {
         this.name = name;
     }
@@ -915,12 +975,12 @@ class Location {
         this.tents = tents;
     }
 
-    setAmountOfEatingStalls(stalls) {
-        this.eatingStalls = stalls;
+    setAmountOfEatingStands(stands) {
+        this.eatingStands = stands;
     }
 
-    setAmountOfDrinkStalls(stalls) {
-        this.drinkStalls = stalls;
+    setAmountOfDrinkStands(stands) {
+        this.drinkStands = stands;
     }
 
     setAmountOfHighTrees(trees) {
@@ -945,8 +1005,8 @@ class Location {
     getAmountOfFieldsFilled() {
         let filled = 0;
         filled = this.tents * 9;
-        filled = filled + (this.eatingStalls);
-        filled = filled + (this.drinkStalls * 2);
+        filled = filled + (this.eatingStands);
+        filled = filled + (this.drinkStands * 2);
         filled = filled + (this.highTrees);
         filled = filled + (this.wideTrees * 2);
         filled = filled + (this.shadowTrees * 9);
@@ -984,7 +1044,7 @@ class GridView {
     }
 
     refresh(data) {
-        
+       
         this.drawGridItems();
         this.generateImages(data);
         this.dropEvents();
@@ -1022,11 +1082,15 @@ class GridView {
                         gridPane.style.position = "absolute";
                         grid.appendChild(gridPane);
                         let item = this.gridController.getItem(x,y);
-                        console.log(item);
-                        if(item == "tent" || item == "drinkStand" || item == "toilet" || item == "wideTree" || item == "highTree" || item == "shadowTree" || item == "foodStand" || item == "trashcan") {
+                        if(item == "tent" || item == "drinkStand" || item == "toilet" || item == "foodStand" || item == "trashcan") {
+                            let image = this.getImageBlock(item);
+                           
+                            gridPane.insertBefore(image, gridPane.firstChild);
+                        }
+                        if( item == "wideTree" || item == "highTree" || item == "shadowTree" ) {
                             let image = this.getImageBlock(item);
                             
-                            gridPane.appendChild(image);
+                            gridPane.insertBefore(image, gridPane.firstChild);
                         }
                         }
                     }
@@ -1059,50 +1123,26 @@ class GridView {
    
     generateImages(data) {
         let block = document.getElementById("images_block");
-        block.className = 'h-full';
 
         while (block.firstChild) {
             block.removeChild(block.firstChild);
         }
-
-        let imageBlock = document.createElement("div");
-        imageBlock.className = "mb-5 flex flex-col";
-        imageBlock.id = "imageList"
-        imageBlock.setAttribute('draggable', 'true');
-        imageBlock.style.width = 50 + "px";
-        imageBlock.style.height = 50 + "px";
-
-        this.generateImage('tent', imageBlock, 'Tenten', data.getCurrentLocation().tents);
-        this.generateImage('drinkStand', imageBlock, 'Drankkramen', data.getCurrentLocation().eatingStalls);
-        this.generateImage('foodStand', imageBlock, 'Eetkramen', data.getCurrentLocation().drinkStalls);
-       this.generateImage('toilet', imageBlock, 'Toiletten', data.getCurrentLocation().toiletBuildings);
-        this.generateImage('wideTree', imageBlock, 'Bredebomen', data.getCurrentLocation().wideTrees);
-        this.generateImage('highTree', imageBlock, 'Hogebomen', data.getCurrentLocation().highTrees);
-        this.generateImage('trashcan', imageBlock, 'Prullenbakken', data.getCurrentLocation().trashcans);
-       this.generateImage('shadowTree', imageBlock, 'Schaduwbomen', data.getCurrentLocation().shadowTrees);
-
-        block.appendChild(imageBlock);
+        this.generateImage('tent', data.getCurrentLocation().tents, block);
+        this.generateImage('foodStand',  data.getCurrentLocation().eatingStands, block);
+        this.generateImage('drinkStand',  data.getCurrentLocation().drinkStands, block);
+        this.generateImage('toilet',  data.getCurrentLocation().toiletBuildings, block);
+        this.generateImage('trashcan',  data.getCurrentLocation().trashcans, block);
     } 
 
-    generateImage(type, imageBlock, name, amount){
-        let inputblock = document.createElement("div");
+    generateImage(type, amount, parent){
         
-        inputblock.className = "mb-4 flex flex-col w-full";
-        let itemBlock = document.createElement("div");
-        itemBlock.className = "flex flex-row w-full";
         for(let i =0;i< amount;i++){
             let image = this.getImageBlock(type);
-            itemBlock.appendChild(image);
+            image.style.width = "50px";
+            image.style.height = "50px";
+            parent.appendChild(image);
         }
         
-        let amountInputLabel = document.createElement("label");
-        amountInputLabel.htmlFor = 'amountInput';
-        amountInputLabel.innerHTML = name;
-
-        inputblock.appendChild(amountInputLabel);
-        inputblock.appendChild(itemBlock);
-
-        imageBlock.appendChild(inputblock);
     }
 
     getImageBlock(type) {
@@ -1115,58 +1155,95 @@ class GridView {
     }
 
     dropEvents(){
-        const draggableItems = document.getElementsByClassName('draggable-item');
-        const dropzones = document.querySelector('.dropzones');
+        let draggableItems = document.getElementsByClassName('draggable-item');
+        let dropzones = document.getElementsByClassName('dropzone');
         
-        let element = null;
-        let oldelement = null;
+        
+        let element;
+        
         
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
+                
             });
         }
         
+        for(let i = 0; i < dropzones.length; i++) {
+            dropzones[i].addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if(element.parentNode.classList.contains("dropzone")) {
+                    this.gridController.deleteGridFill(element.parentNode.id, element.id);
+                    
+                }
+            }); 
+    
+            dropzones[i].addEventListener('drop', (e) => {
+                if(this.gridController.canPlace(e.target.id, element.id)) {
+                    e.preventDefault();
+                    
+                    e.target.insertBefore(element, e.target.firstChild);
+                    
+                    this.gridController.setGridFill(e.target.id, element.id);
+                    
+                    
+    
+                    element.addEventListener('dragstart',  (e) => {
+                        element = e.target;
+                    });
+                    
+                    e.stopImmediatePropagation();
+                } else {
+                    alert("you cant place your item right here");
+                    if(element.parentNode.classList.contains("dropzone")) {
+                        this.gridController.setGridFill(element.parentNode.id, element.id);
+                    }
+                   
+                    
+                }
+                this.drawGridItems();
+               
+            });       
+    
+            
+        }
         
-
-        dropzones.addEventListener('dragover', (e) => {
+        let dropbackzone = document.querySelector('#dropbackzone');
+        dropbackzone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            oldelement = element.parentNode;
-            if(oldelement.id != ""){
-                this.gridController.deleteGridFill(oldelement.id,element.id);
-            }
+            
+            
             
         }); 
 
-        dropzones.addEventListener('drop', (e) => {
-           
-            
-           
-            
-            if(this.gridController.canPlace(e.target.id, element.id)) {
-                e.preventDefault();
-                
-                e.target.appendChild(element);
-                
-                this.gridController.setGridFill(e.target.id, element.id);
-                
+        dropbackzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
 
-                element.addEventListener('dragstart',  (e) => {
-                    element = e.target;
-                });
-                this.drawGridItems();
-                e.stopImmediatePropagation();
+            if(element.parentNode.classList.contains("dropzone")) {
+            
+                this.gridController.dropBack(element.id);
+                
+                let block = document.getElementById("images_block");
+                element.style.width = "50px";
+                element.style.height = "50px";
+                block.appendChild(element);   
             } else {
                 alert("you cant place your item right here");
-                if(oldelement.id != ""){
-                this.gridController.setGridFill(oldelement.id, element.id);
-                }
+                
+                    this.gridController.setGridFill(element.parentNode.id, element.id);
+                
+               
             }
+            this.drawGridItems();
+           
             
-        });       
+
+        })
+        }
+        
 
         
-    }
 }
 
 /***/ }),
