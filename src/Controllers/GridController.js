@@ -42,9 +42,8 @@ export default class GridController {
         x = parseInt(x);
         y = parseInt(y);
         
-        let canPlace = this.data.getCurrentLocation().placeItem(x,y,type);
+        this.data.getCurrentLocation().placeItem(x,y,type);
         this.mainController.saveData();
-       
         
     }
 
@@ -55,16 +54,25 @@ export default class GridController {
         y = parseInt(y);
         
 
-        let canPlace = this.data.getCurrentLocation().deleteItem(x,y,type);
+        this.data.getCurrentLocation().deleteItem(x,y,type);
         this.mainController.saveData();
+    }
+
+    moveItem(coordinates, type) {
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
         
+
+        this.data.getCurrentLocation().moveItem(x,y,type);
+        this.mainController.saveData();
     }
 
     dropBack(type) {
         this.data.getCurrentLocation().addItem(type);
-        
+        this.gridView.refresh(this.data);
         this.mainController.saveData();
-        
     }
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);

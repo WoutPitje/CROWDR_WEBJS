@@ -30,9 +30,9 @@ export default class Data {
         this.locations.push(location);
     }
     deleteLocation(location) {
-        if(location == this.currentLocation) {
+        
            this.currentLocation = 1;
-        }
+        
         this.locations.splice(location - 1,1)
     }
     getLocation(location) {

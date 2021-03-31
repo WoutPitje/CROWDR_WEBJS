@@ -57,9 +57,8 @@ class GridController {
         x = parseInt(x);
         y = parseInt(y);
         
-        let canPlace = this.data.getCurrentLocation().placeItem(x,y,type);
+        this.data.getCurrentLocation().placeItem(x,y,type);
         this.mainController.saveData();
-       
         
     }
 
@@ -70,16 +69,25 @@ class GridController {
         y = parseInt(y);
         
 
-        let canPlace = this.data.getCurrentLocation().deleteItem(x,y,type);
+        this.data.getCurrentLocation().deleteItem(x,y,type);
         this.mainController.saveData();
+    }
+
+    moveItem(coordinates, type) {
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
         
+
+        this.data.getCurrentLocation().moveItem(x,y,type);
+        this.mainController.saveData();
     }
 
     dropBack(type) {
         this.data.getCurrentLocation().addItem(type);
-        
+        this.gridView.refresh(this.data);
         this.mainController.saveData();
-        
     }
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);
@@ -167,7 +175,6 @@ class MainController {
     }
 
     refreshLocationScreen() {
-        
         this.stepController.setStep();
         this.gridController.refreshGrid();
     }
@@ -528,9 +535,9 @@ class Data {
         this.locations.push(location);
     }
     deleteLocation(location) {
-        if(location == this.currentLocation) {
+        
            this.currentLocation = 1;
-        }
+        
         this.locations.splice(location - 1,1)
     }
     getLocation(location) {
@@ -897,6 +904,20 @@ class Location {
 
         
     }
+    
+    moveItem(x,y,type) {
+        switch (type) {
+            case "tent": this.grid.placeTent(x,y); break;
+            case "drinkStand": this.grid.placeDrinkStand(x,y);break;
+            case "foodStand": this.grid.placeFoodStand(x,y);break;
+            case "toilet": this.grid.placeToilets(x,y);break;
+            case "trashcan": this.grid.placeTrashcans(x,y);break;
+            case "highTree": this.grid.placeHighTrees(x,y);break;
+            case "wideTree": this.grid.placeWideTrees(x,y);break;
+            case "shadowTree": this.grid.placeShadowTrees(x,y);break;
+        }
+    }
+    
     deleteItem(x,y,type) {
         switch (type) {
             case "tent": this.grid.deleteTent(x,y); break;
@@ -1031,6 +1052,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ GridView)
 /* harmony export */ });
+/* harmony import */ var _Helper_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper.js */ "./src/Views/Helper.js");
+
+
 class GridView {
     
     constructor() {
@@ -1044,11 +1068,39 @@ class GridView {
     }
 
     refresh(data) {
-       
+        this.generateRightSide();
+        this.generateGrid();
         this.drawGridItems();
         this.generateImages(data);
         this.dropEvents();
         
+    }
+
+    generateRightSide() {
+        let block = document.getElementById("right-side")
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let itemLegenda = document.createElement("div");
+        itemLegenda.className = "w-full  flex flex-row flex-wrap";
+        itemLegenda.id = "images_block";
+
+        let div = document.createElement("div");
+        div.className = "h-2/5 w-full flex flex-col";
+        let dropbackzone = document.createElement("div");
+        dropbackzone.className = "bg-gray-400 w-full h-full mb-5";
+        dropbackzone.id = "dropbackzone";
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div.appendChild(dropbackzone);
+        div.appendChild(runSimulation);
+
+        block.appendChild(itemLegenda);
+        block.appendChild(div);
     }
 
 
@@ -1084,12 +1136,12 @@ class GridView {
                         let item = this.gridController.getItem(x,y);
                         if(item == "tent" || item == "drinkStand" || item == "toilet" || item == "foodStand" || item == "trashcan") {
                             let image = this.getImageBlock(item);
-                           
+                            
                             gridPane.insertBefore(image, gridPane.firstChild);
                         }
                         if( item == "wideTree" || item == "highTree" || item == "shadowTree" ) {
                             let image = this.getImageBlock(item);
-                            
+                            image.setAttribute('draggable', false);
                             gridPane.insertBefore(image, gridPane.firstChild);
                         }
                         }
@@ -1127,6 +1179,7 @@ class GridView {
         while (block.firstChild) {
             block.removeChild(block.firstChild);
         }
+        
         this.generateImage('tent', data.getCurrentLocation().tents, block);
         this.generateImage('foodStand',  data.getCurrentLocation().eatingStands, block);
         this.generateImage('drinkStand',  data.getCurrentLocation().drinkStands, block);
@@ -1157,6 +1210,7 @@ class GridView {
     dropEvents(){
         let draggableItems = document.getElementsByClassName('draggable-item');
         let dropzones = document.getElementsByClassName('dropzone');
+        let inventoryItems = document.getElementsByClassName('inventory-item');
         
         
         let element;
@@ -1165,7 +1219,6 @@ class GridView {
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
-                
             });
         }
         
@@ -1181,64 +1234,40 @@ class GridView {
             dropzones[i].addEventListener('drop', (e) => {
                 if(this.gridController.canPlace(e.target.id, element.id)) {
                     e.preventDefault();
-                    
-                    e.target.insertBefore(element, e.target.firstChild);
-                    
-                    this.gridController.setGridFill(e.target.id, element.id);
-                    
-                    
-    
-                    element.addEventListener('dragstart',  (e) => {
-                        element = e.target;
-                    });
-                    
+                    if(element.parentNode.classList.contains('dropzone')) {
+                        this.gridController.moveItem(e.target.id, element.id);  
+                    } else {
+                        this.gridController.setGridFill(e.target.id, element.id);            
+                    }        
                     e.stopImmediatePropagation();
                 } else {
                     alert("you cant place your item right here");
                     if(element.parentNode.classList.contains("dropzone")) {
-                        this.gridController.setGridFill(element.parentNode.id, element.id);
+                        this.gridController.moveItem(element.parentNode.id, element.id);
                     }
-                   
-                    
                 }
-                this.drawGridItems();
+                this.gridController.refreshGrid();
+                
                
             });       
-    
-            
         }
         
         let dropbackzone = document.querySelector('#dropbackzone');
         dropbackzone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            
-            
-            
         }); 
 
         dropbackzone.addEventListener('drop', (e) => {
             e.preventDefault();
             e.stopImmediatePropagation();
-
             if(element.parentNode.classList.contains("dropzone")) {
-            
                 this.gridController.dropBack(element.id);
                 
-                let block = document.getElementById("images_block");
-                element.style.width = "50px";
-                element.style.height = "50px";
-                block.appendChild(element);   
             } else {
                 alert("you cant place your item right here");
-                
-                    this.gridController.setGridFill(element.parentNode.id, element.id);
-                
-               
+                this.gridController.setGridFill(element.parentNode.id, element.id);
             }
-            this.drawGridItems();
-           
-            
-
+            this.gridController.refreshGrid();
         })
         }
         

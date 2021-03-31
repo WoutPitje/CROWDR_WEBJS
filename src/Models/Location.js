@@ -64,6 +64,20 @@ export default class Location {
 
         
     }
+    
+    moveItem(x,y,type) {
+        switch (type) {
+            case "tent": this.grid.placeTent(x,y); break;
+            case "drinkStand": this.grid.placeDrinkStand(x,y);break;
+            case "foodStand": this.grid.placeFoodStand(x,y);break;
+            case "toilet": this.grid.placeToilets(x,y);break;
+            case "trashcan": this.grid.placeTrashcans(x,y);break;
+            case "highTree": this.grid.placeHighTrees(x,y);break;
+            case "wideTree": this.grid.placeWideTrees(x,y);break;
+            case "shadowTree": this.grid.placeShadowTrees(x,y);break;
+        }
+    }
+    
     deleteItem(x,y,type) {
         switch (type) {
             case "tent": this.grid.deleteTent(x,y); break;
