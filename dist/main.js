@@ -86,7 +86,6 @@ class GridController {
 
     dropBack(type) {
         this.data.getCurrentLocation().addItem(type);
-        this.gridView.refresh(this.data);
         this.mainController.saveData();
     }
     getItem(x,y) {
@@ -528,6 +527,7 @@ class Data {
             this.locations = [new _Location__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
         }
+        this.peopleInLine = [];
         
     }
 
@@ -552,6 +552,12 @@ class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new _Location__WEBPACK_IMPORTED_MODULE_0__.default({});
+    }
+    setOpenWaitingLines(lines) {
+        this.openWaitingLines = lines;
+    }
+    addWaitingGroup(waitingGroup) {
+        this.peopleInLine.push(waitingGroup);
     }
 }
 
@@ -800,26 +806,13 @@ __webpack_require__.r(__webpack_exports__);
 class GridBlock {
     
     constructor(gridblock) {
-        this.fillType =null;
-        this.isFilled =null;
-        if(typeof gridblock.isFilled !== 'undefined') this.isFilled = gridblock.isFilled;
+        this.fillType = null;
+        
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
     }
-
-  
-    setFilled(newIsFilled) {
-        this.isFilled = newIsFilled;
-       
-    }
-
-    getFilled() {
-        return this.isFilled;
-    }
-
     setFillType(newFillType) {
         this.fillType = newFillType;
     }
-
     getFillType() {
         return this.fillType;
     }
@@ -928,7 +921,6 @@ class Location {
             case "highTree": this.grid.deleteHighTrees(x,y);break;
             case "wideTree": this.grid.deleteWideTrees(x,y);break;
             case "shadowTree": this.grid.deleteShadowTrees(x,y);break;
-            
         }
     }
 
@@ -1109,8 +1101,6 @@ class GridView {
         let windowSize = this.windowSize;
         console.log(paneSize);
 
-       
-
         const grid = document.getElementById("grid");
                         grid.style.position = "relative";
                         grid.style.width = `${windowSize}px`;
@@ -1191,8 +1181,7 @@ class GridView {
         
         for(let i =0;i< amount;i++){
             let image = this.getImageBlock(type);
-            image.style.width = "50px";
-            image.style.height = "50px";
+            
             parent.appendChild(image);
         }
         
@@ -1204,21 +1193,21 @@ class GridView {
         image.id = type;
         image.setAttribute('draggable', 'true');
         image.className = "draggable-item";
+        image.style.width = "50px";
+        image.style.height = "50px";
         return image;
     }
 
     dropEvents(){
         let draggableItems = document.getElementsByClassName('draggable-item');
         let dropzones = document.getElementsByClassName('dropzone');
-        let inventoryItems = document.getElementsByClassName('inventory-item');
-        
         
         let element;
-        
         
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
+                
             });
         }
         
@@ -1238,8 +1227,8 @@ class GridView {
                         this.gridController.moveItem(e.target.id, element.id);  
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
-                    }        
-                    e.stopImmediatePropagation();
+                    } 
+                    // e.stopImmediatePropagation();
                 } else {
                     alert("you cant place your item right here");
                     if(element.parentNode.classList.contains("dropzone")) {
@@ -1252,20 +1241,18 @@ class GridView {
             });       
         }
         
-        let dropbackzone = document.querySelector('#dropbackzone');
+        let dropbackzone = document.getElementById('dropbackzone');
         dropbackzone.addEventListener('dragover', (e) => {
             e.preventDefault();
         }); 
 
         dropbackzone.addEventListener('drop', (e) => {
             e.preventDefault();
-            e.stopImmediatePropagation();
+            // e.stopImmediatePropagation();
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
-                
             } else {
                 alert("you cant place your item right here");
-                this.gridController.setGridFill(element.parentNode.id, element.id);
             }
             this.gridController.refreshGrid();
         })
@@ -1719,10 +1706,21 @@ localStorage.setItem('data', JSON.stringify(data));
 
 
 
-const mainController = new _Controllers_MainController_js__WEBPACK_IMPORTED_MODULE_0__.default(data);
+new _Controllers_MainController_js__WEBPACK_IMPORTED_MODULE_0__.default(data);
 
-
-
+// fetch("https://community-open-weather-map.p.rapidapi.com/weather?q=Wijchen%2Cnl&lat=0&lon=0&callback=test&id=2172797&lang=null&units=%22metric%22%20or%20%22imperial%22&mode=JSON", {
+// 	"method": "GET",
+// 	"headers": {
+// 		"x-rapidapi-key": "4ac4ef64ddmsh0525110e0560ae5p1be00fjsnb9cd1e0d5f28",
+// 		"x-rapidapi-host": "community-open-weather-map.p.rapidapi.com"
+// 	}
+// })
+// .then(response => {
+// 	console.log(response);
+// })
+// .catch(err => {
+// 	console.error(err);
+// });
 
 
 

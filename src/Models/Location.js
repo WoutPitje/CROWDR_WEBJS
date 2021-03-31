@@ -88,7 +88,6 @@ export default class Location {
             case "highTree": this.grid.deleteHighTrees(x,y);break;
             case "wideTree": this.grid.deleteWideTrees(x,y);break;
             case "shadowTree": this.grid.deleteShadowTrees(x,y);break;
-            
         }
     }
 

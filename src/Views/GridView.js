@@ -54,8 +54,6 @@ export default class GridView {
         let windowSize = this.windowSize;
         console.log(paneSize);
 
-       
-
         const grid = document.getElementById("grid");
                         grid.style.position = "relative";
                         grid.style.width = `${windowSize}px`;
@@ -136,8 +134,7 @@ export default class GridView {
         
         for(let i =0;i< amount;i++){
             let image = this.getImageBlock(type);
-            image.style.width = "50px";
-            image.style.height = "50px";
+            
             parent.appendChild(image);
         }
         
@@ -149,21 +146,21 @@ export default class GridView {
         image.id = type;
         image.setAttribute('draggable', 'true');
         image.className = "draggable-item";
+        image.style.width = "50px";
+        image.style.height = "50px";
         return image;
     }
 
     dropEvents(){
         let draggableItems = document.getElementsByClassName('draggable-item');
         let dropzones = document.getElementsByClassName('dropzone');
-        let inventoryItems = document.getElementsByClassName('inventory-item');
-        
         
         let element;
-        
         
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
+                
             });
         }
         
@@ -183,8 +180,8 @@ export default class GridView {
                         this.gridController.moveItem(e.target.id, element.id);  
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
-                    }        
-                    e.stopImmediatePropagation();
+                    } 
+                    // e.stopImmediatePropagation();
                 } else {
                     alert("you cant place your item right here");
                     if(element.parentNode.classList.contains("dropzone")) {
@@ -197,20 +194,18 @@ export default class GridView {
             });       
         }
         
-        let dropbackzone = document.querySelector('#dropbackzone');
+        let dropbackzone = document.getElementById('dropbackzone');
         dropbackzone.addEventListener('dragover', (e) => {
             e.preventDefault();
         }); 
 
         dropbackzone.addEventListener('drop', (e) => {
             e.preventDefault();
-            e.stopImmediatePropagation();
+            // e.stopImmediatePropagation();
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
-                
             } else {
                 alert("you cant place your item right here");
-                this.gridController.setGridFill(element.parentNode.id, element.id);
             }
             this.gridController.refreshGrid();
         })

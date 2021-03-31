@@ -23,6 +23,7 @@ export default class Data {
             this.locations = [new Location({})];
             this.currentLocation = 1;
         }
+        this.peopleInLine = [];
         
     }
 
@@ -47,5 +48,11 @@ export default class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new Location({});
+    }
+    setOpenWaitingLines(lines) {
+        this.openWaitingLines = lines;
+    }
+    addWaitingGroup(waitingGroup) {
+        this.peopleInLine.push(waitingGroup);
     }
 }

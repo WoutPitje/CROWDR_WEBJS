@@ -71,7 +71,6 @@ export default class GridController {
 
     dropBack(type) {
         this.data.getCurrentLocation().addItem(type);
-        this.gridView.refresh(this.data);
         this.mainController.saveData();
     }
     getItem(x,y) {
