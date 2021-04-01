@@ -12,22 +12,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ GridController)
 /* harmony export */ });
-/* harmony import */ var _Models_Grid_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/Grid.js */ "./src/Models/Grid.js");
-/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Models/Trashcan */ "./src/Models/Trashcan.js");
-/* harmony import */ var _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Models/EatingStand */ "./src/Models/EatingStand.js");
-/* harmony import */ var _Models_Tent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Models/Tent */ "./src/Models/Tent.js");
-
-
-
-
-
 class GridController {
     constructor(mainController, data) {
         this.data = data;
         this.mainController = mainController;
         this.gridController = mainController.gridController;
         this.gridView = mainController.gridView;
-        
     }
 
     refreshGrid() {
@@ -167,9 +157,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NavigationController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NavigationController.js */ "./src/Controllers/NavigationController.js");
 /* harmony import */ var _StepController_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./StepController.js */ "./src/Controllers/StepController.js");
 /* harmony import */ var _GridController_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GridController.js */ "./src/Controllers/GridController.js");
-/* harmony import */ var _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Views/NavigationView.js */ "./src/Views/NavigationView.js");
-/* harmony import */ var _Views_GridView_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Views/GridView.js */ "./src/Views/GridView.js");
-/* harmony import */ var _Views_StepView_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Views/StepView.js */ "./src/Views/StepView.js");
+/* harmony import */ var _SoundController_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SoundController.js */ "./src/Controllers/SoundController.js");
+/* harmony import */ var _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Views/NavigationView.js */ "./src/Views/NavigationView.js");
+/* harmony import */ var _Views_GridView_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Views/GridView.js */ "./src/Views/GridView.js");
+/* harmony import */ var _Views_StepView_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Views/StepView.js */ "./src/Views/StepView.js");
+
 
 
 
@@ -182,12 +174,13 @@ __webpack_require__.r(__webpack_exports__);
 class MainController {
     constructor(data) {
         this.data = data;
-        this.navigationView = new _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_3__.default();
-        this.stepView = new _Views_StepView_js__WEBPACK_IMPORTED_MODULE_5__.default();
-        this.gridView = new _Views_GridView_js__WEBPACK_IMPORTED_MODULE_4__.default();
+        this.navigationView = new _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_4__.default();
+        this.stepView = new _Views_StepView_js__WEBPACK_IMPORTED_MODULE_6__.default();
+        this.gridView = new _Views_GridView_js__WEBPACK_IMPORTED_MODULE_5__.default();
         
         this.gridController = new _GridController_js__WEBPACK_IMPORTED_MODULE_2__.default(this, data);
         this.stepController = new _StepController_js__WEBPACK_IMPORTED_MODULE_1__.default(this, data);
+        this.soundController = new _SoundController_js__WEBPACK_IMPORTED_MODULE_3__.default();
         this.navigationController = new _NavigationController_js__WEBPACK_IMPORTED_MODULE_0__.default(this, data);
 
         this.stepView.init(this.stepController);
@@ -276,6 +269,37 @@ class NavigationController {
 
     getCurrentLocation() {
         return this.data.currentLocation();
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Controllers/SoundController.js":
+/*!********************************************!*\
+  !*** ./src/Controllers/SoundController.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ SoundController)
+/* harmony export */ });
+/* harmony import */ var _Models_Sound_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/Sound.js */ "./src/Models/Sound.js");
+
+
+class SoundController {
+    constructor() {
+
+        this.selectSound = new _Models_Sound_js__WEBPACK_IMPORTED_MODULE_0__.default("../src/sounds/select-sound.mp3");
+        this.dropSound = new _Models_Sound_js__WEBPACK_IMPORTED_MODULE_0__.default("../src/sounds/drop-sound.mp3");
+    }
+
+    playSelectSound(){
+        this.selectSound.playSound();
+    }
+
+    playDropSound(){
+        this.dropSound.playSound();
     }
 }
 
@@ -631,12 +655,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class EatingStand {
     
-    constructor(gridblock) {
+    constructor() {
         this.maxVisitors = 15;
         this.standType = "general";
-        
-        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
-        //if(typeof gridblock.standType !== 'undefined') this.standType = gridblock.standType;
     }
     setMaxVisitors(newMaxVisitors) {
         this.maxVisitors = newMaxVisitors;
@@ -1214,6 +1235,38 @@ class WaitingLine {
 
 /***/ }),
 
+/***/ "./src/Models/Sound.js":
+/*!*****************************!*\
+  !*** ./src/Models/Sound.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Sound)
+/* harmony export */ });
+class Sound {
+    
+    constructor(src) {
+        this.sound = document.createElement("audio");
+        this.sound.src = src;
+        this.sound.setAttribute("preload", "auto");
+        this.sound.setAttribute("controls", "none");
+        this.sound.style.display = "none";
+        document.body.appendChild(this.sound);
+    }
+
+    playSound(){
+        this.sound.play();
+    }
+
+    pauseSound(){
+        this.sound.pause();
+    }
+}
+
+/***/ }),
+
 /***/ "./src/Models/Tent.js":
 /*!****************************!*\
   !*** ./src/Models/Tent.js ***!
@@ -1226,12 +1279,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class Tent {
     
-    constructor(gridblock) {
+    constructor() {
         this.maxVisitors = 5;
         this.openingTimes = "08:00";
-        
-        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
-        //if(typeof gridblock.openingTimes !== 'undefined') this.openingTimes = gridblock.openingTimes;
     }
     setMaxVisitors(newMaxVisitors) {
         this.maxVisitors = newMaxVisitors;
@@ -1264,12 +1314,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class Trashcan {
     
-    constructor(gridblock) {
+    constructor() {
         this.kiloCapacity = 5;
         this.emptyTime = "08:00";
-        
-        //if(typeof gridblock.kiloCapacity !== 'undefined') this.kiloCapacity = gridblock.kiloCapacity;
-        //if(typeof gridblock.emptyTime !== 'undefined') this.emptyTime = gridblock.emptyTime;
     }
     setKiloCapacity(newKiloCapacity) {
         this.kiloCapacity = newKiloCapacity;
@@ -1549,7 +1596,7 @@ class GridView {
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
-                
+                this.gridController.mainController.soundController.playSelectSound();
             });
         }
         
@@ -1558,7 +1605,6 @@ class GridView {
                 e.preventDefault();
                 if(element.parentNode.classList.contains("dropzone")) {
                     this.gridController.deleteGridFill(element.parentNode.id, element.id);
-                    
                 }
             }); 
     
@@ -1567,7 +1613,8 @@ class GridView {
                 if(this.gridController.canPlace(e.target.id, element.id)) {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
-                        this.gridController.moveItem(e.target.id, element.id);  
+                        this.gridController.moveItem(e.target.id, element.id);
+                        this.gridController.mainController.soundController.playDropSound();  
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
@@ -1579,7 +1626,6 @@ class GridView {
                         this.gridController.moveItem(element.parentNode.id, element.id);
                     }
                 }
-                
                 this.gridController.refreshGrid();
             });       
         }
@@ -1594,6 +1640,7 @@ class GridView {
             // e.stopImmediatePropagation();
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
+                this.gridController.mainController.soundController.playDropSound();
             } else {
                 alert("You can't place your item right here!");
             }

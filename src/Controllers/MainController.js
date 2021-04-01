@@ -1,6 +1,7 @@
 import NavigationController from './NavigationController.js'
 import StepController from './StepController.js'
 import GridController from './GridController.js'
+import SoundController from './SoundController.js'
 
 import NavigationView from '../Views/NavigationView.js'
 import GridView from '../Views/GridView.js'
@@ -16,6 +17,7 @@ export default class MainController {
         
         this.gridController = new GridController(this, data);
         this.stepController = new StepController(this, data);
+        this.soundController = new SoundController();
         this.navigationController = new NavigationController(this, data);
 
         this.stepView.init(this.stepController);

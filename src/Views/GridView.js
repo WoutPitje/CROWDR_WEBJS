@@ -246,7 +246,7 @@ export default class GridView {
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
-                
+                this.gridController.mainController.soundController.playSelectSound();
             });
         }
         
@@ -255,7 +255,6 @@ export default class GridView {
                 e.preventDefault();
                 if(element.parentNode.classList.contains("dropzone")) {
                     this.gridController.deleteGridFill(element.parentNode.id, element.id);
-                    
                 }
             }); 
     
@@ -264,7 +263,8 @@ export default class GridView {
                 if(this.gridController.canPlace(e.target.id, element.id)) {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
-                        this.gridController.moveItem(e.target.id, element.id);  
+                        this.gridController.moveItem(e.target.id, element.id);
+                        this.gridController.mainController.soundController.playDropSound();  
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
@@ -276,7 +276,6 @@ export default class GridView {
                         this.gridController.moveItem(element.parentNode.id, element.id);
                     }
                 }
-                
                 this.gridController.refreshGrid();
             });       
         }
@@ -291,6 +290,7 @@ export default class GridView {
             // e.stopImmediatePropagation();
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
+                this.gridController.mainController.soundController.playDropSound();
             } else {
                 alert("You can't place your item right here!");
             }

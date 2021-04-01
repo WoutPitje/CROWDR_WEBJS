@@ -286,12 +286,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class EatingStand {
     
-    constructor(gridblock) {
+    constructor() {
         this.maxVisitors = 15;
         this.standType = "general";
-        
-        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
-        //if(typeof gridblock.standType !== 'undefined') this.standType = gridblock.standType;
     }
     setMaxVisitors(newMaxVisitors) {
         this.maxVisitors = newMaxVisitors;
@@ -938,12 +935,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class Tent {
     
-    constructor(gridblock) {
+    constructor() {
         this.maxVisitors = 5;
         this.openingTimes = "08:00";
-        
-        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
-        //if(typeof gridblock.openingTimes !== 'undefined') this.openingTimes = gridblock.openingTimes;
     }
     setMaxVisitors(newMaxVisitors) {
         this.maxVisitors = newMaxVisitors;
@@ -976,12 +970,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class Trashcan {
     
-    constructor(gridblock) {
+    constructor() {
         this.kiloCapacity = 5;
         this.emptyTime = "08:00";
-        
-        //if(typeof gridblock.kiloCapacity !== 'undefined') this.kiloCapacity = gridblock.kiloCapacity;
-        //if(typeof gridblock.emptyTime !== 'undefined') this.emptyTime = gridblock.emptyTime;
     }
     setKiloCapacity(newKiloCapacity) {
         this.kiloCapacity = newKiloCapacity;

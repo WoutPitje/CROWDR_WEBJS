@@ -1,15 +1,9 @@
-import Grid from "../Models/Grid.js"
-import Trashcan from "../Models/Trashcan";
-import EatingStand from "../Models/EatingStand";
-import Tent from "../Models/Tent";
-
 export default class GridController {
     constructor(mainController, data) {
         this.data = data;
         this.mainController = mainController;
         this.gridController = mainController.gridController;
         this.gridView = mainController.gridView;
-        
     }
 
     refreshGrid() {
