@@ -275,6 +275,44 @@ class Data {
 
 /***/ }),
 
+/***/ "./src/Models/EatingStand.js":
+/*!***********************************!*\
+  !*** ./src/Models/EatingStand.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EatingStand)
+/* harmony export */ });
+class EatingStand {
+    
+    constructor(gridblock) {
+        this.maxVisitors = 15;
+        this.standType = "general";
+        
+        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
+        //if(typeof gridblock.standType !== 'undefined') this.standType = gridblock.standType;
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setStandType(newStandType) {
+        this.standType = newStandType;
+    }
+    
+    getStandType() {
+        return this.standType;
+    }
+}
+
+/***/ }),
+
 /***/ "./src/Models/Grid.js":
 /*!****************************!*\
   !*** ./src/Models/Grid.js ***!
@@ -286,6 +324,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Grid)
 /* harmony export */ });
 /* harmony import */ var _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/GridBlock */ "./src/Models/GridBlock.js");
+/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Models/Trashcan */ "./src/Models/Trashcan.js");
+/* harmony import */ var _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Models/EatingStand */ "./src/Models/EatingStand.js");
+/* harmony import */ var _Models_Tent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Models/Tent */ "./src/Models/Tent.js");
+
+
+
 
 
 class Grid {
@@ -310,6 +354,9 @@ class Grid {
     getItem(x,y) {
         return this.array[x][y].getFillType();
     }
+    getObject(x,y) {
+        return this.array[x][y].getObject();
+    }
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");
@@ -320,12 +367,18 @@ class Grid {
         this.array[x][y+1].setFillType("tentSurface");
         this.array[x+1][y+1].setFillType("tentSurface");
         this.array[x][y].setFillType("tent");
+
+        let tentObject = new _Models_Tent__WEBPACK_IMPORTED_MODULE_3__.default();
+        this.array[x][y].setObject(tentObject);
     }
 
     
 
     placeFoodStand(x,y) {
         this.array[x][y].setFillType("foodStand");
+
+        let eatingStandObject = new _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__.default();
+        this.array[x][y].setObject(eatingStandObject);
     }
 
     placeDrinkStand(x,y) {
@@ -362,6 +415,9 @@ class Grid {
 
     placeTrashcans( x,y) {
         this.array[x][y].setFillType("trashcan");
+
+        let trashcanObject = new _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__.default();
+        this.array[x][y].setObject(trashcanObject);
     }
     deleteTent(x,y) {
         this.array[x-1][y-1].setFillType(null);
@@ -373,9 +429,12 @@ class Grid {
         this.array[x][y+1].setFillType(null);
         this.array[x+1][y+1].setFillType(null);
         this.array[x][y].setFillType(null);
+        this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     deleteFoodStand(x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
 
     deleteDrinkStand(x,y) {
@@ -412,6 +471,7 @@ class Grid {
 
     deleteTrashcans( x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     canPlaceTent(x,y) {
         
@@ -519,14 +579,25 @@ class GridBlock {
     
     constructor(gridblock) {
         this.fillType = null;
+        this.object = null;
         
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
+        if(typeof gridblock.object !== 'undefined') this.object = gridblock.object;
     }
     setFillType(newFillType) {
         this.fillType = newFillType;
     }
+
     getFillType() {
         return this.fillType;
+    }
+
+    setObject(newObject) {
+        this.object = newObject;
+    }
+    
+    getObject() {
+        return this.object;
     }
 }
 
@@ -746,6 +817,10 @@ class Location {
         return this.grid.getItem(x,y);
     }
 
+    getObject(x,y) {
+        return this.grid.getObject(x,y);
+    }
+
     setRegionLocked(boolean){
         this.regionIsLocked = boolean;
     }
@@ -839,6 +914,82 @@ class WaitingLine {
     }
 }
 
+
+/***/ }),
+
+/***/ "./src/Models/Tent.js":
+/*!****************************!*\
+  !*** ./src/Models/Tent.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Tent)
+/* harmony export */ });
+class Tent {
+    
+    constructor(gridblock) {
+        this.maxVisitors = 5;
+        this.openingTimes = "08:00";
+        
+        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
+        //if(typeof gridblock.openingTimes !== 'undefined') this.openingTimes = gridblock.openingTimes;
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setOpeningTimes(newOpeningTimes) {
+        this.openingTimes = newOpeningTimes;
+    }
+    
+    getOpeningTimes() {
+        return this.openingTimes;
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Models/Trashcan.js":
+/*!********************************!*\
+  !*** ./src/Models/Trashcan.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Trashcan)
+/* harmony export */ });
+class Trashcan {
+    
+    constructor(gridblock) {
+        this.kiloCapacity = 5;
+        this.emptyTime = "08:00";
+        
+        //if(typeof gridblock.kiloCapacity !== 'undefined') this.kiloCapacity = gridblock.kiloCapacity;
+        //if(typeof gridblock.emptyTime !== 'undefined') this.emptyTime = gridblock.emptyTime;
+    }
+    setKiloCapacity(newKiloCapacity) {
+        this.kiloCapacity = newKiloCapacity;
+    }
+
+    getKiloCapacity() {
+        return this.kiloCapacity;
+    }
+
+    setEmptyTime(newEmptyTime) {
+        this.emptyTime = newEmptyTime;
+    }
+    
+    getEmptyTime() {
+        return this.emptyTime;
+    }
+}
 
 /***/ }),
 

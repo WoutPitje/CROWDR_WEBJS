@@ -13,6 +13,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ GridController)
 /* harmony export */ });
 /* harmony import */ var _Models_Grid_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/Grid.js */ "./src/Models/Grid.js");
+/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Models/Trashcan */ "./src/Models/Trashcan.js");
+/* harmony import */ var _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Models/EatingStand */ "./src/Models/EatingStand.js");
+/* harmony import */ var _Models_Tent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Models/Tent */ "./src/Models/Tent.js");
+
+
+
 
 
 class GridController {
@@ -96,6 +102,33 @@ class GridController {
 
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);
+    }
+
+    debugStats(coordinates){
+        console.log(coordinates);
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
+
+        let type = this.data.getCurrentLocation().getItem(x,y);
+        let obj = null; 
+
+        switch(type){
+            case "tent":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Opening Time', obj.openingTimes, 'time');
+                break;
+            case "foodStand":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Stand Type', obj.standType, 'text');
+                break;
+            case "trashcan":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                console.log(obj.emptyTime);
+                this.gridView.drawConfigOptions('Capacity (Kilos)', obj.kiloCapacity, 'number', 'Emptying Time', obj.emptyTime, 'time');
+                break;
+        }
     }
 
     getRegionLock(){
@@ -609,6 +642,44 @@ class Data {
 
 /***/ }),
 
+/***/ "./src/Models/EatingStand.js":
+/*!***********************************!*\
+  !*** ./src/Models/EatingStand.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EatingStand)
+/* harmony export */ });
+class EatingStand {
+    
+    constructor(gridblock) {
+        this.maxVisitors = 15;
+        this.standType = "general";
+        
+        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
+        //if(typeof gridblock.standType !== 'undefined') this.standType = gridblock.standType;
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setStandType(newStandType) {
+        this.standType = newStandType;
+    }
+    
+    getStandType() {
+        return this.standType;
+    }
+}
+
+/***/ }),
+
 /***/ "./src/Models/Grid.js":
 /*!****************************!*\
   !*** ./src/Models/Grid.js ***!
@@ -620,6 +691,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Grid)
 /* harmony export */ });
 /* harmony import */ var _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/GridBlock */ "./src/Models/GridBlock.js");
+/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Models/Trashcan */ "./src/Models/Trashcan.js");
+/* harmony import */ var _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Models/EatingStand */ "./src/Models/EatingStand.js");
+/* harmony import */ var _Models_Tent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Models/Tent */ "./src/Models/Tent.js");
+
+
+
 
 
 class Grid {
@@ -644,6 +721,9 @@ class Grid {
     getItem(x,y) {
         return this.array[x][y].getFillType();
     }
+    getObject(x,y) {
+        return this.array[x][y].getObject();
+    }
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");
@@ -654,12 +734,18 @@ class Grid {
         this.array[x][y+1].setFillType("tentSurface");
         this.array[x+1][y+1].setFillType("tentSurface");
         this.array[x][y].setFillType("tent");
+
+        let tentObject = new _Models_Tent__WEBPACK_IMPORTED_MODULE_3__.default();
+        this.array[x][y].setObject(tentObject);
     }
 
     
 
     placeFoodStand(x,y) {
         this.array[x][y].setFillType("foodStand");
+
+        let eatingStandObject = new _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__.default();
+        this.array[x][y].setObject(eatingStandObject);
     }
 
     placeDrinkStand(x,y) {
@@ -696,6 +782,9 @@ class Grid {
 
     placeTrashcans( x,y) {
         this.array[x][y].setFillType("trashcan");
+
+        let trashcanObject = new _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__.default();
+        this.array[x][y].setObject(trashcanObject);
     }
     deleteTent(x,y) {
         this.array[x-1][y-1].setFillType(null);
@@ -707,9 +796,12 @@ class Grid {
         this.array[x][y+1].setFillType(null);
         this.array[x+1][y+1].setFillType(null);
         this.array[x][y].setFillType(null);
+        this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     deleteFoodStand(x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
 
     deleteDrinkStand(x,y) {
@@ -746,6 +838,7 @@ class Grid {
 
     deleteTrashcans( x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     canPlaceTent(x,y) {
         
@@ -853,14 +946,25 @@ class GridBlock {
     
     constructor(gridblock) {
         this.fillType = null;
+        this.object = null;
         
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
+        if(typeof gridblock.object !== 'undefined') this.object = gridblock.object;
     }
     setFillType(newFillType) {
         this.fillType = newFillType;
     }
+
     getFillType() {
         return this.fillType;
+    }
+
+    setObject(newObject) {
+        this.object = newObject;
+    }
+    
+    getObject() {
+        return this.object;
     }
 }
 
@@ -1080,6 +1184,10 @@ class Location {
         return this.grid.getItem(x,y);
     }
 
+    getObject(x,y) {
+        return this.grid.getObject(x,y);
+    }
+
     setRegionLocked(boolean){
         this.regionIsLocked = boolean;
     }
@@ -1116,6 +1224,82 @@ class WaitingLine {
     }
 }
 
+
+/***/ }),
+
+/***/ "./src/Models/Tent.js":
+/*!****************************!*\
+  !*** ./src/Models/Tent.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Tent)
+/* harmony export */ });
+class Tent {
+    
+    constructor(gridblock) {
+        this.maxVisitors = 5;
+        this.openingTimes = "08:00";
+        
+        //if(typeof gridblock.maxVisitors !== 'undefined') this.maxVisitors = gridblock.maxVisitors;
+        //if(typeof gridblock.openingTimes !== 'undefined') this.openingTimes = gridblock.openingTimes;
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setOpeningTimes(newOpeningTimes) {
+        this.openingTimes = newOpeningTimes;
+    }
+    
+    getOpeningTimes() {
+        return this.openingTimes;
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Models/Trashcan.js":
+/*!********************************!*\
+  !*** ./src/Models/Trashcan.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Trashcan)
+/* harmony export */ });
+class Trashcan {
+    
+    constructor(gridblock) {
+        this.kiloCapacity = 5;
+        this.emptyTime = "08:00";
+        
+        //if(typeof gridblock.kiloCapacity !== 'undefined') this.kiloCapacity = gridblock.kiloCapacity;
+        //if(typeof gridblock.emptyTime !== 'undefined') this.emptyTime = gridblock.emptyTime;
+    }
+    setKiloCapacity(newKiloCapacity) {
+        this.kiloCapacity = newKiloCapacity;
+    }
+
+    getKiloCapacity() {
+        return this.kiloCapacity;
+    }
+
+    setEmptyTime(newEmptyTime) {
+        this.emptyTime = newEmptyTime;
+    }
+    
+    getEmptyTime() {
+        return this.emptyTime;
+    }
+}
 
 /***/ }),
 
@@ -1157,7 +1341,8 @@ class GridView {
         
         this.drawRegionLock();
         this.generateGrid();
-        this.drawGridItems();     
+        this.drawGridItems(); 
+        this.lockEvents();    
     }
 
     generateRightSide() {
@@ -1177,7 +1362,7 @@ class GridView {
 
         let dropbackzone = document.createElement("div");
         dropbackzone.className = "bg-gray-400 w-full h-full mb-5";
-        dropbackzone.innerHTML = "Drop back images here!";
+        dropbackzone.innerHTML = "Drop back items here!";
         dropbackzone.style.fontStyle = "italic";
         dropbackzone.style.textAlign = 'center';
         dropbackzone.style.lineHeight = '240px';
@@ -1321,11 +1506,52 @@ class GridView {
         let image = document.createElement("img");
         image.src = "../src/images/"+ type +".png";
         image.id = type;
-        image.setAttribute('draggable', 'true');
+        image.setAttribute('draggable', !this.gridController.getRegionLock());
         image.className = "draggable-item";
         image.style.width = "50px";
         image.style.height = "50px";
         return image;
+    }
+
+    drawConfigOptions(text1, value1, type1, text2, value2, type2){
+        let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let div = document.createElement("div");
+        div.className = "h-3.5/5 w-full flex flex-col";
+
+        let firstInput = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('firstInput', type1);
+        firstInput.value = value1;
+        let firstInputLabel = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getLabel(text1);
+        let firstInputBlock = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(firstInputLabel, firstInput);
+
+        let secondInput = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('secondInput', type2);
+        secondInput.value = value2;
+        let secondInputLabel = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getLabel(text2);
+        let secondInputBlock = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(secondInputLabel, secondInput);
+        
+        let submitButton = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getButton("Save", () => {
+            //this.gridController.debugStats(e.target.parentNode.id);   
+            console.log("yay");                
+        }); 
+
+        _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([firstInputBlock, secondInputBlock, submitButton], div);
+
+        let div2 = document.createElement("div");
+        div2.className = "h-3.5/5 w-full flex flex-col";
+
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div2.appendChild(runSimulation);
+
+        block.appendChild(div);
+        block.appendChild(div2);
     }
 
     dropEvents(){
@@ -1387,6 +1613,16 @@ class GridView {
             }
             this.gridController.refreshGrid();
         })
+    }
+
+        lockEvents(){
+            let draggableItems = document.getElementsByClassName('draggable-item');
+            
+            for(let i = 0; i < draggableItems.length;i++) {
+                draggableItems[i].addEventListener('click', (e) => {
+                    this.gridController.debugStats(e.target.parentNode.id);                   
+                });
+            }
         }
 }
 

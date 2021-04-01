@@ -1,4 +1,7 @@
 import Grid from "../Models/Grid.js"
+import Trashcan from "../Models/Trashcan";
+import EatingStand from "../Models/EatingStand";
+import Tent from "../Models/Tent";
 
 export default class GridController {
     constructor(mainController, data) {
@@ -81,6 +84,33 @@ export default class GridController {
 
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);
+    }
+
+    debugStats(coordinates){
+        console.log(coordinates);
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
+
+        let type = this.data.getCurrentLocation().getItem(x,y);
+        let obj = null; 
+
+        switch(type){
+            case "tent":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Opening Time', obj.openingTimes, 'time');
+                break;
+            case "foodStand":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Stand Type', obj.standType, 'text');
+                break;
+            case "trashcan":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                console.log(obj.emptyTime);
+                this.gridView.drawConfigOptions('Capacity (Kilos)', obj.kiloCapacity, 'number', 'Emptying Time', obj.emptyTime, 'time');
+                break;
+        }
     }
 
     getRegionLock(){
