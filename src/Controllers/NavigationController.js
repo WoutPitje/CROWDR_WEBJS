@@ -1,20 +1,20 @@
 import Location from "../Models/Location"
 
 export default class NavigationController {
-    constructor(navigationView, stepView, stepController, data) {
+    constructor(mainController, data) {
         this.data = data;
-        this.stepView = stepView;
-        this.stepController = stepController;
-        this.navigationView = navigationView;
+        this.mainController = mainController;
+        this.navigationController = mainController.navigationController;
+        this.navigationView = mainController.navigationView;
     }
 
     addLocation() {
         this.data.addLocation(new Location({}));
         this.data.setCurrentLocation(this.data.locations.length);
-        localStorage.setItem('data', JSON.stringify(this.data));
+        this.mainController.saveData();
 
         this.navigationView.refreshNavigation(this.data);
-        this.stepView.generateStep1();
+        this.mainController.refreshLocationScreen();
 
     }
 
@@ -27,15 +27,9 @@ export default class NavigationController {
         if(this.data.currentLocation == location) {
             this.data.setCurrentLocation(1);
         }
-        localStorage.setItem('data', JSON.stringify(this.data));
-        this.stepController.setStep();
-        
+        this.mainController.saveData();
         this.navigationView.refreshNavigation(this.data);
-        
-    }
-
-    getData() {
-        return this.data;
+        this.mainController.refreshLocationScreen();
     }
 
     refreshNavigation() {
@@ -45,6 +39,7 @@ export default class NavigationController {
     setCurrentLocation(location) {
         this.data.setCurrentLocation(location);
         this.navigationView.refreshNavigation(this.data);
+        this.mainController.refreshLocationScreen();
     }
 
     getCurrentLocation() {

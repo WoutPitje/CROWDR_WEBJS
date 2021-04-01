@@ -1,33 +1,40 @@
+import NavigationController from './NavigationController.js'
+import StepController from './StepController.js'
+import GridController from './GridController.js'
+
+import NavigationView from '../Views/NavigationView.js'
+import GridView from '../Views/GridView.js'
+
+import StepView from '../Views/StepView.js'
+
 export default class MainController {
-    constructor(gridView, data) {
+    constructor(data) {
         this.data = data;
-        this.gridView = gridView;
+        this.navigationView = new NavigationView();
+        this.stepView = new StepView();
+        this.gridView = new GridView();
+        
+        this.gridController = new GridController(this, data);
+        this.stepController = new StepController(this, data);
+        this.navigationController = new NavigationController(this, data);
+
+        this.stepView.init(this.stepController);
+        this.gridView.init(this.gridController);
+        this.navigationView.init(this.navigationController);
+
+        this.refreshNavigation();
+        this.refreshLocationScreen();
     }
 
-    
-    getData() {
-        return data;
+    refreshNavigation() {
+        this.navigationController.refreshNavigation();
     }
 
-    generateGrid() {
-        function generateGrid() {
-            paneSize = 50;
-            let rows = 15;
-                        let cols = 15;
-                        for(let i = 0; i < rows; i++) {
-                            for(let j = 0; j < cols; j++) {
-                                addGridPane(j, i);
-                            }
-                        }
-                        function addGridPane(x, y) {
-                            const gridPane = document.createElement("div");
-                            gridPane.className =  `border gridpane absolute border border-black hover:bg-gray-400`;
-                            gridPane.id = `x${x}y${y}`;
-                            gridPane.style.left = `${x * paneSize}px`;
-                            gridPane.style.top = `${y * paneSize}px`;
-                            const grid = document.getElementById("grid");
-                            grid.appendChild(gridPane);
-                        }
-        }
+    refreshLocationScreen() {
+        this.stepController.setStep();
+        this.gridController.refreshGrid();
+    }
+    saveData() {
+        localStorage.setItem('data', JSON.stringify(this.data));
     }
 }

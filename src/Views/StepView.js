@@ -7,10 +7,11 @@ export default class StepView {
        this.paneSize = this.windowSize / this.gridSize;
     }
 
-    init(mainController, navigationController, stepController) {
-        this.mainController = mainController;
-        this.navigationController = navigationController;
+    init(stepController) {
+        
+       
         this.stepController = stepController;
+        
 
         
         document.getElementById("resetConfig").addEventListener('click' , () => {stepController.resetConfig();})
@@ -141,6 +142,20 @@ export default class StepView {
 
         Helper.appendChilds([inputblock, submitButton] , block);
 
+    }
+
+    generateFinal() {
+        let block = document.getElementById("configuration_block");
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+       
+        let label = document.createElement("div");
+        label.innerHTML = "You have now configured your location";
+
+        block.appendChild(label);
     }
    
     

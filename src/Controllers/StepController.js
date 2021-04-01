@@ -1,29 +1,27 @@
 import Helper from "../Views/Helper";
 
 export default class StepController {
-    constructor(stepView, navigationView, data) {
+    constructor(mainController, data) {
         this.data = data;
-        this.stepView = stepView;
-        this.navigationView = navigationView;
-        
-        this.setStep();
+        this.mainController = mainController;
+        this.stepController = mainController.stepController;
+        this.stepView = mainController.stepView;
     }
 
+    
     setStep() {
         let location = this.data.getCurrentLocation();
-        if(typeof location !== 'undefined') {
-            this.stepView.generateStep1();
-        }
+        
         if(location.name == null || location.visitors == null) {
             this.stepView.generateStep1();
         }
         else if(location.tents == null) {
             this.stepView.generateStep2();
         }
-        else if(location.eatingStalls == null) {
+        else if(location.eatingStands == null) {
             this.stepView.generateStep3();
         }
-        else if(location.drinkStalls == null) {
+        else if(location.drinkStands == null) {
             this.stepView.generateStep4();
         }
         else if(location.highTrees == null) {
@@ -32,16 +30,20 @@ export default class StepController {
         else if(location.toiletBuildings == null) {
             this.stepView.generateStep6();
         }
-        else if(location.trashCans == null) {
+        else if(location.trashcans == null) {
             this.stepView.generateStep7();
+        } else {
+            this.stepView.generateFinal();
         }
     }
 
     resetConfig() {
         this.data.resetCurrentLocation();
-        this.navigationView.refreshNavigation(this.data);
+        this.mainController.refreshNavigation();
+        this.mainController.refreshLocationScreen();
         this.stepView.generateStep1();
-        localStorage.setItem('data', JSON.stringify(this.data));
+        this.mainController.saveData();
+    
     }
     //post step1
     step1(name, visitors) {
@@ -72,7 +74,7 @@ export default class StepController {
         }
         this.data.getCurrentLocation().setName(name);
         this.data.getCurrentLocation().setVisitors(visitors);
-        this.navigationView.refreshNavigation(this.data);
+        this.mainController.refreshNavigation();
         this.stepView.generateStep2();
         localStorage.setItem('data', JSON.stringify(this.data));
     }
@@ -99,47 +101,47 @@ export default class StepController {
     }
 
     //post step3 
-    step3 (eatingStalls) {
+    step3 (eatingStands) {
         Helper.clearErrors();
-        if(eatingStalls.length <= 0) {
+        if(eatingStands.length <= 0) {
             Helper.setErrors("Please fill in an amount");
             return;
         }
-        eatingStalls = parseInt(eatingStalls);
-        let maxEatingStalls;
+        eatingStands = parseInt(eatingStands);
+        let maxEatingStands;
         if(this.data.getCurrentLocation().tents >= 1) {
-            maxEatingStalls = 3;
+            maxEatingStands = 3;
         } else {
-            maxEatingStalls = 6;
+            maxEatingStands = 6;
         }
-        if(eatingStalls > maxEatingStalls) {
-            Helper.setErrors("You can only have a maximum of "+ maxEatingStalls + " eating stalls");
+        if(eatingStands > maxEatingStands) {
+            Helper.setErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
             return;
         }
-        this.data.getCurrentLocation().setAmountOfEatingStalls(eatingStalls);
+        this.data.getCurrentLocation().setAmountOfEatingStands(eatingStands);
         this.stepView.generateStep4();
         localStorage.setItem('data', JSON.stringify(this.data));
     }
 
     //post step4
-    step4 (drinkStalls) {
+    step4 (drinkStands) {
         Helper.clearErrors();
-        if(drinkStalls.length <= 0) {
+        if(drinkStands.length <= 0) {
             Helper.setErrors("Please fill in an amount");
             return;
         }
-        drinkStalls = parseInt(drinkStalls);
-        let maxdrinkStalls
+        drinkStands = parseInt(drinkStands);
+        let maxDrinkStands
         if(this.data.getCurrentLocation().tents >= 1) {
-            maxdrinkStalls = 2;
+            maxDrinkStands = 2;
         } else {
-            maxdrinkStalls = 4;
+            maxDrinkStands = 4;
         }
-        if(drinkStalls > maxdrinkStalls) {
-            Helper.setErrors("You can only have a maximum of "+ maxdrinkStalls + " drink stalls");
+        if(drinkStands > maxDrinkStands) {
+            Helper.setErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
             return;
         }
-        this.data.getCurrentLocation().setAmountOfDrinkStalls(drinkStalls);
+        this.data.getCurrentLocation().setAmountOfDrinkStands(drinkStands);
         this.stepView.generateStep5();
         localStorage.setItem('data', JSON.stringify(this.data));
         
@@ -220,7 +222,9 @@ export default class StepController {
         }
 
         this.data.getCurrentLocation().setAmountOfTrashCans(trashcans);
-
+        this.data.getCurrentLocation().setStepsAreSet(true);
         localStorage.setItem('data', JSON.stringify(this.data));
+        this.stepView.generateFinal();
+        this.mainController.refreshLocationScreen();
     }
 }

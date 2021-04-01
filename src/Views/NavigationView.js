@@ -2,14 +2,13 @@ export default class NavigationView {
     constructor() {
 
     }
-    init(mainController, navigationController, stepController) {
-        this.mainController = mainController;
+    init(navigationController) {
         this.navigationController = navigationController;
-        this.stepController = stepController;
+        
         const addLocationButton = document.getElementById('addLocation');
         
         addLocationButton.addEventListener('click', () => {this.navigationController.addLocation()});
-        this.navigationController.refreshNavigation();
+        
     }
     refreshNavigation(data) {
         
@@ -40,7 +39,7 @@ export default class NavigationView {
             
             let navButton = document.createElement("button");
             navButton.innerHTML = name;
-            navButton.addEventListener('click', () => { this.navigationController.setCurrentLocation(i); this.refreshLocationPage(data); this.stepController.setStep(); });
+            navButton.addEventListener('click', () => { this.navigationController.setCurrentLocation(i); });
 
             navButton.className = `navbutton bg-gray-200 p-3 pb-2 hover:bg-gray-500 hover:text-white flex flex-row`;
                        
