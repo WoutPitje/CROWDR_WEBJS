@@ -74,6 +74,17 @@ class SimulationController {
     }
 
     setLocations() {
+        // let waitingLineBlock = document.getElementById("waitingLineBlock");
+        // let waitingLineHeader = document.createElement("span");
+        // waitingLineHeader.innerHTML = "Waiting Line";
+        // let waitingLine = document.createElement("canvas");
+        // waitingLine.id = "waitingLine";
+        // waitingLine.setAttribute("width", "300px");
+        // waitingLine.setAttribute("height", "600px");
+        // waitingLine.className = "bg-gray-300";
+        // waitingLineBlock.appendChild(waitingLineHeader);
+        // waitingLineBlock.appendChild(waitingLine);
+        
         let locationsblock = document.getElementById("locations-block");
         console.log(locationsblock);
 
@@ -121,12 +132,23 @@ class WaitingLineController{
 
     init() {
         this.setVisitors();
+        this.data.setOpenWaitingLines(this.getAmountOfWaitingLinesOpen());
+        this.data.setWaitingLines();
         this.waitingLineView.refresh(this.data);
     }
 
     refresh() {
-        this.setWaitingLines();
+        
+        if(this.data.openWaitingLines != this.getAmountOfWaitingLinesOpen()) {
+            this.data.setOpenWaitingLines(this.getAmountOfWaitingLinesOpen());
+            this.data.setWaitingLines();
+        }
+        this.scanWaitingLines();
         this.waitingLineView.refresh(this.data);
+    }
+
+    scanWaitingLines() {
+        this.data.scanWaitingLines();
     }
 
     setVisitors() {
@@ -147,12 +169,10 @@ class WaitingLineController{
         console.log(this.data.peopleInLine)
     }
 
-    setWaitingLines() {
+    getAmountOfWaitingLinesOpen() {
         let openWaitingLines = this.waitingLineView.getWaitingLines();
        
-        this.data.setOpenWaitingLines(openWaitingLines.value);
-
-        
+        return parseInt(openWaitingLines.value);
     }
 
 }
@@ -169,34 +189,36 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Data)
 /* harmony export */ });
-/* harmony import */ var _Location__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Location */ "./src/Models/Location.js");
+/* harmony import */ var _Location_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Location.js */ "./src/Models/Location.js");
+/* harmony import */ var _Simulation_WaitingLine_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Simulation/WaitingLine.js */ "./src/Models/Simulation/WaitingLine.js");
+
 
 
 class Data {
     constructor(dataobject) {
         console.log(dataobject);
         if(dataobject == null) {
-            this.locations = [new _Location__WEBPACK_IMPORTED_MODULE_0__.default({})];
+            this.locations = [new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
         }
         else if(dataobject.locations.length <= 0) {
-            this.locations = [new _Location__WEBPACK_IMPORTED_MODULE_0__.default({})];
+            this.locations = [new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
         }
         else if(dataobject != null) {
             this.locations = [];
             
             dataobject.locations.forEach(element => {
-                this.locations.push(new _Location__WEBPACK_IMPORTED_MODULE_0__.default(element));
+                this.locations.push(new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default(element));
             });
             this.currentLocation = dataobject.currentLocation;
             
         } else {
-            this.locations = [new _Location__WEBPACK_IMPORTED_MODULE_0__.default({})];
+            this.locations = [new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
         }
         this.peopleInLine = [];
-        
+        this.waitingLines = [];
     }
 
     addLocation(location) {
@@ -219,13 +241,34 @@ class Data {
         return this.locations[this.currentLocation - 1];
     }
     resetCurrentLocation() {
-        this.locations[this.currentLocation - 1] = new _Location__WEBPACK_IMPORTED_MODULE_0__.default({});
+        this.locations[this.currentLocation - 1] = new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({});
     }
     setOpenWaitingLines(lines) {
         this.openWaitingLines = lines;
     }
     addWaitingGroup(waitingGroup) {
         this.peopleInLine.push(waitingGroup);
+    }
+
+    setWaitingLines() {
+        let openLines = this.openWaitingLines;
+        this.waitingLines = [];
+        for(let i = 0; i < this.openWaitingLines; i++) {
+            this.waitingLines.push(new _Simulation_WaitingLine_js__WEBPACK_IMPORTED_MODULE_1__.default());
+        }
+        
+        
+        for(let i = 0; i < this.peopleInLine.length; i++) {
+            let line = Math.floor(Math.random() * openLines) ;
+
+            this.waitingLines[line].addGroupOfPeople(this.peopleInLine[i]);
+        }
+    }
+
+    scanWaitingLines() {
+        for(let i = 0; i < this.waitingLines.length; i++) {
+            this.waitingLines[i].scan();
+        }
     }
 }
 
@@ -759,6 +802,34 @@ class Person {
 
 /***/ }),
 
+/***/ "./src/Models/Simulation/WaitingLine.js":
+/*!**********************************************!*\
+  !*** ./src/Models/Simulation/WaitingLine.js ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ WaitingLine)
+/* harmony export */ });
+class WaitingLine {
+
+    constructor() {
+        this.people = [];
+    }
+
+    addGroupOfPeople(group) {
+        this.people.push(group);
+    }
+
+    scan() {
+        this.people.shift();
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/Views/simulation/WaitingLineView.js":
 /*!*************************************************!*\
   !*** ./src/Views/simulation/WaitingLineView.js ***!
@@ -773,19 +844,22 @@ class WaitingLineView {
 
     constructor(waitingLineController) {
         this.waitingLineController = waitingLineController; 
-        this.waitingLineWidth = 50;
-        this.groupWidth = 10;
+        this.waitingLineWidth = 25;
+        this.groupWidth = 7;
         this.waitingLinesBlock = document.getElementById("waitingLine");
         this.waitingLinesHeight = this.waitingLinesBlock.height;
         this.waitingLinesWidth = this.waitingLinesBlock.width;
+        this.waitingLineBlockHeight = 50;
         this.canvas = this.waitingLinesBlock.getContext("2d");
+        this.canvas.translate(0.5,0.0);
     }
 
     refresh(data) {
         this.canvas.clearRect(0, 0, this.waitingLinesWidth, this.waitingLinesHeight);
+        this.drawScanBuilding();
         this.drawWaitingLines(data.openWaitingLines);
         
-        this.drawPeopleInLine(data.peopleInLine);
+        this.drawPeopleInLine(data.waitingLines);
         
     }
 
@@ -794,45 +868,69 @@ class WaitingLineView {
     
         return waitingLineInput;
     }
+    drawScanBuilding() {
+        let block = this.canvas;
+        block.fillStyle = "darkblue";
+        block.fillRect(0, 0, this.waitingLinesWidth, this.waitingLineBlockHeight);
+    }
     drawWaitingLines(amount) {
+        
         let block = this.canvas;
         let x = 0;
         let width = this.waitingLineWidth;
         let height = this.waitingLinesHeight;
+        block.strokeStyle = "black";
         block.beginPath();
-        block.moveTo(0, 0);
+        block.moveTo(0, this.waitingLineBlockHeight);
         block.lineTo(0, height);
         block.stroke();
         for(let i = 1; i <= amount;i++) {
             block.beginPath();
-            block.moveTo(i * width, 0);
+            block.moveTo(i * width, 0 + this.waitingLineBlockHeight);
             block.lineTo(i * width, height);
             block.stroke();
         }
     }
 
-    drawPeopleInLine(peopleinline) {
+    drawPeopleInLine(waitingLines) {
         let block = this.canvas;
         let radius = this.groupWidth;
+        let line = 1;
         let x = radius;
         let y = radius;
         let width = this.waitingLinesWidth;
-       
         
         
-        peopleinline.forEach(waitingGroup => {
+        waitingLines.forEach(waitingLine => {
+            waitingLine.people.forEach(waitingGroup => {
+                block.strokeStyle = "red";
+                block.beginPath();
+                block.arc((line - 1)* this.waitingLineWidth + this.waitingLineWidth /2, y + this.waitingLineBlockHeight + 5, radius, 0, 2 * Math.PI);
+                block.stroke();   
+                block.fillStyle = "black";
+                block.font = "12px Arial";
+               
+                block.fillText(waitingGroup.people.length, (line - 1)* this.waitingLineWidth + this.waitingLineWidth /2 -3 , y + this.waitingLineBlockHeight + 5 + 5);
+                 y+= radius * 2;
+            });
+            y = radius;
+            line++;
+        });
+        
+        
+        // peopleinline.forEach(waitingGroup => {
             
-            block.beginPath();
-            block.arc(x, y, radius, 0, 2 * Math.PI);
-            block.stroke();   
-            block.font = "20px Arial";
-            block.fillText(waitingGroup.people.length, x - radius + 5 , y +  6);
-            x+= radius*2;
-            if(x >= width) {
-                x = radius;
-                y += radius * 2;
-            }
-        })
+        //     
+        //     block.arc(x, y, radius, 0, 2 * Math.PI);
+        //     block.stroke();   
+        //     block.font = "20px Arial";
+        //     block.fillText(waitingGroup.people.length, x - radius + 5 , y +  6);
+        //     x+= radius*2;
+        //     if(x >= width) {
+        //         x = radius;
+        //         y += radius * 2;
+        //     }
+        // })
     }
 
 }

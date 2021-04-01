@@ -1,4 +1,5 @@
-import Location from "./Location"
+import Location from "./Location.js"
+import WaitingLine from "./Simulation/WaitingLine.js"
 
 export default class Data {
     constructor(dataobject) {
@@ -24,7 +25,7 @@ export default class Data {
             this.currentLocation = 1;
         }
         this.peopleInLine = [];
-        
+        this.waitingLines = [];
     }
 
     addLocation(location) {
@@ -54,5 +55,26 @@ export default class Data {
     }
     addWaitingGroup(waitingGroup) {
         this.peopleInLine.push(waitingGroup);
+    }
+
+    setWaitingLines() {
+        let openLines = this.openWaitingLines;
+        this.waitingLines = [];
+        for(let i = 0; i < this.openWaitingLines; i++) {
+            this.waitingLines.push(new WaitingLine());
+        }
+        
+        
+        for(let i = 0; i < this.peopleInLine.length; i++) {
+            let line = Math.floor(Math.random() * openLines) ;
+
+            this.waitingLines[line].addGroupOfPeople(this.peopleInLine[i]);
+        }
+    }
+
+    scanWaitingLines() {
+        for(let i = 0; i < this.waitingLines.length; i++) {
+            this.waitingLines[i].scan();
+        }
     }
 }

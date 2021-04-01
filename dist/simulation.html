@@ -17,15 +17,15 @@
             Pause Simulation
         </button>
         <span class="p-3">Opened waitinglines</span>
-        <input type="number" class="p-3" id="openWaitingLines" min="1" max="6" value="1">
+        <input type="number" class="p-3" id="openWaitingLines" min="1" max="12" value="3">
 
        
         
     </div>
     <div class="h-full flex flex-row w-full space-x-5 p-5">
-        <div class="h-full w-1/5 flex flex-col">
+        <div id="waitingLineBlock" class="h-full w-1/5 flex flex-col">
             <span>waitingline</span>
-            <canvas class="bg-gray-300" width="300px" height="800px" id="waitingLine"></canvas>
+            <canvas class="bg-gray-300" width="300" height="600" id="waitingLine"></canvas>
         </div>
         <div class="flex flex-row flex-wrap space-x-4 w-4/5 h-full" id="locations-block">
         </div>

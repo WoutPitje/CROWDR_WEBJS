@@ -32,6 +32,17 @@ export default class SimulationController {
     }
 
     setLocations() {
+        // let waitingLineBlock = document.getElementById("waitingLineBlock");
+        // let waitingLineHeader = document.createElement("span");
+        // waitingLineHeader.innerHTML = "Waiting Line";
+        // let waitingLine = document.createElement("canvas");
+        // waitingLine.id = "waitingLine";
+        // waitingLine.setAttribute("width", "300px");
+        // waitingLine.setAttribute("height", "600px");
+        // waitingLine.className = "bg-gray-300";
+        // waitingLineBlock.appendChild(waitingLineHeader);
+        // waitingLineBlock.appendChild(waitingLine);
+        
         let locationsblock = document.getElementById("locations-block");
         console.log(locationsblock);
 

@@ -13,12 +13,23 @@ export default class WaitingLineController{
 
     init() {
         this.setVisitors();
+        this.data.setOpenWaitingLines(this.getAmountOfWaitingLinesOpen());
+        this.data.setWaitingLines();
         this.waitingLineView.refresh(this.data);
     }
 
     refresh() {
-        this.setWaitingLines();
+        
+        if(this.data.openWaitingLines != this.getAmountOfWaitingLinesOpen()) {
+            this.data.setOpenWaitingLines(this.getAmountOfWaitingLinesOpen());
+            this.data.setWaitingLines();
+        }
+        this.scanWaitingLines();
         this.waitingLineView.refresh(this.data);
+    }
+
+    scanWaitingLines() {
+        this.data.scanWaitingLines();
     }
 
     setVisitors() {
@@ -39,12 +50,10 @@ export default class WaitingLineController{
         console.log(this.data.peopleInLine)
     }
 
-    setWaitingLines() {
+    getAmountOfWaitingLinesOpen() {
         let openWaitingLines = this.waitingLineView.getWaitingLines();
        
-        this.data.setOpenWaitingLines(openWaitingLines.value);
-
-        
+        return parseInt(openWaitingLines.value);
     }
 
 }
