@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="simulation.js" defer></script>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    
+</head>
+<body class="flex flex-col h-screen">
+    <di class="w-full h-full flex flex-col">
+    <div id="nav" class="bg-gray-100 h-20 flex flex-row p-4 justify-center space-x-4">
+        
+        
+        <button id="pause-simulation" class="order-last p-3 bp-2 ml-10 bg-red-500 hover:bg-red-800 hover:text-white">
+            Pause Simulation
+        </button>
+        <span class="p-3">Opened waitinglines</span>
+        <input type="number" class="p-3" id="openWaitingLines" min="1" max="12" value="3">
+
+       
+        
+    </div>
+    <div class="h-full flex flex-row w-full space-x-5 p-5">
+        <div id="waitingLineBlock" class="h-full w-1/5 flex flex-col">
+            <span>waitingline</span>
+            <canvas class="bg-gray-300" width="300" height="600" id="waitingLine"></canvas>
+        </div>
+        <div class="flex flex-row flex-wrap space-x-4 w-4/5 h-full" id="locations-block">
+        </div>
+    
+    </div>
+        
+</body>
+</html>
