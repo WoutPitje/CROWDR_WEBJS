@@ -453,7 +453,7 @@ class StepController {
             _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You cannot have a negative amount of toilet buildings");
             return;
         }
-        if(toiletBuildings > 5) {
+        if(toiletBuildings > 6) {
             _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You cant have more than 6 toilet buildings");
             return;
         }
@@ -1118,7 +1118,7 @@ class GridView {
     refresh(data) {
         this.generateRightSide();
         this.generateGrid();
-        this.drawGridItems();
+        this.drawGridItems();   
         this.generateImages(data);
         this.dropEvents();
         
@@ -1132,19 +1132,30 @@ class GridView {
         }
 
         let itemLegenda = document.createElement("div");
-        itemLegenda.className = "w-full  flex flex-row flex-wrap";
+        itemLegenda.className = "w-full flex flex-row flex-wrap";
         itemLegenda.id = "images_block";
 
         let div = document.createElement("div");
-        div.className = "h-2/5 w-full flex flex-col";
+        div.className = "h-3.5/5 w-full flex flex-col";
+
         let dropbackzone = document.createElement("div");
         dropbackzone.className = "bg-gray-400 w-full h-full mb-5";
+        dropbackzone.innerHTML = "Drop back images here!";
+        dropbackzone.style.fontStyle = "italic";
+        dropbackzone.style.textAlign = 'center';
+        dropbackzone.style.lineHeight = '240px';
         dropbackzone.id = "dropbackzone";
+
+        let lockRegion = document.createElement("button");
+        lockRegion.innerHTML = "Lock region";
+        lockRegion.className = "p-5 mb-5 bg-blue-500 hover:bg-blue-800 hover:text-white w-full";
+
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div.appendChild(dropbackzone);
+        div.appendChild(lockRegion);
         div.appendChild(runSimulation);
 
         block.appendChild(itemLegenda);
@@ -1235,12 +1246,15 @@ class GridView {
 
     generateImage(type, amount, parent){
         
+        let subBlock = document.createElement("div");
+        subBlock.className = "w-full flex flex-row flex-wrap";
+
         for(let i =0;i< amount;i++){
             let image = this.getImageBlock(type);
             
-            parent.appendChild(image);
+            subBlock.appendChild(image);
+            parent.appendChild(subBlock);
         }
-        
     }
 
     getImageBlock(type) {

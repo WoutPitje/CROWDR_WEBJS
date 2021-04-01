@@ -188,7 +188,7 @@ export default class StepController {
             Helper.setErrors("You cannot have a negative amount of toilet buildings");
             return;
         }
-        if(toiletBuildings > 5) {
+        if(toiletBuildings > 6) {
             Helper.setErrors("You cant have more than 6 toilet buildings");
             return;
         }
