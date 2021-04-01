@@ -205,6 +205,10 @@ export default class Location {
         return this.grid.getObject(x,y);
     }
 
+    setObject(x,y, obj) {
+        this.grid.setObject(x,y,obj);
+    }
+
     setRegionLocked(boolean){
         this.regionIsLocked = boolean;
     }

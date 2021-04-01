@@ -12,7 +12,6 @@ import StepView from './Views/StepView.js'
 
 let jsonString = localStorage.getItem('data');
 let dataobject = JSON.parse(jsonString);
-console.log(dataobject);
 
 const data = new Data(dataobject);
 

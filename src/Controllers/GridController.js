@@ -13,7 +13,6 @@ export default class GridController {
     }
 
     refreshGrid() {
-            console.log(this.data.getCurrentLocation().treesAreSet)
             if(!this.data.getCurrentLocation().treesAreSet && this.data.getCurrentLocation().stepsAreSet) {
                 this.data.getCurrentLocation().setTrees();
             }
@@ -86,8 +85,7 @@ export default class GridController {
         return this.data.getCurrentLocation().getItem(x,y);
     }
 
-    debugStats(coordinates){
-        console.log(coordinates);
+    setConfigurationField(coordinates){
         let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
         let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
         x = parseInt(x);
@@ -99,18 +97,27 @@ export default class GridController {
         switch(type){
             case "tent":
                 obj =  this.data.getCurrentLocation().getObject(x,y);
-                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Opening Time', obj.openingTimes, 'time');
+                this.gridView.drawConfigOptions(x, y, 'Maximum Visitors', obj.maxVisitors, 'number', 'Opening Time', obj.openingTimes, 'time');
                 break;
             case "foodStand":
                 obj =  this.data.getCurrentLocation().getObject(x,y);
-                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Stand Type', obj.standType, 'text');
+                this.gridView.drawConfigOptions(x, y, 'Maximum Visitors', obj.maxVisitors, 'number', 'Stand Type', obj.standType, 'text');
                 break;
             case "trashcan":
                 obj =  this.data.getCurrentLocation().getObject(x,y);
-                console.log(obj.emptyTime);
-                this.gridView.drawConfigOptions('Capacity (Kilos)', obj.kiloCapacity, 'number', 'Emptying Time', obj.emptyTime, 'time');
+                this.gridView.drawConfigOptions(x, y, 'Capacity (Kilos)', obj.kiloCapacity, 'number', 'Emptying Time', obj.emptyTime, 'time');
                 break;
         }
+    }
+
+    updateConfigData(x, y, value1, value2){
+
+        let obj = this.data.getCurrentLocation().getObject(x,y);
+        obj[Object.keys(obj)[0]] = value1;
+        obj[Object.keys(obj)[1]] = value2;
+
+        this.data.getCurrentLocation().setObject(x,y,obj);
+        this.lockRegion();
     }
 
     getRegionLock(){
@@ -123,34 +130,5 @@ export default class GridController {
         this.gridView.drawRegionLock();
         this.mainController.saveData();
         this.gridView.refreshLocked();
-    }
-
-    updateGridImages(type){
-        switch(type){
-            case "tent":
-                this.tenten--;
-                break;
-            case "drink":
-                this.drankkramen--;
-                break;
-            case "food":
-                this.eetkramen--;
-                break;
-            case "toilet":
-                this.toiletten--;
-                break;
-            case "prullenbak":
-                this.prullenbakken--;
-                break;
-            case "hogeboom":
-                this.hogebomen--;
-                break;
-            case "bredeboom":
-                this.bredebomen--;
-                break;
-            case "schaduwboom":
-                this.schaduwbomen--;
-                break;
-        }
     }
 }

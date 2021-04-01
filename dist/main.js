@@ -31,7 +31,6 @@ class GridController {
     }
 
     refreshGrid() {
-            console.log(this.data.getCurrentLocation().treesAreSet)
             if(!this.data.getCurrentLocation().treesAreSet && this.data.getCurrentLocation().stepsAreSet) {
                 this.data.getCurrentLocation().setTrees();
             }
@@ -104,8 +103,7 @@ class GridController {
         return this.data.getCurrentLocation().getItem(x,y);
     }
 
-    debugStats(coordinates){
-        console.log(coordinates);
+    setConfigurationField(coordinates){
         let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
         let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
         x = parseInt(x);
@@ -117,18 +115,27 @@ class GridController {
         switch(type){
             case "tent":
                 obj =  this.data.getCurrentLocation().getObject(x,y);
-                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Opening Time', obj.openingTimes, 'time');
+                this.gridView.drawConfigOptions(x, y, 'Maximum Visitors', obj.maxVisitors, 'number', 'Opening Time', obj.openingTimes, 'time');
                 break;
             case "foodStand":
                 obj =  this.data.getCurrentLocation().getObject(x,y);
-                this.gridView.drawConfigOptions('Maximum Visitors', obj.maxVisitors, 'number', 'Stand Type', obj.standType, 'text');
+                this.gridView.drawConfigOptions(x, y, 'Maximum Visitors', obj.maxVisitors, 'number', 'Stand Type', obj.standType, 'text');
                 break;
             case "trashcan":
                 obj =  this.data.getCurrentLocation().getObject(x,y);
-                console.log(obj.emptyTime);
-                this.gridView.drawConfigOptions('Capacity (Kilos)', obj.kiloCapacity, 'number', 'Emptying Time', obj.emptyTime, 'time');
+                this.gridView.drawConfigOptions(x, y, 'Capacity (Kilos)', obj.kiloCapacity, 'number', 'Emptying Time', obj.emptyTime, 'time');
                 break;
         }
+    }
+
+    updateConfigData(x, y, value1, value2){
+
+        let obj = this.data.getCurrentLocation().getObject(x,y);
+        obj[Object.keys(obj)[0]] = value1;
+        obj[Object.keys(obj)[1]] = value2;
+
+        this.data.getCurrentLocation().setObject(x,y,obj);
+        this.lockRegion();
     }
 
     getRegionLock(){
@@ -141,35 +148,6 @@ class GridController {
         this.gridView.drawRegionLock();
         this.mainController.saveData();
         this.gridView.refreshLocked();
-    }
-
-    updateGridImages(type){
-        switch(type){
-            case "tent":
-                this.tenten--;
-                break;
-            case "drink":
-                this.drankkramen--;
-                break;
-            case "food":
-                this.eetkramen--;
-                break;
-            case "toilet":
-                this.toiletten--;
-                break;
-            case "prullenbak":
-                this.prullenbakken--;
-                break;
-            case "hogeboom":
-                this.hogebomen--;
-                break;
-            case "bredeboom":
-                this.bredebomen--;
-                break;
-            case "schaduwboom":
-                this.schaduwbomen--;
-                break;
-        }
     }
 }
 
@@ -563,7 +541,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class Data {
     constructor(dataobject) {
-        console.log(dataobject);
         if(dataobject == null) {
             this.locations = [new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
@@ -721,9 +698,15 @@ class Grid {
     getItem(x,y) {
         return this.array[x][y].getFillType();
     }
+
     getObject(x,y) {
         return this.array[x][y].getObject();
     }
+
+    setObject(x,y,obj) {
+        this.array[x][y].setObject(obj);
+    }
+
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");
@@ -1188,6 +1171,10 @@ class Location {
         return this.grid.getObject(x,y);
     }
 
+    setObject(x,y, obj) {
+        this.grid.setObject(x,y,obj);
+    }
+
     setRegionLocked(boolean){
         this.regionIsLocked = boolean;
     }
@@ -1390,7 +1377,6 @@ class GridView {
     generateGrid() {
         let paneSize = this.paneSize;
         let windowSize = this.windowSize;
-        console.log(paneSize);
 
         const grid = document.getElementById("grid");
                         grid.style.position = "relative";
@@ -1513,7 +1499,7 @@ class GridView {
         return image;
     }
 
-    drawConfigOptions(text1, value1, type1, text2, value2, type2){
+    drawConfigOptions(x, y, text1, value1, type1, text2, value2, type2){
         let block = document.getElementById("right-side")
         block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
@@ -1535,8 +1521,8 @@ class GridView {
         let secondInputBlock = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(secondInputLabel, secondInput);
         
         let submitButton = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getButton("Save", () => {
-            //this.gridController.debugStats(e.target.parentNode.id);   
-            console.log("yay");                
+            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value); 
+            alert("Succesfully saved new configuration!");                  
         }); 
 
         _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([firstInputBlock, secondInputBlock, submitButton], div);
@@ -1620,7 +1606,7 @@ class GridView {
             
             for(let i = 0; i < draggableItems.length;i++) {
                 draggableItems[i].addEventListener('click', (e) => {
-                    this.gridController.debugStats(e.target.parentNode.id);                   
+                    this.gridController.setConfigurationField(e.target.parentNode.id);                   
                 });
             }
         }
@@ -2060,7 +2046,6 @@ __webpack_require__.r(__webpack_exports__);
 
 let jsonString = localStorage.getItem('data');
 let dataobject = JSON.parse(jsonString);
-console.log(dataobject);
 
 const data = new _Models_Data_js__WEBPACK_IMPORTED_MODULE_7__.default(dataobject);
 

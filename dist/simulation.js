@@ -196,7 +196,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class Data {
     constructor(dataobject) {
-        console.log(dataobject);
         if(dataobject == null) {
             this.locations = [new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
@@ -354,9 +353,15 @@ class Grid {
     getItem(x,y) {
         return this.array[x][y].getFillType();
     }
+
     getObject(x,y) {
         return this.array[x][y].getObject();
     }
+
+    setObject(x,y,obj) {
+        this.array[x][y].setObject(obj);
+    }
+
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");
@@ -819,6 +824,10 @@ class Location {
 
     getObject(x,y) {
         return this.grid.getObject(x,y);
+    }
+
+    setObject(x,y, obj) {
+        this.grid.setObject(x,y,obj);
     }
 
     setRegionLocked(boolean){

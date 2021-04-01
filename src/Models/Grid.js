@@ -25,9 +25,15 @@ export default class Grid {
     getItem(x,y) {
         return this.array[x][y].getFillType();
     }
+
     getObject(x,y) {
         return this.array[x][y].getObject();
     }
+
+    setObject(x,y,obj) {
+        this.array[x][y].setObject(obj);
+    }
+
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");

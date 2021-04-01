@@ -74,7 +74,6 @@ export default class GridView {
     generateGrid() {
         let paneSize = this.paneSize;
         let windowSize = this.windowSize;
-        console.log(paneSize);
 
         const grid = document.getElementById("grid");
                         grid.style.position = "relative";
@@ -197,7 +196,7 @@ export default class GridView {
         return image;
     }
 
-    drawConfigOptions(text1, value1, type1, text2, value2, type2){
+    drawConfigOptions(x, y, text1, value1, type1, text2, value2, type2){
         let block = document.getElementById("right-side")
         block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
@@ -219,8 +218,8 @@ export default class GridView {
         let secondInputBlock = Helper.getDivForInput(secondInputLabel, secondInput);
         
         let submitButton = Helper.getButton("Save", () => {
-            //this.gridController.debugStats(e.target.parentNode.id);   
-            console.log("yay");                
+            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value); 
+            alert("Succesfully saved new configuration!");                  
         }); 
 
         Helper.appendChilds([firstInputBlock, secondInputBlock, submitButton], div);
@@ -304,7 +303,7 @@ export default class GridView {
             
             for(let i = 0; i < draggableItems.length;i++) {
                 draggableItems[i].addEventListener('click', (e) => {
-                    this.gridController.debugStats(e.target.parentNode.id);                   
+                    this.gridController.setConfigurationField(e.target.parentNode.id);                   
                 });
             }
         }
