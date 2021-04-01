@@ -8,7 +8,6 @@ export default class NavigationView {
         const addLocationButton = document.getElementById('addLocation');
         
         addLocationButton.addEventListener('click', () => {this.navigationController.addLocation()});
-        
     }
     refreshNavigation(data) {
         
