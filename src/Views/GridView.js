@@ -12,17 +12,25 @@ export default class GridView {
         this.gridController = gridController;
     }
 
-    refresh(data) {
+    refreshNormal(data) {
+        
         this.generateRightSide();
         this.generateGrid();
         this.drawGridItems();   
         this.generateImages(data);
-        this.dropEvents();
+        this.dropEvents();       
+    }
+
+    refreshLocked() {
         
+        this.drawRegionLock();
+        this.generateGrid();
+        this.drawGridItems();     
     }
 
     generateRightSide() {
         let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
         while (block.firstChild) {
             block.removeChild(block.firstChild);
@@ -44,8 +52,10 @@ export default class GridView {
         dropbackzone.id = "dropbackzone";
 
         let lockRegion = document.createElement("button");
+        lockRegion.addEventListener('click', () => { if(confirm('Are you sure you want to lock this region?')) this.gridController.lockRegion(); });
         lockRegion.innerHTML = "Lock region";
         lockRegion.className = "p-5 mb-5 bg-blue-500 hover:bg-blue-800 hover:text-white w-full";
+        lockRegion.id = "lock_button"
 
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
@@ -59,7 +69,7 @@ export default class GridView {
         block.appendChild(div);
     }
 
-
+    
     generateGrid() {
         let paneSize = this.paneSize;
         let windowSize = this.windowSize;
@@ -101,6 +111,27 @@ export default class GridView {
                         }
                     }
                     
+    }
+
+    drawRegionLock(){
+        let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-end";
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let div = document.createElement("div");
+        div.className = "h-3.5/5 w-full flex flex-col";
+        div.style.verticalAlign = "bottom";
+
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div.appendChild(runSimulation);
+
+        block.appendChild(div);
     }
 
     drawGridItems() {
@@ -188,6 +219,7 @@ export default class GridView {
             }); 
     
             dropzones[i].addEventListener('drop', (e) => {
+
                 if(this.gridController.canPlace(e.target.id, element.id)) {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
@@ -195,16 +227,16 @@ export default class GridView {
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
-                    // e.stopImmediatePropagation();
+                        // e.stopImmediatePropagation();
                 } else {
-                    alert("you cant place your item right here");
+                    alert("You can't place your item right here!");
+
                     if(element.parentNode.classList.contains("dropzone")) {
                         this.gridController.moveItem(element.parentNode.id, element.id);
                     }
                 }
-                this.gridController.refreshGrid();
                 
-               
+                this.gridController.refreshGrid();
             });       
         }
         
@@ -219,12 +251,9 @@ export default class GridView {
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
             } else {
-                alert("you cant place your item right here");
+                alert("You can't place your item right here!");
             }
             this.gridController.refreshGrid();
         })
         }
-        
-
-        
 }

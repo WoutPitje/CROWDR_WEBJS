@@ -30,9 +30,15 @@ class GridController {
                 this.data.getCurrentLocation().setTrees();
             }
             this.gridView.generateGrid();
-            this.gridView.refresh(this.data);
+            if(!this.getRegionLock()){
+                this.gridView.refreshNormal(this.data);
+            }
+            else{
+                this.gridView.refreshLocked();
+            }
             this.mainController.saveData();
-        }
+    }
+
     getData() {
         return data;
     }
@@ -48,7 +54,6 @@ class GridController {
         
         let canPlace = this.data.getCurrentLocation().canPlace(x,y,type);
         return canPlace;
-
     }
 
     setGridFill(coordinates, type){
@@ -88,8 +93,21 @@ class GridController {
         this.data.getCurrentLocation().addItem(type);
         this.mainController.saveData();
     }
+
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);
+    }
+
+    getRegionLock(){
+        return this.data.getCurrentLocation().getRegionLocked();
+    }
+
+    lockRegion()
+    {
+        this.data.getCurrentLocation().setRegionLocked(true);
+        this.gridView.drawRegionLock();
+        this.mainController.saveData();
+        this.gridView.refreshLocked();
     }
 
     updateGridImages(type){
@@ -308,7 +326,6 @@ class StepController {
         this.mainController.refreshLocationScreen();
         this.stepView.generateStep1();
         this.mainController.saveData();
-    
     }
     //post step1
     step1(name, visitors) {
@@ -559,6 +576,7 @@ class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({});
+        this.locations[this.currentLocation - 1].setRegionLocked(false);
     }
     setOpenWaitingLines(lines) {
         this.openWaitingLines = lines;
@@ -866,11 +884,14 @@ class Location {
     constructor(location) {
         this.treesAreSet = false;
         this.stepsAreSet = false;
+        this.regionIsLocked = false;
         
         this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(null);
         if(typeof location.treesAreSet !== 'undefined') this.treesAreSet = location.treesAreSet;
 
         if(typeof location.stepsAreSet !== 'undefined') this.stepsAreSet = location.stepsAreSet;
+
+        if(typeof location.regionIsLocked !== 'undefined') this.regionIsLocked = location.regionIsLocked;
         
         if(typeof location.name !== 'undefined') this.name = location.name;
         
@@ -1058,6 +1079,14 @@ class Location {
     getItem(x,y) {
         return this.grid.getItem(x,y);
     }
+
+    setRegionLocked(boolean){
+        this.regionIsLocked = boolean;
+    }
+
+    getRegionLocked(){
+        return this.regionIsLocked;
+    }
 }
 
 /***/ }),
@@ -1115,17 +1144,25 @@ class GridView {
         this.gridController = gridController;
     }
 
-    refresh(data) {
+    refreshNormal(data) {
+        
         this.generateRightSide();
         this.generateGrid();
         this.drawGridItems();   
         this.generateImages(data);
-        this.dropEvents();
+        this.dropEvents();       
+    }
+
+    refreshLocked() {
         
+        this.drawRegionLock();
+        this.generateGrid();
+        this.drawGridItems();     
     }
 
     generateRightSide() {
         let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
         while (block.firstChild) {
             block.removeChild(block.firstChild);
@@ -1147,8 +1184,10 @@ class GridView {
         dropbackzone.id = "dropbackzone";
 
         let lockRegion = document.createElement("button");
+        lockRegion.addEventListener('click', () => { if(confirm('Are you sure you want to lock this region?')) this.gridController.lockRegion(); });
         lockRegion.innerHTML = "Lock region";
         lockRegion.className = "p-5 mb-5 bg-blue-500 hover:bg-blue-800 hover:text-white w-full";
+        lockRegion.id = "lock_button"
 
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
@@ -1162,7 +1201,7 @@ class GridView {
         block.appendChild(div);
     }
 
-
+    
     generateGrid() {
         let paneSize = this.paneSize;
         let windowSize = this.windowSize;
@@ -1204,6 +1243,27 @@ class GridView {
                         }
                     }
                     
+    }
+
+    drawRegionLock(){
+        let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-end";
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let div = document.createElement("div");
+        div.className = "h-3.5/5 w-full flex flex-col";
+        div.style.verticalAlign = "bottom";
+
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div.appendChild(runSimulation);
+
+        block.appendChild(div);
     }
 
     drawGridItems() {
@@ -1291,6 +1351,7 @@ class GridView {
             }); 
     
             dropzones[i].addEventListener('drop', (e) => {
+
                 if(this.gridController.canPlace(e.target.id, element.id)) {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
@@ -1298,16 +1359,16 @@ class GridView {
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
-                    // e.stopImmediatePropagation();
+                        // e.stopImmediatePropagation();
                 } else {
-                    alert("you cant place your item right here");
+                    alert("You can't place your item right here!");
+
                     if(element.parentNode.classList.contains("dropzone")) {
                         this.gridController.moveItem(element.parentNode.id, element.id);
                     }
                 }
-                this.gridController.refreshGrid();
                 
-               
+                this.gridController.refreshGrid();
             });       
         }
         
@@ -1322,14 +1383,11 @@ class GridView {
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
             } else {
-                alert("you cant place your item right here");
+                alert("You can't place your item right here!");
             }
             this.gridController.refreshGrid();
         })
         }
-        
-
-        
 }
 
 /***/ }),

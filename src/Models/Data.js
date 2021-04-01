@@ -49,6 +49,7 @@ export default class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new Location({});
+        this.locations[this.currentLocation - 1].setRegionLocked(false);
     }
     setOpenWaitingLines(lines) {
         this.openWaitingLines = lines;

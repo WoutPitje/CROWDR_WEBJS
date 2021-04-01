@@ -15,9 +15,15 @@ export default class GridController {
                 this.data.getCurrentLocation().setTrees();
             }
             this.gridView.generateGrid();
-            this.gridView.refresh(this.data);
+            if(!this.getRegionLock()){
+                this.gridView.refreshNormal(this.data);
+            }
+            else{
+                this.gridView.refreshLocked();
+            }
             this.mainController.saveData();
-        }
+    }
+
     getData() {
         return data;
     }
@@ -33,7 +39,6 @@ export default class GridController {
         
         let canPlace = this.data.getCurrentLocation().canPlace(x,y,type);
         return canPlace;
-
     }
 
     setGridFill(coordinates, type){
@@ -73,8 +78,21 @@ export default class GridController {
         this.data.getCurrentLocation().addItem(type);
         this.mainController.saveData();
     }
+
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);
+    }
+
+    getRegionLock(){
+        return this.data.getCurrentLocation().getRegionLocked();
+    }
+
+    lockRegion()
+    {
+        this.data.getCurrentLocation().setRegionLocked(true);
+        this.gridView.drawRegionLock();
+        this.mainController.saveData();
+        this.gridView.refreshLocked();
     }
 
     updateGridImages(type){

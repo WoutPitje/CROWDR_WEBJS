@@ -242,6 +242,7 @@ class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({});
+        this.locations[this.currentLocation - 1].setRegionLocked(false);
     }
     setOpenWaitingLines(lines) {
         this.openWaitingLines = lines;
@@ -549,11 +550,14 @@ class Location {
     constructor(location) {
         this.treesAreSet = false;
         this.stepsAreSet = false;
+        this.regionIsLocked = false;
         
         this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(null);
         if(typeof location.treesAreSet !== 'undefined') this.treesAreSet = location.treesAreSet;
 
         if(typeof location.stepsAreSet !== 'undefined') this.stepsAreSet = location.stepsAreSet;
+
+        if(typeof location.regionIsLocked !== 'undefined') this.regionIsLocked = location.regionIsLocked;
         
         if(typeof location.name !== 'undefined') this.name = location.name;
         
@@ -740,6 +744,14 @@ class Location {
     }
     getItem(x,y) {
         return this.grid.getItem(x,y);
+    }
+
+    setRegionLocked(boolean){
+        this.regionIsLocked = boolean;
+    }
+
+    getRegionLocked(){
+        return this.regionIsLocked;
     }
 }
 

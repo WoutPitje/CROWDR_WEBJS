@@ -43,7 +43,6 @@ export default class StepController {
         this.mainController.refreshLocationScreen();
         this.stepView.generateStep1();
         this.mainController.saveData();
-    
     }
     //post step1
     step1(name, visitors) {
