@@ -1,9 +1,10 @@
 export default class Helper {
-    static getButton(name, onclick) {
+    static getButton(name, id, onclick) {
         let button = document.createElement("button");
         button.innerHTML = name;
         button.className = 'p-2 bg-green-500 hover:bg-green-800 hover:text-white w-full';
         button.onclick = onclick;
+        button.id = id;
         return button;
     }
     static getLabel(text, forname) {
@@ -31,20 +32,33 @@ export default class Helper {
         childs.forEach(child => {parent.appendChild(child)});
     }
 
-    static clearErrors() {
-        let errorbox = document.getElementById("errorbox");
+    static clearStepErrors() {
+        let errorbox = document.getElementById("stepErrorbox");
         errorbox.style.display = "none";
         errorbox.innerHTML = "";
     }
 
-    static setErrors(errors) {
+    static setStepErrors(errors) {
         if(errors != null) {
-                let errorbox = document.getElementById("errorbox");
+                let errorbox = document.getElementById("stepErrorbox");
                 errorbox.style.display = "block";
                 errorbox.innerHTML = errors;
         }
     }
-    
+
+    static clearConfigErrors() {
+        let errorbox = document.getElementById("configErrorbox");
+        errorbox.style.display = "none";
+        errorbox.innerHTML = "";
+    }
+
+    static setConfigErrors(errors) {
+        if(errors != null) {
+                let errorbox = document.getElementById("configErrorbox");
+                errorbox.style.display = "block";
+                errorbox.innerHTML = errors;
+        }
+    }
 }
 
 let helper = new Helper();

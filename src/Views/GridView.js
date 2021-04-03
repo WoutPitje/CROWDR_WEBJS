@@ -197,12 +197,18 @@ export default class GridView {
     }
 
     drawConfigOptions(x, y, text1, value1, type1, text2, value2, type2){
+        
         let block = document.getElementById("right-side")
         block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
         while (block.firstChild) {
             block.removeChild(block.firstChild);
         }
+
+        let errorBox = document.createElement("div");
+        errorBox.className = "p-3 mb-2 bg-red-200";
+        errorBox.id = 'configErrorbox'
+        errorBox.style.verticalAlign = "bottom";
 
         let div = document.createElement("div");
         div.className = "h-3.5/5 w-full flex flex-col";
@@ -217,12 +223,11 @@ export default class GridView {
         let secondInputLabel = Helper.getLabel(text2);
         let secondInputBlock = Helper.getDivForInput(secondInputLabel, secondInput);
         
-        let submitButton = Helper.getButton("Save", () => {
-            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value); 
-            alert("Succesfully saved new configuration!");                  
+        let submitButton = Helper.getButton("Save", "save-button", () => {
+            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value);                
         }); 
 
-        Helper.appendChilds([firstInputBlock, secondInputBlock, submitButton], div);
+        Helper.appendChilds([errorBox, firstInputBlock, secondInputBlock, submitButton], div);
 
         let div2 = document.createElement("div");
         div2.className = "h-3.5/5 w-full flex flex-col";
@@ -235,6 +240,8 @@ export default class GridView {
 
         block.appendChild(div);
         block.appendChild(div2);
+
+        Helper.clearConfigErrors();
     }
 
     dropEvents(){
@@ -264,11 +271,10 @@ export default class GridView {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
                         this.gridController.moveItem(e.target.id, element.id);
-                        this.gridController.mainController.soundController.playDropSound();  
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
-                        // e.stopImmediatePropagation();
+                    this.gridController.mainController.soundController.playDropSound();  
                 } else {
                     alert("You can't place your item right here!");
 

@@ -12,7 +12,7 @@ export default class MainView {
     }
 
     error(error) {
-        Helper.setErrors(error);
+        Helper.setStepErrors(error);
     }
     
 } 

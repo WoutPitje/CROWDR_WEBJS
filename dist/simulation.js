@@ -1157,5 +1157,22 @@ class WaitingLineView {
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+/*!***************************!*\
+  !*** ./src/simulation.js ***!
+  \***************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Controllers_Simulation_SimulationController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Controllers/Simulation/SimulationController.js */ "./src/Controllers/Simulation/SimulationController.js");
+
+
+let jsonString = localStorage.getItem('data');
+let dataobject = JSON.parse(jsonString);
+console.log(dataobject);
+
+let simulationController = new _Controllers_Simulation_SimulationController_js__WEBPACK_IMPORTED_MODULE_0__.default(dataobject);
+})();
+
 /******/ })()
 ;
+//# sourceMappingURL=simulation.js.map

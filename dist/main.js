@@ -12,6 +12,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ GridController)
 /* harmony export */ });
+/* harmony import */ var _Views_Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Views/Helper */ "./src/Views/Helper.js");
+
+
 class GridController {
     constructor(mainController, data) {
         this.data = data;
@@ -94,6 +97,7 @@ class GridController {
     }
 
     setConfigurationField(coordinates){
+
         let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
         let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
         x = parseInt(x);
@@ -119,6 +123,30 @@ class GridController {
     }
 
     updateConfigData(x, y, value1, value2){
+
+        if(!isNaN(value1)){
+            if(value1 <= 0){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Please enter a positive amount");
+                return;
+            }
+            if(value1 > 1000){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Value can't be greater than 1000");
+                return;
+            }
+        }
+
+        if(!isNaN(value2)){
+            if(value2 <= 0){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Please enter a positive amount");
+                return;
+            }
+            if(value2 > 1000){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Value can't be greater than 1000");
+                return;
+            }
+        }
+        
+        alert("Succesfully saved new configuration!");   
 
         let obj = this.data.getCurrentLocation().getObject(x,y);
         obj[Object.keys(obj)[0]] = value1;
@@ -364,29 +392,29 @@ class StepController {
     }
     //post step1
     step1(name, visitors) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(visitors.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fil in a amount of visitors");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(visitors <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount of visitors");
             return;
         }
         visitors = parseInt(visitors);
         
         if(name.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in a name");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a name");
             return;
         }
         
         if(visitors.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in the amount of visitors");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in the amount of visitors");
              return;
         }
         if(name.length > 20) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Name can't be longer than 20 characters");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Name can't be longer than 20 characters");
             return;
         }
     
         if(visitors > 100000) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("There's a maximum of 100000 visitors");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("There's a maximum of 100000 visitors");
             return;
         }
         this.data.getCurrentLocation().setName(name);
@@ -397,19 +425,19 @@ class StepController {
     }
     //post step2
     step2(tents) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
         if(tents.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         tents = parseInt(tents);
         
         if(tents < 0) { 
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount that's between 0 and 6");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in an amount that's between 0 and 6");
             return
         }
         if(tents > 6) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum amonut of 6 tents");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum amonut of 6 tents");
             return;
         }
         this.data.getCurrentLocation().setAmountOfTents(tents);
@@ -419,9 +447,9 @@ class StepController {
 
     //post step3 
     step3 (eatingStands) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(eatingStands.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(eatingStands <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         eatingStands = parseInt(eatingStands);
@@ -432,7 +460,7 @@ class StepController {
             maxEatingStands = 6;
         }
         if(eatingStands > maxEatingStands) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
             return;
         }
         this.data.getCurrentLocation().setAmountOfEatingStands(eatingStands);
@@ -442,9 +470,9 @@ class StepController {
 
     //post step4
     step4 (drinkStands) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(drinkStands.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(drinkStands <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         drinkStands = parseInt(drinkStands);
@@ -455,7 +483,7 @@ class StepController {
             maxDrinkStands = 4;
         }
         if(drinkStands > maxDrinkStands) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
             return;
         }
         this.data.getCurrentLocation().setAmountOfDrinkStands(drinkStands);
@@ -466,9 +494,9 @@ class StepController {
 
     //post step5
     step5(highTrees, wideTrees, shadowTrees) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(highTrees.length <= 0 || wideTrees.length <= 0 || shadowTrees.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount at every tree");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(highTrees <= 0 || wideTrees <= 0 || shadowTrees <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in an amount at every tree");
             return;
         }
         highTrees = parseInt(highTrees);
@@ -478,11 +506,11 @@ class StepController {
         let totalTrees = highTrees + wideTrees + shadowTrees;
 
         if(highTrees < 0 || wideTrees < 0 || shadowTrees < 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can't choose less than 0 trees of some sort");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can't choose less than 0 trees of some sort");
             return;
         }
         if(totalTrees > 10) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of 10 trees");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of 10 trees");
             return;
         }
         this.data.getCurrentLocation().setAmountOfHighTrees(highTrees);
@@ -494,19 +522,19 @@ class StepController {
     }
 
     step6(toiletBuildings) {
-        if(toiletBuildings.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        if(toiletBuildings <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount more");
             return;
         }
 
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
         toiletBuildings = parseInt(toiletBuildings);
         if(toiletBuildings < 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You cannot have a negative amount of toilet buildings");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You cannot have a negative amount of toilet buildings");
             return;
         }
         if(toiletBuildings > 6) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You cant have more than 6 toilet buildings");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You cant have more than 6 toilet buildings");
             return;
         }
 
@@ -523,10 +551,10 @@ class StepController {
     step7(trashcans) {
         
 
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
 
-        if(trashcans.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        if(trashcans <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         trashcans = parseInt(trashcans);
@@ -534,7 +562,7 @@ class StepController {
         let nonfilled = 15 * 15 - filled;
         let maximumAmountOfTrashcans = parseInt(filled * 0.05);
         if(trashcans > maximumAmountOfTrashcans) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of " + maximumAmountOfTrashcans + " trashcans.");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of " + maximumAmountOfTrashcans + " trashcans.");
             return;
         }
 
@@ -1547,12 +1575,18 @@ class GridView {
     }
 
     drawConfigOptions(x, y, text1, value1, type1, text2, value2, type2){
+        
         let block = document.getElementById("right-side")
         block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
         while (block.firstChild) {
             block.removeChild(block.firstChild);
         }
+
+        let errorBox = document.createElement("div");
+        errorBox.className = "p-3 mb-2 bg-red-200";
+        errorBox.id = 'configErrorbox'
+        errorBox.style.verticalAlign = "bottom";
 
         let div = document.createElement("div");
         div.className = "h-3.5/5 w-full flex flex-col";
@@ -1567,12 +1601,11 @@ class GridView {
         let secondInputLabel = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getLabel(text2);
         let secondInputBlock = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(secondInputLabel, secondInput);
         
-        let submitButton = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getButton("Save", () => {
-            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value); 
-            alert("Succesfully saved new configuration!");                  
+        let submitButton = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getButton("Save", "save-button", () => {
+            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value);                
         }); 
 
-        _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([firstInputBlock, secondInputBlock, submitButton], div);
+        _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([errorBox, firstInputBlock, secondInputBlock, submitButton], div);
 
         let div2 = document.createElement("div");
         div2.className = "h-3.5/5 w-full flex flex-col";
@@ -1585,6 +1618,8 @@ class GridView {
 
         block.appendChild(div);
         block.appendChild(div2);
+
+        _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.clearConfigErrors();
     }
 
     dropEvents(){
@@ -1614,11 +1649,10 @@ class GridView {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
                         this.gridController.moveItem(e.target.id, element.id);
-                        this.gridController.mainController.soundController.playDropSound();  
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
-                        // e.stopImmediatePropagation();
+                    this.gridController.mainController.soundController.playDropSound();  
                 } else {
                     alert("You can't place your item right here!");
 
@@ -1672,11 +1706,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Helper)
 /* harmony export */ });
 class Helper {
-    static getButton(name, onclick) {
+    static getButton(name, id, onclick) {
         let button = document.createElement("button");
         button.innerHTML = name;
         button.className = 'p-2 bg-green-500 hover:bg-green-800 hover:text-white w-full';
         button.onclick = onclick;
+        button.id = id;
         return button;
     }
     static getLabel(text, forname) {
@@ -1704,20 +1739,33 @@ class Helper {
         childs.forEach(child => {parent.appendChild(child)});
     }
 
-    static clearErrors() {
-        let errorbox = document.getElementById("errorbox");
+    static clearStepErrors() {
+        let errorbox = document.getElementById("stepErrorbox");
         errorbox.style.display = "none";
         errorbox.innerHTML = "";
     }
 
-    static setErrors(errors) {
+    static setStepErrors(errors) {
         if(errors != null) {
-                let errorbox = document.getElementById("errorbox");
+                let errorbox = document.getElementById("stepErrorbox");
                 errorbox.style.display = "block";
                 errorbox.innerHTML = errors;
         }
     }
-    
+
+    static clearConfigErrors() {
+        let errorbox = document.getElementById("configErrorbox");
+        errorbox.style.display = "none";
+        errorbox.innerHTML = "";
+    }
+
+    static setConfigErrors(errors) {
+        if(errors != null) {
+                let errorbox = document.getElementById("configErrorbox");
+                errorbox.style.display = "block";
+                errorbox.innerHTML = errors;
+        }
+    }
 }
 
 let helper = new Helper();
@@ -1749,7 +1797,7 @@ class MainView {
     }
 
     error(error) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors(error);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors(error);
     }
     
 } 
@@ -1806,12 +1854,14 @@ class NavigationView {
             
             let navButton = document.createElement("button");
             navButton.innerHTML = name;
+            navButton.id = 'navButton' + i;
             navButton.addEventListener('click', () => { this.navigationController.setCurrentLocation(i); });
 
             navButton.className = `navbutton bg-gray-200 p-3 pb-2 hover:bg-gray-500 hover:text-white flex flex-row`;
                        
             let deleteButton = document.createElement("button");
             deleteButton.addEventListener('click', () => { if(confirm('Are you sure you want to delete this location?')) this.navigationController.deleteLocation(i); });
+            deleteButton.id = 'deleteButton' + i;
             deleteButton.className = ` bg-red-500 hover:bg-red-800 hover:text-white pl-3 pr-3`;
             deleteButton.innerHTML = `X`;
 
@@ -1853,13 +1903,10 @@ class StepView {
 
     init(stepController) {
         
-       
         this.stepController = stepController;
-        
 
-        
         document.getElementById("resetConfig").addEventListener('click' , () => {stepController.resetConfig();})
-        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
     }
     generateStep1() {
         let block = document.getElementById("configuration_block");
@@ -1873,11 +1920,11 @@ class StepView {
         let nameInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Name: ', 'nameInput');
         let inputblock1 = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(nameInputLabel, nameInput);
 
-        let visitorInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('vistorInput', 'number');
+        let visitorInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('visitorInput', 'number');
         let visitorInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Visitors: ', 'visitorInput');
         let inputblock2 = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(visitorInputLabel, visitorInput);
         
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step1(nameInput.value, visitorInput.value)});
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step1-button", () => {this.stepController.step1(nameInput.value, visitorInput.value)});
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock1, inputblock2, submitButton], block);
     }
 
@@ -1892,7 +1939,7 @@ class StepView {
         let tentInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of tents: ', 'tentInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(tentInputLabel, tentInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step2(tentInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step2-button", () => {this.stepController.step2(tentInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton], block);
     }
@@ -1904,10 +1951,10 @@ class StepView {
         }
 
         let eatingStallsInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('eatingStallInput', 'number');
-        let eatingStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of teating stalls: ', 'eatingStallInput');
+        let eatingStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of eating stalls: ', 'eatingStallInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(eatingStallInputLabel, eatingStallsInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step3(eatingStallInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step3-button", () => {this.stepController.step3(eatingStallInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton], block);
     }
@@ -1920,10 +1967,10 @@ class StepView {
         }
 
         let drinkStallsInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('drinkStallInput', 'number');
-        let drinkStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of tdrink stalls: ', 'drinkStallInput');
+        let drinkStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of drinking stalls: ', 'drinkStallInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(drinkStallInputLabel, drinkStallsInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step4(drinkStallInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step4-button", () => {this.stepController.step4(drinkStallInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton], block);
     }
@@ -1947,7 +1994,7 @@ class StepView {
         let shadowTreeInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of shadow trees(3x3): ', 'shadowTreeInput');
         let inputBlock3 = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(shadowTreeInputLabel, shadowTreeInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step5(highTreeInput.value, wideTreeInput.value, shadowTreeInput.value)});
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step5-button", () => {this.stepController.step5(highTreeInput.value, wideTreeInput.value, shadowTreeInput.value)});
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputBlock1, inputBlock2, inputBlock3, submitButton], block)
 
@@ -1965,7 +2012,7 @@ class StepView {
         let toiletBuildingsInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of toilet buildings: ', 'toiletBuildingsInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(toiletBuildingsInputLabel, toiletBuildingsInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step6(toiletBuildingsInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step6-button", () => {this.stepController.step6(toiletBuildingsInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton] , block);
 
@@ -1982,7 +2029,7 @@ class StepView {
         let trashCanInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of trashcans (max: ' + maximumAmountOfTrashcans + '): ', 'trashCanInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(trashCanInputLabel, trashCanInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step7(trashCanInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step7-button", () => {this.stepController.step7(trashCanInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton] , block);
 

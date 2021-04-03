@@ -1,3 +1,5 @@
+import Helper from "../Views/Helper";
+
 export default class GridController {
     constructor(mainController, data) {
         this.data = data;
@@ -80,6 +82,7 @@ export default class GridController {
     }
 
     setConfigurationField(coordinates){
+
         let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
         let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
         x = parseInt(x);
@@ -105,6 +108,30 @@ export default class GridController {
     }
 
     updateConfigData(x, y, value1, value2){
+
+        if(!isNaN(value1)){
+            if(value1 <= 0){
+                Helper.setConfigErrors("Please enter a positive amount");
+                return;
+            }
+            if(value1 > 1000){
+                Helper.setConfigErrors("Value can't be greater than 1000");
+                return;
+            }
+        }
+
+        if(!isNaN(value2)){
+            if(value2 <= 0){
+                Helper.setConfigErrors("Please enter a positive amount");
+                return;
+            }
+            if(value2 > 1000){
+                Helper.setConfigErrors("Value can't be greater than 1000");
+                return;
+            }
+        }
+        
+        alert("Succesfully saved new configuration!");   
 
         let obj = this.data.getCurrentLocation().getObject(x,y);
         obj[Object.keys(obj)[0]] = value1;
