@@ -111,8 +111,6 @@ class SimulationController {
         this.locationController.refresh();
         this.setWeather();
         console.log("refresh");
-
-       
     }
 
     setWeather()  {
@@ -167,6 +165,7 @@ class WaitingLineController{
             this.data.setOpenWaitingLines(this.getAmountOfWaitingLinesOpen());
             this.data.setWaitingLines();
         }
+        
         this.scanWaitingLines();
         this.addVisitors();
         this.waitingLineView.refresh(this.data);
@@ -175,7 +174,7 @@ class WaitingLineController{
     }
 
     scanWaitingLines() {
-        this.data.scanWaitingLines();
+        this.data.scanWaitingLines(this.simulationController.weather.getCurrentWeather());
     }
 
     addVisitors() {
@@ -303,7 +302,7 @@ class Data {
         }
     }
 
-    scanWaitingLines() {
+    scanWaitingLines(weather) {
         let scannedPeople = [];
         for(let i = 0; i < this.waitingLines.length; i++) {
             let groupOfPeople  = this.waitingLines[i].scan();
@@ -312,18 +311,20 @@ class Data {
                 scannedPeople.push(groupOfPeople);
             }
         }
-        this.locateGroupsOfPeople(scannedPeople);
+        this.locateGroupsOfPeople(scannedPeople, weather);
     }
-    locateGroupsOfPeople(people) {
+    locateGroupsOfPeople(people, weather) {
+
+        console.log(weather);
     
         people.forEach(group =>  {
             let location = Math.floor(Math.random() * this.locations.length);
             let x = Math.floor(Math.random() * 15);
             let y = Math.floor(Math.random() * 15);
             
-            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
-                x = Math.floor(Math.random() * 14);
-                y = Math.floor(Math.random() * 14);
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7, weather)) {
+                x = Math.floor(Math.random() * 15);
+                y = Math.floor(Math.random() * 15);
             }
             this.locations[location].addGroupOfPeople(x,y,group)
         })
@@ -712,11 +713,39 @@ class GridBlock {
         return amount;
     }
 
-    canPlace(amount, maxAmountOfPeople) {
+    canPlace(amount, maxAmountOfPeople, weather) {
         console.log(amount, maxAmountOfPeople)
-        if(this.fillType == "tent" || this.fillType == "drinkStand" || this.fillType=="drinkStandSurface" || this.fillType == "toilet"|| this.fillType=="highTree" || this.fillType == "wideTree" 
+        if(this.fillType == "tent" || this.fillType == "drinkStand" || this.fillType == "toilet" || this.fillType=="highTree" || this.fillType == "wideTree" 
         || this.fillType=="shadowTree" || this.fillType =="foodStand" || this.fillType =="trashcan" || (amount + this.getAmountOfPeople() >= maxAmountOfPeople)) {
             return false;
+        }
+        if(weather == "Rain") {
+            let percentage;
+            let number = Math.floor(Math.random() * 100);
+            if(this.fillType == "tentSurface") {
+                percentage = 98;
+            } else {
+                percentage = 2;
+            }
+            if(number < percentage) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if(weather == "Clear") {
+            let percentage;
+            let number = Math.floor(Math.random() * 100);
+            if(this.fillType == "highTreeSurface" || this.fillType == "shadowTreeSurface" || this.fillType == "wideTreeSurface" || this.fillType == "drinkStandSurface") {
+                percentage = 99;
+            } else {
+                percentage = 1;
+            }
+            if(number < percentage) {
+                return true;
+            } else {
+                return false;
+            }
         }
         return true;
 
@@ -1439,6 +1468,7 @@ class LocationView {
         personinfoheader.className = "italic";
         infoblock.appendChild(personinfoheader);
         if(gridBlock.getAmountOfPeople() <= 0) { 
+            let personImage = new Image
             let personRow = document.createElement("span");
             personRow.innerHTML = "-";
 

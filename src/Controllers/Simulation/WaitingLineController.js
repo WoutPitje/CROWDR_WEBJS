@@ -24,6 +24,7 @@ export default class WaitingLineController{
             this.data.setOpenWaitingLines(this.getAmountOfWaitingLinesOpen());
             this.data.setWaitingLines();
         }
+        
         this.scanWaitingLines();
         this.addVisitors();
         this.waitingLineView.refresh(this.data);
@@ -32,7 +33,7 @@ export default class WaitingLineController{
     }
 
     scanWaitingLines() {
-        this.data.scanWaitingLines();
+        this.data.scanWaitingLines(this.simulationController.weather.getCurrentWeather());
     }
 
     addVisitors() {

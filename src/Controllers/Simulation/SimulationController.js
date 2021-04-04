@@ -39,8 +39,6 @@ export default class SimulationController {
         this.locationController.refresh();
         this.setWeather();
         console.log("refresh");
-
-       
     }
 
     setWeather()  {

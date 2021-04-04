@@ -72,7 +72,7 @@ export default class Data {
         }
     }
 
-    scanWaitingLines() {
+    scanWaitingLines(weather) {
         let scannedPeople = [];
         for(let i = 0; i < this.waitingLines.length; i++) {
             let groupOfPeople  = this.waitingLines[i].scan();
@@ -81,18 +81,20 @@ export default class Data {
                 scannedPeople.push(groupOfPeople);
             }
         }
-        this.locateGroupsOfPeople(scannedPeople);
+        this.locateGroupsOfPeople(scannedPeople, weather);
     }
-    locateGroupsOfPeople(people) {
+    locateGroupsOfPeople(people, weather) {
+
+        console.log(weather);
     
         people.forEach(group =>  {
             let location = Math.floor(Math.random() * this.locations.length);
             let x = Math.floor(Math.random() * 15);
             let y = Math.floor(Math.random() * 15);
             
-            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
-                x = Math.floor(Math.random() * 14);
-                y = Math.floor(Math.random() * 14);
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7, weather)) {
+                x = Math.floor(Math.random() * 15);
+                y = Math.floor(Math.random() * 15);
             }
             this.locations[location].addGroupOfPeople(x,y,group)
         })

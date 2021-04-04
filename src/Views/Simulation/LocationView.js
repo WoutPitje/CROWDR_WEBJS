@@ -172,6 +172,7 @@ export default class LocationView {
         personinfoheader.className = "italic";
         infoblock.appendChild(personinfoheader);
         if(gridBlock.getAmountOfPeople() <= 0) { 
+            let personImage = new Image
             let personRow = document.createElement("span");
             personRow.innerHTML = "-";
 
