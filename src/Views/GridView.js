@@ -70,6 +70,7 @@ export default class GridView {
         block.appendChild(itemLegenda);
         block.appendChild(div);
     }
+
     runSimulation() {
         this.gridController.mainController.runSimulation();
     }
@@ -130,6 +131,7 @@ export default class GridView {
 
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
+        runSimulation.addEventListener("click" , () => {this.runSimulation()})
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div.appendChild(runSimulation);
@@ -237,6 +239,7 @@ export default class GridView {
 
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
+        runSimulation.addEventListener("click" , () => {this.runSimulation()})
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div2.appendChild(runSimulation);

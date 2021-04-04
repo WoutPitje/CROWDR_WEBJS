@@ -232,7 +232,11 @@ class MainController {
     }
 
     runSimulation() {
-        window.location.href = "simulation.html";
+
+        if(this.data.allLocationsLocked()){
+            window.location.href = "simulation.html";
+        }
+
     }
 }
 
@@ -717,14 +721,16 @@ class Data {
 
     allLocationsLocked() {
         
+        let bool = true;
+
         this.locations.forEach(location => {
             console.log(location.getRegionLocked())
             if(!location.getRegionLocked()) {
                 
-                return false;
+                bool = false;
             }
         });
-        return true;
+        return bool;
     }
 }
 
@@ -1619,6 +1625,7 @@ class GridView {
         block.appendChild(itemLegenda);
         block.appendChild(div);
     }
+
     runSimulation() {
         this.gridController.mainController.runSimulation();
     }
@@ -1679,6 +1686,7 @@ class GridView {
 
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
+        runSimulation.addEventListener("click" , () => {this.runSimulation()})
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div.appendChild(runSimulation);
@@ -1786,6 +1794,7 @@ class GridView {
 
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
+        runSimulation.addEventListener("click" , () => {this.runSimulation()})
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div2.appendChild(runSimulation);

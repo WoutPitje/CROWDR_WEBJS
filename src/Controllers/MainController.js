@@ -41,6 +41,10 @@ export default class MainController {
     }
 
     runSimulation() {
-        window.location.href = "simulation.html";
+
+        if(this.data.allLocationsLocked()){
+            window.location.href = "simulation.html";
+        }
+
     }
 }

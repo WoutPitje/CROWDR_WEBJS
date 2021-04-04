@@ -123,13 +123,15 @@ export default class Data {
 
     allLocationsLocked() {
         
+        let bool = true;
+
         this.locations.forEach(location => {
             console.log(location.getRegionLocked())
             if(!location.getRegionLocked()) {
                 
-                return false;
+                bool = false;
             }
         });
-        return true;
+        return bool;
     }
 }
