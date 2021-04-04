@@ -73,8 +73,39 @@ export default class Data {
     }
 
     scanWaitingLines() {
+        let scannedPeople = [];
         for(let i = 0; i < this.waitingLines.length; i++) {
-            this.waitingLines[i].scan();
+            let groupOfPeople  = this.waitingLines[i].scan();
+            if(typeof groupOfPeople !== 'undefined') {
+                scannedPeople.push(groupOfPeople);
+            }
         }
+        this.locateGroupsOfPeople(scannedPeople);
+    }
+    locateGroupsOfPeople(people) {
+        console.log(people);
+        people.forEach(group =>  {
+            let location = Math.floor(Math.random() * this.locations.length);
+            let x = Math.floor(Math.random() * 14);
+            let y = Math.floor(Math.random() * 14);
+
+            
+
+            let type = this.locations[location].grid.array[x][y].fillType;
+            
+            while(type == "tent" || type == "drinkStand" || type=="drinkStandSurface" || type == "toilet"|| type=="highTree" || type == "wideTree" || type=="shadowTree" || type =="foodStand" || type =="trashcan") {
+                location = Math.floor(Math.random() * this.locations.length);
+                x = Math.floor(Math.random() * 14);
+                y = Math.floor(Math.random() * 14);
+
+                type = this.locations[location].grid.array[x][y].fillType;
+            }
+                
+            this.locations[location].addGroupOfPeople(x,y,people)
+            
+       
+            
+        })
+        
     }
 }

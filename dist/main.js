@@ -578,9 +578,40 @@ class Data {
     }
 
     scanWaitingLines() {
+        let scannedPeople = [];
         for(let i = 0; i < this.waitingLines.length; i++) {
-            this.waitingLines[i].scan();
+            let groupOfPeople  = this.waitingLines[i].scan();
+            if(typeof groupOfPeople !== 'undefined') {
+                scannedPeople.push(groupOfPeople);
+            }
         }
+        this.locateGroupsOfPeople(scannedPeople);
+    }
+    locateGroupsOfPeople(people) {
+        console.log(people);
+        people.forEach(group =>  {
+            let location = Math.floor(Math.random() * this.locations.length);
+            let x = Math.floor(Math.random() * 14);
+            let y = Math.floor(Math.random() * 14);
+
+            
+
+            let type = this.locations[location].grid.array[x][y].fillType;
+            
+            while(type == "tent" || type == "drinkStand" || type=="drinkStandSurface" || type == "toilet"|| type=="highTree" || type == "wideTree" || type=="shadowTree" || type =="foodStand" || type =="trashcan") {
+                location = Math.floor(Math.random() * this.locations.length);
+                x = Math.floor(Math.random() * 14);
+                y = Math.floor(Math.random() * 14);
+
+                type = this.locations[location].grid.array[x][y].fillType;
+            }
+                
+            this.locations[location].addGroupOfPeople(x,y,people)
+            
+       
+            
+        })
+        
     }
 }
 
@@ -603,15 +634,16 @@ class Grid {
     
     constructor(grid) {
 
-        this.array = [];
+        this.array = new Array(15);
         for (var i = 0; i < 15; i++) {
-            this.array[i] = [];
+            this.array[i] = new Array(15);
             for (var j = 0; j < 15; j++) {
                 if(grid == null) {
                     this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default({});
                 } else{
-                this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default(grid.array[i][j]);
+                    this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default(grid.array[i][j]);
                 }
+                
             }
         }
     }
@@ -620,6 +652,10 @@ class Grid {
 
     getItem(x,y) {
         return this.array[x][y].getFillType();
+    }
+
+    getGridBlock(x,y) {
+        return this.array[x - 1][ y-1];
     }
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
@@ -808,8 +844,7 @@ class Grid {
         }
         return true;
     }
-
-        
+     
 
 
 }
@@ -830,7 +865,7 @@ class GridBlock {
     
     constructor(gridblock) {
         this.fillType = null;
-        
+        this.groupsOfPeople = [];
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
     }
     setFillType(newFillType) {
@@ -838,6 +873,9 @@ class GridBlock {
     }
     getFillType() {
         return this.fillType;
+    }
+    addGroupOfPeople(group) {
+        this.groupsOfPeople.push(group);
     }
 }
 
@@ -1053,6 +1091,12 @@ class Location {
     getItem(x,y) {
         return this.grid.getItem(x,y);
     }
+
+    addGroupOfPeople(x,y, people) {
+        
+        console.log(x + " " + y)
+        this.grid.array[x][y].addGroupOfPeople(people);
+    }
 }
 
 /***/ }),
@@ -1071,6 +1115,8 @@ class WaitingLine {
 
     constructor() {
         this.people = [];
+        this.scanSpeed = Math.floor(Math.random() * 3) + 1;
+        this.seconds = 0;
     }
 
     addGroupOfPeople(group) {
@@ -1078,7 +1124,17 @@ class WaitingLine {
     }
 
     scan() {
-        this.people.shift();
+        this.seconds++;
+        if(this.people.length > 0) {
+        let amountOfPeople = this.people[0].people.length;
+        
+        if(this.seconds >= amountOfPeople * this.scanSpeed) {
+            this.seconds = 0;
+            return this.people.shift();
+            
+        }
+    }
+        
     }
 }
 
