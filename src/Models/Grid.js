@@ -1,4 +1,7 @@
 import GridBlock from "../Models/GridBlock";
+import Trashcan from "../Models/Trashcan";
+import EatingStand from "../Models/EatingStand";
+import Tent from "../Models/Tent";
 
 export default class Grid {
     
@@ -36,6 +39,15 @@ export default class Grid {
     getGridBlock(x,y) {
         return this.array[x - 1][ y-1];
     }
+
+    getObject(x,y) {
+        return this.array[x][y].getObject();
+    }
+
+    setObject(x,y,obj) {
+        this.array[x][y].setObject(obj);
+    }
+
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");
@@ -46,12 +58,18 @@ export default class Grid {
         this.array[x][y+1].setFillType("tentSurface");
         this.array[x+1][y+1].setFillType("tentSurface");
         this.array[x][y].setFillType("tent");
+
+        let tentObject = new Tent();
+        this.array[x][y].setObject(tentObject);
     }
 
     
 
     placeFoodStand(x,y) {
         this.array[x][y].setFillType("foodStand");
+
+        let eatingStandObject = new EatingStand();
+        this.array[x][y].setObject(eatingStandObject);
     }
 
     placeDrinkStand(x,y) {
@@ -88,6 +106,9 @@ export default class Grid {
 
     placeTrashcans( x,y) {
         this.array[x][y].setFillType("trashcan");
+
+        let trashcanObject = new Trashcan();
+        this.array[x][y].setObject(trashcanObject);
     }
     deleteTent(x,y) {
         this.array[x-1][y-1].setFillType(null);
@@ -99,9 +120,12 @@ export default class Grid {
         this.array[x][y+1].setFillType(null);
         this.array[x+1][y+1].setFillType(null);
         this.array[x][y].setFillType(null);
+        this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     deleteFoodStand(x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
 
     deleteDrinkStand(x,y) {
@@ -138,6 +162,7 @@ export default class Grid {
 
     deleteTrashcans( x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     canPlaceTent(x,y) {
         

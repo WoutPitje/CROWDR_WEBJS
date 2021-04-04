@@ -53,6 +53,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Views_simulation_SimulationView_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../Views/simulation/SimulationView.js */ "./src/Views/simulation/SimulationView.js");
 /* harmony import */ var _Views_simulation_LocationView_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../Views/simulation/LocationView.js */ "./src/Views/simulation/LocationView.js");
 /* harmony import */ var _Models_Data_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../Models/Data.js */ "./src/Models/Data.js");
+/* harmony import */ var _Models_Simulation_Weather_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../Models/Simulation/Weather.js */ "./src/Models/Simulation/Weather.js");
+
 
 
 
@@ -72,7 +74,6 @@ class SimulationController {
         
 
         this.startSimulation();
-        
     }
 
     startSimulation() {
@@ -194,7 +195,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class Data {
     constructor(dataobject) {
-        console.log(dataobject);
         if(dataobject == null) {
             this.locations = [new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
@@ -241,6 +241,7 @@ class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({});
+        this.locations[this.currentLocation - 1].setRegionLocked(false);
     }
     setOpenWaitingLines(lines) {
         this.openWaitingLines = lines;
@@ -313,6 +314,41 @@ class Data {
 
 /***/ }),
 
+/***/ "./src/Models/EatingStand.js":
+/*!***********************************!*\
+  !*** ./src/Models/EatingStand.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EatingStand)
+/* harmony export */ });
+class EatingStand {
+    
+    constructor() {
+        this.maxVisitors = 15;
+        this.standType = "general";
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setStandType(newStandType) {
+        this.standType = newStandType;
+    }
+    
+    getStandType() {
+        return this.standType;
+    }
+}
+
+/***/ }),
+
 /***/ "./src/Models/Grid.js":
 /*!****************************!*\
   !*** ./src/Models/Grid.js ***!
@@ -324,6 +360,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Grid)
 /* harmony export */ });
 /* harmony import */ var _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/GridBlock */ "./src/Models/GridBlock.js");
+/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Models/Trashcan */ "./src/Models/Trashcan.js");
+/* harmony import */ var _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Models/EatingStand */ "./src/Models/EatingStand.js");
+/* harmony import */ var _Models_Tent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Models/Tent */ "./src/Models/Tent.js");
+
+
+
 
 
 class Grid {
@@ -362,6 +404,15 @@ class Grid {
     getGridBlock(x,y) {
         return this.array[x - 1][ y-1];
     }
+
+    getObject(x,y) {
+        return this.array[x][y].getObject();
+    }
+
+    setObject(x,y,obj) {
+        this.array[x][y].setObject(obj);
+    }
+
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");
@@ -372,12 +423,18 @@ class Grid {
         this.array[x][y+1].setFillType("tentSurface");
         this.array[x+1][y+1].setFillType("tentSurface");
         this.array[x][y].setFillType("tent");
+
+        let tentObject = new _Models_Tent__WEBPACK_IMPORTED_MODULE_3__.default();
+        this.array[x][y].setObject(tentObject);
     }
 
     
 
     placeFoodStand(x,y) {
         this.array[x][y].setFillType("foodStand");
+
+        let eatingStandObject = new _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__.default();
+        this.array[x][y].setObject(eatingStandObject);
     }
 
     placeDrinkStand(x,y) {
@@ -414,6 +471,9 @@ class Grid {
 
     placeTrashcans( x,y) {
         this.array[x][y].setFillType("trashcan");
+
+        let trashcanObject = new _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__.default();
+        this.array[x][y].setObject(trashcanObject);
     }
     deleteTent(x,y) {
         this.array[x-1][y-1].setFillType(null);
@@ -425,9 +485,12 @@ class Grid {
         this.array[x][y+1].setFillType(null);
         this.array[x+1][y+1].setFillType(null);
         this.array[x][y].setFillType(null);
+        this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     deleteFoodStand(x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
 
     deleteDrinkStand(x,y) {
@@ -464,6 +527,7 @@ class Grid {
 
     deleteTrashcans( x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     canPlaceTent(x,y) {
         
@@ -571,11 +635,15 @@ class GridBlock {
     constructor(gridblock) {
         this.fillType = null;
         this.groupsOfPeople = [];
+        this.object = null;
+        
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
+        if(typeof gridblock.object !== 'undefined') this.object = gridblock.object;
     }
     setFillType(newFillType) {
         this.fillType = newFillType;
     }
+
     getFillType() {
         return this.fillType;
     }
@@ -614,6 +682,14 @@ class GridBlock {
 
         return people;
     }
+
+    setObject(newObject) {
+        this.object = newObject;
+    }
+    
+    getObject() {
+        return this.object;
+    }
 }
 
 /***/ }),
@@ -636,11 +712,14 @@ class Location {
     constructor(location) {
         this.treesAreSet = false;
         this.stepsAreSet = false;
+        this.regionIsLocked = false;
         
         this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(null);
         if(typeof location.treesAreSet !== 'undefined') this.treesAreSet = location.treesAreSet;
 
         if(typeof location.stepsAreSet !== 'undefined') this.stepsAreSet = location.stepsAreSet;
+
+        if(typeof location.regionIsLocked !== 'undefined') this.regionIsLocked = location.regionIsLocked;
         
         if(typeof location.name !== 'undefined') this.name = location.name;
         
@@ -841,6 +920,22 @@ class Location {
     getAmountOfPeople(x,y) {
         return this.grid.getAmountOfPeople(x,y);
     }
+
+    getObject(x,y) {
+        return this.grid.getObject(x,y);
+    }
+
+    setObject(x,y, obj) {
+        this.grid.setObject(x,y,obj);
+    }
+
+    setRegionLocked(boolean){
+        this.regionIsLocked = boolean;
+    }
+
+    getRegionLocked(){
+        return this.regionIsLocked;
+    }
 }
 
 /***/ }),
@@ -889,19 +984,51 @@ class Person {
 
     constructor() {
         
-        // const api_url = 'https://randomuser.me/api/'
+        var self = this;
 
-        // async function getData() {
-        //     const response = await fetch(api_url);
-        //     const data = response.json();
+        fetch('https://randomuser.me/api/')
+        .then(
+          function(response) {
+            if (response.status !== 200) {
+              console.log('Looks like there was a problem. Status Code: ' +
+                response.status);
+              return;
+            }
+      
+            response.json().then(function(data) {
+                console.log(data.results[0]);
+              self.name = data.results[0].name.title + " " + data.results[0].name.first + " " + data.results[0].name.last;
+              self.gender = data.results[0].gender;
+              self.age = data.results[0].dob.age;
+              self.picture = data.results[0].picture.thumbnail;
+              self.country = data.results[0].location.country
+            });
+          }
+        )
+        .catch(function(err) {
+          console.log('Fetch Error :-S', err);
+        });
+    }   
 
-        //     console.log(data);
-        // }
-
-        this.name = "piet";
-        this.age = Math.floor(Math.random() * 100) + 1;
+    getName(){
+        return this.name;
     }
-    
+
+    getGender(){
+        return this.gender;
+    }
+
+    getAge(){
+        return this.age;
+    }
+
+    getPicture(){
+        return this.picture;
+    }
+
+    getCountry(){
+        return this.country;
+    }
 }
 
 /***/ }),
@@ -943,6 +1070,118 @@ class WaitingLine {
     }
 }
 
+
+/***/ }),
+
+/***/ "./src/Models/Simulation/Weather.js":
+/*!******************************************!*\
+  !*** ./src/Models/Simulation/Weather.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Weather)
+/* harmony export */ });
+class Weather {
+
+    constructor() {
+        
+        var self = this;
+
+        fetch("http://api.openweathermap.org/data/2.5/weather?q='s-Hertogenbosch&appid=e68285f49070969fc85b1cc56080ab46")
+        .then(
+          function(response) {
+            if (response.status !== 200) {
+              console.log('Looks like there was a problem. Status Code: ' +
+                response.status);
+              return;
+            }
+      
+            response.json().then(function(data) {
+              self.currentWeather = data.weather[0].main;
+            });
+          }
+        )
+        .catch(function(err) {
+          console.log('Fetch Error :-S', err);
+        });
+    }   
+
+    getCurrentWeather(){
+      return this.currentWeather;
+  }
+}
+
+/***/ }),
+
+/***/ "./src/Models/Tent.js":
+/*!****************************!*\
+  !*** ./src/Models/Tent.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Tent)
+/* harmony export */ });
+class Tent {
+    
+    constructor() {
+        this.maxVisitors = 5;
+        this.openingTimes = "08:00";
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setOpeningTimes(newOpeningTimes) {
+        this.openingTimes = newOpeningTimes;
+    }
+    
+    getOpeningTimes() {
+        return this.openingTimes;
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Models/Trashcan.js":
+/*!********************************!*\
+  !*** ./src/Models/Trashcan.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Trashcan)
+/* harmony export */ });
+class Trashcan {
+    
+    constructor() {
+        this.kiloCapacity = 5;
+        this.emptyTime = "08:00";
+    }
+    setKiloCapacity(newKiloCapacity) {
+        this.kiloCapacity = newKiloCapacity;
+    }
+
+    getKiloCapacity() {
+        return this.kiloCapacity;
+    }
+
+    setEmptyTime(newEmptyTime) {
+        this.emptyTime = newEmptyTime;
+    }
+    
+    getEmptyTime() {
+        return this.emptyTime;
+    }
+}
 
 /***/ }),
 
@@ -1140,7 +1379,7 @@ class LocationView {
             group.people.forEach(person => {
                 let personRow = document.createElement("span");
                 personRow.className = "ml-4"
-                personRow.innerHTML = person.name + " (" + person.age + ")";
+                personRow.innerHTML = person.getName() + " (" + person.getAge() + ") ("+ person.getGender() + ") ";
                 infoblock.appendChild(personRow);
             });
             i++;

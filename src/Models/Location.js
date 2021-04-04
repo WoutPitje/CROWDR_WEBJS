@@ -5,11 +5,14 @@ export default class Location {
     constructor(location) {
         this.treesAreSet = false;
         this.stepsAreSet = false;
+        this.regionIsLocked = false;
         
         this.grid = new Grid(null);
         if(typeof location.treesAreSet !== 'undefined') this.treesAreSet = location.treesAreSet;
 
         if(typeof location.stepsAreSet !== 'undefined') this.stepsAreSet = location.stepsAreSet;
+
+        if(typeof location.regionIsLocked !== 'undefined') this.regionIsLocked = location.regionIsLocked;
         
         if(typeof location.name !== 'undefined') this.name = location.name;
         
@@ -209,5 +212,21 @@ export default class Location {
 
     getAmountOfPeople(x,y) {
         return this.grid.getAmountOfPeople(x,y);
+    }
+
+    getObject(x,y) {
+        return this.grid.getObject(x,y);
+    }
+
+    setObject(x,y, obj) {
+        this.grid.setObject(x,y,obj);
+    }
+
+    setRegionLocked(boolean){
+        this.regionIsLocked = boolean;
+    }
+
+    getRegionLocked(){
+        return this.regionIsLocked;
     }
 }

@@ -12,47 +12,68 @@ export default class GridView {
         this.gridController = gridController;
     }
 
-    refresh(data) {
+    refreshNormal(data) {
+        
         this.generateRightSide();
         this.generateGrid();
-        this.drawGridItems();
+        this.drawGridItems();   
         this.generateImages(data);
-        this.dropEvents();
+        this.dropEvents();       
+    }
+
+    refreshLocked() {
         
+        this.drawRegionLock();
+        this.generateGrid();
+        this.drawGridItems(); 
+        this.lockEvents();    
     }
 
     generateRightSide() {
         let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
         while (block.firstChild) {
             block.removeChild(block.firstChild);
         }
 
         let itemLegenda = document.createElement("div");
-        itemLegenda.className = "w-full  flex flex-row flex-wrap";
+        itemLegenda.className = "w-full flex flex-row flex-wrap";
         itemLegenda.id = "images_block";
 
         let div = document.createElement("div");
-        div.className = "h-2/5 w-full flex flex-col";
+        div.className = "h-3.5/5 w-full flex flex-col";
+
         let dropbackzone = document.createElement("div");
         dropbackzone.className = "bg-gray-400 w-full h-full mb-5";
+        dropbackzone.innerHTML = "Drop back items here!";
+        dropbackzone.style.fontStyle = "italic";
+        dropbackzone.style.textAlign = 'center';
+        dropbackzone.style.lineHeight = '240px';
         dropbackzone.id = "dropbackzone";
+
+        let lockRegion = document.createElement("button");
+        lockRegion.addEventListener('click', () => { if(confirm('Are you sure you want to lock this region?')) this.gridController.lockRegion(); });
+        lockRegion.innerHTML = "Lock region";
+        lockRegion.className = "p-5 mb-5 bg-blue-500 hover:bg-blue-800 hover:text-white w-full";
+        lockRegion.id = "lock_button"
+
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div.appendChild(dropbackzone);
+        div.appendChild(lockRegion);
         div.appendChild(runSimulation);
 
         block.appendChild(itemLegenda);
         block.appendChild(div);
     }
 
-
+    
     generateGrid() {
         let paneSize = this.paneSize;
         let windowSize = this.windowSize;
-        console.log(paneSize);
 
         const grid = document.getElementById("grid");
                         grid.style.position = "relative";
@@ -90,6 +111,27 @@ export default class GridView {
                         }
                     }
                     
+    }
+
+    drawRegionLock(){
+        let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-end";
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let div = document.createElement("div");
+        div.className = "h-3.5/5 w-full flex flex-col";
+        div.style.verticalAlign = "bottom";
+
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div.appendChild(runSimulation);
+
+        block.appendChild(div);
     }
 
     drawGridItems() {
@@ -132,23 +174,74 @@ export default class GridView {
 
     generateImage(type, amount, parent){
         
+        let subBlock = document.createElement("div");
+        subBlock.className = "w-full flex flex-row flex-wrap";
+
         for(let i =0;i< amount;i++){
             let image = this.getImageBlock(type);
             
-            parent.appendChild(image);
+            subBlock.appendChild(image);
+            parent.appendChild(subBlock);
         }
-        
     }
 
     getImageBlock(type) {
         let image = document.createElement("img");
         image.src = "../src/images/"+ type +".png";
         image.id = type;
-        image.setAttribute('draggable', 'true');
+        image.setAttribute('draggable', !this.gridController.getRegionLock());
         image.className = "draggable-item";
         image.style.width = "50px";
         image.style.height = "50px";
         return image;
+    }
+
+    drawConfigOptions(x, y, text1, value1, type1, text2, value2, type2){
+        
+        let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let errorBox = document.createElement("div");
+        errorBox.className = "p-3 mb-2 bg-red-200";
+        errorBox.id = 'configErrorbox'
+        errorBox.style.verticalAlign = "bottom";
+
+        let div = document.createElement("div");
+        div.className = "h-3.5/5 w-full flex flex-col";
+
+        let firstInput = Helper.getInputField('firstInput', type1);
+        firstInput.value = value1;
+        let firstInputLabel = Helper.getLabel(text1);
+        let firstInputBlock = Helper.getDivForInput(firstInputLabel, firstInput);
+
+        let secondInput = Helper.getInputField('secondInput', type2);
+        secondInput.value = value2;
+        let secondInputLabel = Helper.getLabel(text2);
+        let secondInputBlock = Helper.getDivForInput(secondInputLabel, secondInput);
+        
+        let submitButton = Helper.getButton("Save", "save-button", () => {
+            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value);                
+        }); 
+
+        Helper.appendChilds([errorBox, firstInputBlock, secondInputBlock, submitButton], div);
+
+        let div2 = document.createElement("div");
+        div2.className = "h-3.5/5 w-full flex flex-col";
+
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div2.appendChild(runSimulation);
+
+        block.appendChild(div);
+        block.appendChild(div2);
+
+        Helper.clearConfigErrors();
     }
 
     dropEvents(){
@@ -160,7 +253,7 @@ export default class GridView {
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
-                
+                this.gridController.mainController.soundController.playSelectSound();
             });
         }
         
@@ -169,28 +262,27 @@ export default class GridView {
                 e.preventDefault();
                 if(element.parentNode.classList.contains("dropzone")) {
                     this.gridController.deleteGridFill(element.parentNode.id, element.id);
-                    
                 }
             }); 
     
             dropzones[i].addEventListener('drop', (e) => {
+
                 if(this.gridController.canPlace(e.target.id, element.id)) {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
-                        this.gridController.moveItem(e.target.id, element.id);  
+                        this.gridController.moveItem(e.target.id, element.id);
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
-                    // e.stopImmediatePropagation();
+                    this.gridController.mainController.soundController.playDropSound();  
                 } else {
-                    alert("you cant place your item right here");
+                    alert("You can't place your item right here!");
+
                     if(element.parentNode.classList.contains("dropzone")) {
                         this.gridController.moveItem(element.parentNode.id, element.id);
                     }
                 }
                 this.gridController.refreshGrid();
-                
-               
             });       
         }
         
@@ -204,13 +296,21 @@ export default class GridView {
             // e.stopImmediatePropagation();
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
+                this.gridController.mainController.soundController.playDropSound();
             } else {
-                alert("you cant place your item right here");
+                alert("You can't place your item right here!");
             }
             this.gridController.refreshGrid();
         })
-        }
-        
+    }
 
-        
+        lockEvents(){
+            let draggableItems = document.getElementsByClassName('draggable-item');
+            
+            for(let i = 0; i < draggableItems.length;i++) {
+                draggableItems[i].addEventListener('click', (e) => {
+                    this.gridController.setConfigurationField(e.target.parentNode.id);                   
+                });
+            }
+        }
 }

@@ -43,33 +43,32 @@ export default class StepController {
         this.mainController.refreshLocationScreen();
         this.stepView.generateStep1();
         this.mainController.saveData();
-    
     }
     //post step1
     step1(name, visitors) {
-        Helper.clearErrors();
-        if(visitors.length <= 0) {
-            Helper.setErrors("Please fil in a amount of visitors");
+        Helper.clearStepErrors();
+        if(visitors <= 0) {
+            Helper.setStepErrors("Please fill in a positive amount of visitors");
             return;
         }
         visitors = parseInt(visitors);
         
         if(name.length <= 0) {
-            Helper.setErrors("Please fill in a name");
+            Helper.setStepErrors("Please fill in a name");
             return;
         }
         
         if(visitors.length <= 0) {
-            Helper.setErrors("Please fill in the amount of visitors");
+            Helper.setStepErrors("Please fill in the amount of visitors");
              return;
         }
         if(name.length > 20) {
-            Helper.setErrors("Name can't be longer than 20 characters");
+            Helper.setStepErrors("Name can't be longer than 20 characters");
             return;
         }
     
         if(visitors > 100000) {
-            Helper.setErrors("There's a maximum of 100000 visitors");
+            Helper.setStepErrors("There's a maximum of 100000 visitors");
             return;
         }
         this.data.getCurrentLocation().setName(name);
@@ -80,19 +79,19 @@ export default class StepController {
     }
     //post step2
     step2(tents) {
-        Helper.clearErrors();
+        Helper.clearStepErrors();
         if(tents.length <= 0) {
-            Helper.setErrors("Please fill in an amount");
+            Helper.setStepErrors("Please fill in a positive amount");
             return;
         }
         tents = parseInt(tents);
         
         if(tents < 0) { 
-            Helper.setErrors("Please fill in an amount that's between 0 and 6");
+            Helper.setStepErrors("Please fill in an amount that's between 0 and 6");
             return
         }
         if(tents > 6) {
-            Helper.setErrors("You can only have a maximum amonut of 6 tents");
+            Helper.setStepErrors("You can only have a maximum amonut of 6 tents");
             return;
         }
         this.data.getCurrentLocation().setAmountOfTents(tents);
@@ -102,9 +101,9 @@ export default class StepController {
 
     //post step3 
     step3 (eatingStands) {
-        Helper.clearErrors();
-        if(eatingStands.length <= 0) {
-            Helper.setErrors("Please fill in an amount");
+        Helper.clearStepErrors();
+        if(eatingStands <= 0) {
+            Helper.setStepErrors("Please fill in a positive amount");
             return;
         }
         eatingStands = parseInt(eatingStands);
@@ -115,7 +114,7 @@ export default class StepController {
             maxEatingStands = 6;
         }
         if(eatingStands > maxEatingStands) {
-            Helper.setErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
+            Helper.setStepErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
             return;
         }
         this.data.getCurrentLocation().setAmountOfEatingStands(eatingStands);
@@ -125,9 +124,9 @@ export default class StepController {
 
     //post step4
     step4 (drinkStands) {
-        Helper.clearErrors();
-        if(drinkStands.length <= 0) {
-            Helper.setErrors("Please fill in an amount");
+        Helper.clearStepErrors();
+        if(drinkStands <= 0) {
+            Helper.setStepErrors("Please fill in a positive amount");
             return;
         }
         drinkStands = parseInt(drinkStands);
@@ -138,7 +137,7 @@ export default class StepController {
             maxDrinkStands = 4;
         }
         if(drinkStands > maxDrinkStands) {
-            Helper.setErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
+            Helper.setStepErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
             return;
         }
         this.data.getCurrentLocation().setAmountOfDrinkStands(drinkStands);
@@ -149,9 +148,9 @@ export default class StepController {
 
     //post step5
     step5(highTrees, wideTrees, shadowTrees) {
-        Helper.clearErrors();
-        if(highTrees.length <= 0 || wideTrees.length <= 0 || shadowTrees.length <= 0) {
-            Helper.setErrors("Please fill in an amount at every tree");
+        Helper.clearStepErrors();
+        if(highTrees < 0 || wideTrees < 0 || shadowTrees < 0) {
+            Helper.setStepErrors("Please fill in an amount at every tree");
             return;
         }
         highTrees = parseInt(highTrees);
@@ -161,11 +160,11 @@ export default class StepController {
         let totalTrees = highTrees + wideTrees + shadowTrees;
 
         if(highTrees < 0 || wideTrees < 0 || shadowTrees < 0) {
-            Helper.setErrors("You can't choose less than 0 trees of some sort");
+            Helper.setStepErrors("You can't choose less than 0 trees of some sort");
             return;
         }
         if(totalTrees > 10) {
-            Helper.setErrors("You can only have a maximum of 10 trees");
+            Helper.setStepErrors("You can only have a maximum of 10 trees");
             return;
         }
         this.data.getCurrentLocation().setAmountOfHighTrees(highTrees);
@@ -177,19 +176,19 @@ export default class StepController {
     }
 
     step6(toiletBuildings) {
-        if(toiletBuildings.length <= 0) {
-            Helper.setErrors("Please fill in an amount");
+        if(toiletBuildings <= 0) {
+            Helper.setStepErrors("Please fill in a positive amount more");
             return;
         }
 
-        Helper.clearErrors();
+        Helper.clearStepErrors();
         toiletBuildings = parseInt(toiletBuildings);
         if(toiletBuildings < 0) {
-            Helper.setErrors("You cannot have a negative amount of toilet buildings");
+            Helper.setStepErrors("You cannot have a negative amount of toilet buildings");
             return;
         }
-        if(toiletBuildings > 5) {
-            Helper.setErrors("You cant have more than 6 toilet buildings");
+        if(toiletBuildings > 6) {
+            Helper.setStepErrors("You cant have more than 6 toilet buildings");
             return;
         }
 
@@ -206,10 +205,10 @@ export default class StepController {
     step7(trashcans) {
         
 
-        Helper.clearErrors();
+        Helper.clearStepErrors();
 
-        if(trashcans.length <= 0) {
-            Helper.setErrors("Please fill in an amount");
+        if(trashcans <= 0) {
+            Helper.setStepErrors("Please fill in a positive amount");
             return;
         }
         trashcans = parseInt(trashcans);
@@ -217,7 +216,7 @@ export default class StepController {
         let nonfilled = 15 * 15 - filled;
         let maximumAmountOfTrashcans = parseInt(filled * 0.05);
         if(trashcans > maximumAmountOfTrashcans) {
-            Helper.setErrors("You can only have a maximum of " + maximumAmountOfTrashcans + " trashcans.");
+            Helper.setStepErrors("You can only have a maximum of " + maximumAmountOfTrashcans + " trashcans.");
             return;
         }
 

@@ -182,7 +182,7 @@ export default class LocationView {
             group.people.forEach(person => {
                 let personRow = document.createElement("span");
                 personRow.className = "ml-4"
-                personRow.innerHTML = person.name + " (" + person.age + ")";
+                personRow.innerHTML = person.getName() + " (" + person.getAge() + ") ("+ person.getGender() + ") ";
                 infoblock.appendChild(personRow);
             });
             i++;

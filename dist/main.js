@@ -12,7 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ GridController)
 /* harmony export */ });
-/* harmony import */ var _Models_Grid_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/Grid.js */ "./src/Models/Grid.js");
+/* harmony import */ var _Views_Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Views/Helper */ "./src/Views/Helper.js");
 
 
 class GridController {
@@ -21,18 +21,22 @@ class GridController {
         this.mainController = mainController;
         this.gridController = mainController.gridController;
         this.gridView = mainController.gridView;
-        
     }
 
     refreshGrid() {
-            console.log(this.data.getCurrentLocation().treesAreSet)
             if(!this.data.getCurrentLocation().treesAreSet && this.data.getCurrentLocation().stepsAreSet) {
                 this.data.getCurrentLocation().setTrees();
             }
             this.gridView.generateGrid();
-            this.gridView.refresh(this.data);
+            if(!this.getRegionLock()){
+                this.gridView.refreshNormal(this.data);
+            }
+            else{
+                this.gridView.refreshLocked();
+            }
             this.mainController.saveData();
-        }
+    }
+
     getData() {
         return data;
     }
@@ -48,7 +52,6 @@ class GridController {
         
         let canPlace = this.data.getCurrentLocation().canPlace(x,y,type);
         return canPlace;
-
     }
 
     setGridFill(coordinates, type){
@@ -88,37 +91,81 @@ class GridController {
         this.data.getCurrentLocation().addItem(type);
         this.mainController.saveData();
     }
+
     getItem(x,y) {
         return this.data.getCurrentLocation().getItem(x,y);
     }
 
-    updateGridImages(type){
+    setConfigurationField(coordinates){
+
+        let x = coordinates.slice(coordinates.indexOf('x') + 1 ,coordinates.indexOf('y'));
+        let y = coordinates.slice(coordinates.indexOf('y') + 1 ,coordinates.length);
+        x = parseInt(x);
+        y = parseInt(y);
+
+        let type = this.data.getCurrentLocation().getItem(x,y);
+        let obj = null; 
+
         switch(type){
             case "tent":
-                this.tenten--;
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                this.gridView.drawConfigOptions(x, y, 'Maximum Visitors', obj.maxVisitors, 'number', 'Opening Time', obj.openingTimes, 'time');
                 break;
-            case "drink":
-                this.drankkramen--;
+            case "foodStand":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                this.gridView.drawConfigOptions(x, y, 'Maximum Visitors', obj.maxVisitors, 'number', 'Stand Type', obj.standType, 'text');
                 break;
-            case "food":
-                this.eetkramen--;
-                break;
-            case "toilet":
-                this.toiletten--;
-                break;
-            case "prullenbak":
-                this.prullenbakken--;
-                break;
-            case "hogeboom":
-                this.hogebomen--;
-                break;
-            case "bredeboom":
-                this.bredebomen--;
-                break;
-            case "schaduwboom":
-                this.schaduwbomen--;
+            case "trashcan":
+                obj =  this.data.getCurrentLocation().getObject(x,y);
+                this.gridView.drawConfigOptions(x, y, 'Capacity (Kilos)', obj.kiloCapacity, 'number', 'Emptying Time', obj.emptyTime, 'time');
                 break;
         }
+    }
+
+    updateConfigData(x, y, value1, value2){
+
+        if(!isNaN(value1)){
+            if(value1 <= 0){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Please enter a positive amount");
+                return;
+            }
+            if(value1 > 1000){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Value can't be greater than 1000");
+                return;
+            }
+        }
+
+        if(!isNaN(value2)){
+            if(value2 <= 0){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Please enter a positive amount");
+                return;
+            }
+            if(value2 > 1000){
+                _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setConfigErrors("Value can't be greater than 1000");
+                return;
+            }
+        }
+        
+        alert("Succesfully saved new configuration!");   
+
+        let obj = this.data.getCurrentLocation().getObject(x,y);
+        obj[Object.keys(obj)[0]] = value1;
+        obj[Object.keys(obj)[1]] = value2;
+
+        this.data.getCurrentLocation().setObject(x,y,obj);
+        this.lockRegion();
+    }
+
+    getRegionLock(){
+        return this.data.getCurrentLocation().getRegionLocked();
+    }
+
+    lockRegion()
+    {
+        this.data.getCurrentLocation().setRegionLocked(true);
+        this.gridView.drawRegionLock();
+        this.mainController.saveData();
+        this.gridView.refreshLocked();
     }
 }
 
@@ -138,9 +185,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NavigationController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NavigationController.js */ "./src/Controllers/NavigationController.js");
 /* harmony import */ var _StepController_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./StepController.js */ "./src/Controllers/StepController.js");
 /* harmony import */ var _GridController_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GridController.js */ "./src/Controllers/GridController.js");
-/* harmony import */ var _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Views/NavigationView.js */ "./src/Views/NavigationView.js");
-/* harmony import */ var _Views_GridView_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Views/GridView.js */ "./src/Views/GridView.js");
-/* harmony import */ var _Views_StepView_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Views/StepView.js */ "./src/Views/StepView.js");
+/* harmony import */ var _SoundController_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SoundController.js */ "./src/Controllers/SoundController.js");
+/* harmony import */ var _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Views/NavigationView.js */ "./src/Views/NavigationView.js");
+/* harmony import */ var _Views_GridView_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Views/GridView.js */ "./src/Views/GridView.js");
+/* harmony import */ var _Views_StepView_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Views/StepView.js */ "./src/Views/StepView.js");
+
 
 
 
@@ -153,12 +202,13 @@ __webpack_require__.r(__webpack_exports__);
 class MainController {
     constructor(data) {
         this.data = data;
-        this.navigationView = new _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_3__.default();
-        this.stepView = new _Views_StepView_js__WEBPACK_IMPORTED_MODULE_5__.default();
-        this.gridView = new _Views_GridView_js__WEBPACK_IMPORTED_MODULE_4__.default();
+        this.navigationView = new _Views_NavigationView_js__WEBPACK_IMPORTED_MODULE_4__.default();
+        this.stepView = new _Views_StepView_js__WEBPACK_IMPORTED_MODULE_6__.default();
+        this.gridView = new _Views_GridView_js__WEBPACK_IMPORTED_MODULE_5__.default();
         
         this.gridController = new _GridController_js__WEBPACK_IMPORTED_MODULE_2__.default(this, data);
         this.stepController = new _StepController_js__WEBPACK_IMPORTED_MODULE_1__.default(this, data);
+        this.soundController = new _SoundController_js__WEBPACK_IMPORTED_MODULE_3__.default();
         this.navigationController = new _NavigationController_js__WEBPACK_IMPORTED_MODULE_0__.default(this, data);
 
         this.stepView.init(this.stepController);
@@ -207,18 +257,23 @@ class NavigationController {
     }
 
     addLocation() {
-        this.data.addLocation(new _Models_Location__WEBPACK_IMPORTED_MODULE_0__.default({}));
-        this.data.setCurrentLocation(this.data.locations.length);
-        this.mainController.saveData();
 
-        this.navigationView.refreshNavigation(this.data);
-        this.mainController.refreshLocationScreen();
-
+        if(this.data.locations.length < 6){
+            this.data.addLocation(new _Models_Location__WEBPACK_IMPORTED_MODULE_0__.default({}));
+            this.data.setCurrentLocation(this.data.locations.length);
+            this.mainController.saveData();
+    
+            this.navigationView.refreshNavigation(this.data);
+            this.mainController.refreshLocationScreen();
+        }
+        else{
+            alert('You already have the maximum amount of locations!');
+        }
     }
 
     deleteLocation(location) {
         if(this.data.locations.length <= 1) {
-            alert('You can not delete all locations');
+            alert('You can not delete all locations!');
             return;
         }
         this.data.deleteLocation(location);
@@ -242,6 +297,37 @@ class NavigationController {
 
     getCurrentLocation() {
         return this.data.currentLocation();
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Controllers/SoundController.js":
+/*!********************************************!*\
+  !*** ./src/Controllers/SoundController.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ SoundController)
+/* harmony export */ });
+/* harmony import */ var _Models_Sound_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/Sound.js */ "./src/Models/Sound.js");
+
+
+class SoundController {
+    constructor() {
+
+        this.selectSound = new _Models_Sound_js__WEBPACK_IMPORTED_MODULE_0__.default("../src/sounds/select-sound.mp3");
+        this.dropSound = new _Models_Sound_js__WEBPACK_IMPORTED_MODULE_0__.default("../src/sounds/drop-sound.mp3");
+    }
+
+    playSelectSound(){
+        this.selectSound.playSound();
+    }
+
+    playDropSound(){
+        this.dropSound.playSound();
     }
 }
 
@@ -303,33 +389,32 @@ class StepController {
         this.mainController.refreshLocationScreen();
         this.stepView.generateStep1();
         this.mainController.saveData();
-    
     }
     //post step1
     step1(name, visitors) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(visitors.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fil in a amount of visitors");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(visitors <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount of visitors");
             return;
         }
         visitors = parseInt(visitors);
         
         if(name.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in a name");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a name");
             return;
         }
         
         if(visitors.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in the amount of visitors");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in the amount of visitors");
              return;
         }
         if(name.length > 20) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Name can't be longer than 20 characters");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Name can't be longer than 20 characters");
             return;
         }
     
         if(visitors > 100000) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("There's a maximum of 100000 visitors");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("There's a maximum of 100000 visitors");
             return;
         }
         this.data.getCurrentLocation().setName(name);
@@ -340,19 +425,19 @@ class StepController {
     }
     //post step2
     step2(tents) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
         if(tents.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         tents = parseInt(tents);
         
         if(tents < 0) { 
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount that's between 0 and 6");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in an amount that's between 0 and 6");
             return
         }
         if(tents > 6) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum amonut of 6 tents");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum amonut of 6 tents");
             return;
         }
         this.data.getCurrentLocation().setAmountOfTents(tents);
@@ -362,9 +447,9 @@ class StepController {
 
     //post step3 
     step3 (eatingStands) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(eatingStands.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(eatingStands <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         eatingStands = parseInt(eatingStands);
@@ -375,7 +460,7 @@ class StepController {
             maxEatingStands = 6;
         }
         if(eatingStands > maxEatingStands) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of "+ maxEatingStands + " eating stands");
             return;
         }
         this.data.getCurrentLocation().setAmountOfEatingStands(eatingStands);
@@ -385,9 +470,9 @@ class StepController {
 
     //post step4
     step4 (drinkStands) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(drinkStands.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(drinkStands <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         drinkStands = parseInt(drinkStands);
@@ -398,7 +483,7 @@ class StepController {
             maxDrinkStands = 4;
         }
         if(drinkStands > maxDrinkStands) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of "+ maxDrinkStands + " drink stands");
             return;
         }
         this.data.getCurrentLocation().setAmountOfDrinkStands(drinkStands);
@@ -409,9 +494,9 @@ class StepController {
 
     //post step5
     step5(highTrees, wideTrees, shadowTrees) {
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
-        if(highTrees.length <= 0 || wideTrees.length <= 0 || shadowTrees.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount at every tree");
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
+        if(highTrees < 0 || wideTrees < 0 || shadowTrees < 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in an amount at every tree");
             return;
         }
         highTrees = parseInt(highTrees);
@@ -421,11 +506,11 @@ class StepController {
         let totalTrees = highTrees + wideTrees + shadowTrees;
 
         if(highTrees < 0 || wideTrees < 0 || shadowTrees < 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can't choose less than 0 trees of some sort");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can't choose less than 0 trees of some sort");
             return;
         }
         if(totalTrees > 10) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of 10 trees");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of 10 trees");
             return;
         }
         this.data.getCurrentLocation().setAmountOfHighTrees(highTrees);
@@ -437,19 +522,19 @@ class StepController {
     }
 
     step6(toiletBuildings) {
-        if(toiletBuildings.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        if(toiletBuildings <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount more");
             return;
         }
 
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
         toiletBuildings = parseInt(toiletBuildings);
         if(toiletBuildings < 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You cannot have a negative amount of toilet buildings");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You cannot have a negative amount of toilet buildings");
             return;
         }
-        if(toiletBuildings > 5) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You cant have more than 6 toilet buildings");
+        if(toiletBuildings > 6) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You cant have more than 6 toilet buildings");
             return;
         }
 
@@ -466,10 +551,10 @@ class StepController {
     step7(trashcans) {
         
 
-        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
 
-        if(trashcans.length <= 0) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("Please fill in an amount");
+        if(trashcans <= 0) {
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in a positive amount");
             return;
         }
         trashcans = parseInt(trashcans);
@@ -477,7 +562,7 @@ class StepController {
         let nonfilled = 15 * 15 - filled;
         let maximumAmountOfTrashcans = parseInt(filled * 0.05);
         if(trashcans > maximumAmountOfTrashcans) {
-            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors("You can only have a maximum of " + maximumAmountOfTrashcans + " trashcans.");
+            _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("You can only have a maximum of " + maximumAmountOfTrashcans + " trashcans.");
             return;
         }
 
@@ -508,7 +593,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class Data {
     constructor(dataobject) {
-        console.log(dataobject);
         if(dataobject == null) {
             this.locations = [new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({})];
             this.currentLocation = 1;
@@ -555,6 +639,7 @@ class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new _Location_js__WEBPACK_IMPORTED_MODULE_0__.default({});
+        this.locations[this.currentLocation - 1].setRegionLocked(false);
     }
     setOpenWaitingLines(lines) {
         this.openWaitingLines = lines;
@@ -627,6 +712,41 @@ class Data {
 
 /***/ }),
 
+/***/ "./src/Models/EatingStand.js":
+/*!***********************************!*\
+  !*** ./src/Models/EatingStand.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EatingStand)
+/* harmony export */ });
+class EatingStand {
+    
+    constructor() {
+        this.maxVisitors = 15;
+        this.standType = "general";
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setStandType(newStandType) {
+        this.standType = newStandType;
+    }
+    
+    getStandType() {
+        return this.standType;
+    }
+}
+
+/***/ }),
+
 /***/ "./src/Models/Grid.js":
 /*!****************************!*\
   !*** ./src/Models/Grid.js ***!
@@ -638,6 +758,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Grid)
 /* harmony export */ });
 /* harmony import */ var _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Models/GridBlock */ "./src/Models/GridBlock.js");
+/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Models/Trashcan */ "./src/Models/Trashcan.js");
+/* harmony import */ var _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Models/EatingStand */ "./src/Models/EatingStand.js");
+/* harmony import */ var _Models_Tent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Models/Tent */ "./src/Models/Tent.js");
+
+
+
 
 
 class Grid {
@@ -676,6 +802,15 @@ class Grid {
     getGridBlock(x,y) {
         return this.array[x - 1][ y-1];
     }
+
+    getObject(x,y) {
+        return this.array[x][y].getObject();
+    }
+
+    setObject(x,y,obj) {
+        this.array[x][y].setObject(obj);
+    }
+
     placeTent(x,y) {
         this.array[x-1][y-1].setFillType("tentSurface");
         this.array[x][y-1].setFillType("tentSurface");
@@ -686,12 +821,18 @@ class Grid {
         this.array[x][y+1].setFillType("tentSurface");
         this.array[x+1][y+1].setFillType("tentSurface");
         this.array[x][y].setFillType("tent");
+
+        let tentObject = new _Models_Tent__WEBPACK_IMPORTED_MODULE_3__.default();
+        this.array[x][y].setObject(tentObject);
     }
 
     
 
     placeFoodStand(x,y) {
         this.array[x][y].setFillType("foodStand");
+
+        let eatingStandObject = new _Models_EatingStand__WEBPACK_IMPORTED_MODULE_2__.default();
+        this.array[x][y].setObject(eatingStandObject);
     }
 
     placeDrinkStand(x,y) {
@@ -728,6 +869,9 @@ class Grid {
 
     placeTrashcans( x,y) {
         this.array[x][y].setFillType("trashcan");
+
+        let trashcanObject = new _Models_Trashcan__WEBPACK_IMPORTED_MODULE_1__.default();
+        this.array[x][y].setObject(trashcanObject);
     }
     deleteTent(x,y) {
         this.array[x-1][y-1].setFillType(null);
@@ -739,9 +883,12 @@ class Grid {
         this.array[x][y+1].setFillType(null);
         this.array[x+1][y+1].setFillType(null);
         this.array[x][y].setFillType(null);
+        this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     deleteFoodStand(x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
 
     deleteDrinkStand(x,y) {
@@ -778,6 +925,7 @@ class Grid {
 
     deleteTrashcans( x,y) {
         this.array[x][y].setFillType(null);
+        this.array[x][y].setObject(null);
     }
     canPlaceTent(x,y) {
         
@@ -885,11 +1033,15 @@ class GridBlock {
     constructor(gridblock) {
         this.fillType = null;
         this.groupsOfPeople = [];
+        this.object = null;
+        
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
+        if(typeof gridblock.object !== 'undefined') this.object = gridblock.object;
     }
     setFillType(newFillType) {
         this.fillType = newFillType;
     }
+
     getFillType() {
         return this.fillType;
     }
@@ -928,6 +1080,14 @@ class GridBlock {
 
         return people;
     }
+
+    setObject(newObject) {
+        this.object = newObject;
+    }
+    
+    getObject() {
+        return this.object;
+    }
 }
 
 /***/ }),
@@ -950,11 +1110,14 @@ class Location {
     constructor(location) {
         this.treesAreSet = false;
         this.stepsAreSet = false;
+        this.regionIsLocked = false;
         
         this.grid = new _Grid_js__WEBPACK_IMPORTED_MODULE_0__.default(null);
         if(typeof location.treesAreSet !== 'undefined') this.treesAreSet = location.treesAreSet;
 
         if(typeof location.stepsAreSet !== 'undefined') this.stepsAreSet = location.stepsAreSet;
+
+        if(typeof location.regionIsLocked !== 'undefined') this.regionIsLocked = location.regionIsLocked;
         
         if(typeof location.name !== 'undefined') this.name = location.name;
         
@@ -1155,6 +1318,22 @@ class Location {
     getAmountOfPeople(x,y) {
         return this.grid.getAmountOfPeople(x,y);
     }
+
+    getObject(x,y) {
+        return this.grid.getObject(x,y);
+    }
+
+    setObject(x,y, obj) {
+        this.grid.setObject(x,y,obj);
+    }
+
+    setRegionLocked(boolean){
+        this.regionIsLocked = boolean;
+    }
+
+    getRegionLocked(){
+        return this.regionIsLocked;
+    }
 }
 
 /***/ }),
@@ -1199,6 +1378,108 @@ class WaitingLine {
 
 /***/ }),
 
+/***/ "./src/Models/Sound.js":
+/*!*****************************!*\
+  !*** ./src/Models/Sound.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Sound)
+/* harmony export */ });
+class Sound {
+    
+    constructor(src) {
+        this.sound = document.createElement("audio");
+        this.sound.src = src;
+        this.sound.setAttribute("preload", "auto");
+        this.sound.setAttribute("controls", "none");
+        this.sound.style.display = "none";
+        document.body.appendChild(this.sound);
+    }
+
+    playSound(){
+        this.sound.play();
+    }
+
+    pauseSound(){
+        this.sound.pause();
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Models/Tent.js":
+/*!****************************!*\
+  !*** ./src/Models/Tent.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Tent)
+/* harmony export */ });
+class Tent {
+    
+    constructor() {
+        this.maxVisitors = 5;
+        this.openingTimes = "08:00";
+    }
+    setMaxVisitors(newMaxVisitors) {
+        this.maxVisitors = newMaxVisitors;
+    }
+
+    getMaxVisitors() {
+        return this.maxVisitors;
+    }
+
+    setOpeningTimes(newOpeningTimes) {
+        this.openingTimes = newOpeningTimes;
+    }
+    
+    getOpeningTimes() {
+        return this.openingTimes;
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Models/Trashcan.js":
+/*!********************************!*\
+  !*** ./src/Models/Trashcan.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Trashcan)
+/* harmony export */ });
+class Trashcan {
+    
+    constructor() {
+        this.kiloCapacity = 5;
+        this.emptyTime = "08:00";
+    }
+    setKiloCapacity(newKiloCapacity) {
+        this.kiloCapacity = newKiloCapacity;
+    }
+
+    getKiloCapacity() {
+        return this.kiloCapacity;
+    }
+
+    setEmptyTime(newEmptyTime) {
+        this.emptyTime = newEmptyTime;
+    }
+    
+    getEmptyTime() {
+        return this.emptyTime;
+    }
+}
+
+/***/ }),
+
 /***/ "./src/Views/GridView.js":
 /*!*******************************!*\
   !*** ./src/Views/GridView.js ***!
@@ -1224,47 +1505,68 @@ class GridView {
         this.gridController = gridController;
     }
 
-    refresh(data) {
+    refreshNormal(data) {
+        
         this.generateRightSide();
         this.generateGrid();
-        this.drawGridItems();
+        this.drawGridItems();   
         this.generateImages(data);
-        this.dropEvents();
+        this.dropEvents();       
+    }
+
+    refreshLocked() {
         
+        this.drawRegionLock();
+        this.generateGrid();
+        this.drawGridItems(); 
+        this.lockEvents();    
     }
 
     generateRightSide() {
         let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
 
         while (block.firstChild) {
             block.removeChild(block.firstChild);
         }
 
         let itemLegenda = document.createElement("div");
-        itemLegenda.className = "w-full  flex flex-row flex-wrap";
+        itemLegenda.className = "w-full flex flex-row flex-wrap";
         itemLegenda.id = "images_block";
 
         let div = document.createElement("div");
-        div.className = "h-2/5 w-full flex flex-col";
+        div.className = "h-3.5/5 w-full flex flex-col";
+
         let dropbackzone = document.createElement("div");
         dropbackzone.className = "bg-gray-400 w-full h-full mb-5";
+        dropbackzone.innerHTML = "Drop back items here!";
+        dropbackzone.style.fontStyle = "italic";
+        dropbackzone.style.textAlign = 'center';
+        dropbackzone.style.lineHeight = '240px';
         dropbackzone.id = "dropbackzone";
+
+        let lockRegion = document.createElement("button");
+        lockRegion.addEventListener('click', () => { if(confirm('Are you sure you want to lock this region?')) this.gridController.lockRegion(); });
+        lockRegion.innerHTML = "Lock region";
+        lockRegion.className = "p-5 mb-5 bg-blue-500 hover:bg-blue-800 hover:text-white w-full";
+        lockRegion.id = "lock_button"
+
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div.appendChild(dropbackzone);
+        div.appendChild(lockRegion);
         div.appendChild(runSimulation);
 
         block.appendChild(itemLegenda);
         block.appendChild(div);
     }
 
-
+    
     generateGrid() {
         let paneSize = this.paneSize;
         let windowSize = this.windowSize;
-        console.log(paneSize);
 
         const grid = document.getElementById("grid");
                         grid.style.position = "relative";
@@ -1302,6 +1604,27 @@ class GridView {
                         }
                     }
                     
+    }
+
+    drawRegionLock(){
+        let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-end";
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let div = document.createElement("div");
+        div.className = "h-3.5/5 w-full flex flex-col";
+        div.style.verticalAlign = "bottom";
+
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div.appendChild(runSimulation);
+
+        block.appendChild(div);
     }
 
     drawGridItems() {
@@ -1344,23 +1667,74 @@ class GridView {
 
     generateImage(type, amount, parent){
         
+        let subBlock = document.createElement("div");
+        subBlock.className = "w-full flex flex-row flex-wrap";
+
         for(let i =0;i< amount;i++){
             let image = this.getImageBlock(type);
             
-            parent.appendChild(image);
+            subBlock.appendChild(image);
+            parent.appendChild(subBlock);
         }
-        
     }
 
     getImageBlock(type) {
         let image = document.createElement("img");
         image.src = "../src/images/"+ type +".png";
         image.id = type;
-        image.setAttribute('draggable', 'true');
+        image.setAttribute('draggable', !this.gridController.getRegionLock());
         image.className = "draggable-item";
         image.style.width = "50px";
         image.style.height = "50px";
         return image;
+    }
+
+    drawConfigOptions(x, y, text1, value1, type1, text2, value2, type2){
+        
+        let block = document.getElementById("right-side")
+        block.className = "w-1/5 h-full bg-gray-200 flex flex-col p-5 justify-between";
+
+        while (block.firstChild) {
+            block.removeChild(block.firstChild);
+        }
+
+        let errorBox = document.createElement("div");
+        errorBox.className = "p-3 mb-2 bg-red-200";
+        errorBox.id = 'configErrorbox'
+        errorBox.style.verticalAlign = "bottom";
+
+        let div = document.createElement("div");
+        div.className = "h-3.5/5 w-full flex flex-col";
+
+        let firstInput = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('firstInput', type1);
+        firstInput.value = value1;
+        let firstInputLabel = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getLabel(text1);
+        let firstInputBlock = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(firstInputLabel, firstInput);
+
+        let secondInput = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('secondInput', type2);
+        secondInput.value = value2;
+        let secondInputLabel = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getLabel(text2);
+        let secondInputBlock = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(secondInputLabel, secondInput);
+        
+        let submitButton = _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.getButton("Save", "save-button", () => {
+            this.gridController.updateConfigData(x, y, firstInput.value, secondInput.value);                
+        }); 
+
+        _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([errorBox, firstInputBlock, secondInputBlock, submitButton], div);
+
+        let div2 = document.createElement("div");
+        div2.className = "h-3.5/5 w-full flex flex-col";
+
+        let runSimulation = document.createElement("button");
+        runSimulation.innerHTML = "Run simulation";
+        runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
+
+        div2.appendChild(runSimulation);
+
+        block.appendChild(div);
+        block.appendChild(div2);
+
+        _Helper_js__WEBPACK_IMPORTED_MODULE_0__.default.clearConfigErrors();
     }
 
     dropEvents(){
@@ -1372,7 +1746,7 @@ class GridView {
         for(let i = 0; i < draggableItems.length;i++) {
             draggableItems[i].addEventListener('dragstart', (e) => {
                 element = e.target;
-                
+                this.gridController.mainController.soundController.playSelectSound();
             });
         }
         
@@ -1381,28 +1755,27 @@ class GridView {
                 e.preventDefault();
                 if(element.parentNode.classList.contains("dropzone")) {
                     this.gridController.deleteGridFill(element.parentNode.id, element.id);
-                    
                 }
             }); 
     
             dropzones[i].addEventListener('drop', (e) => {
+
                 if(this.gridController.canPlace(e.target.id, element.id)) {
                     e.preventDefault();
                     if(element.parentNode.classList.contains('dropzone')) {
-                        this.gridController.moveItem(e.target.id, element.id);  
+                        this.gridController.moveItem(e.target.id, element.id);
                     } else {
                         this.gridController.setGridFill(e.target.id, element.id);            
                     } 
-                    // e.stopImmediatePropagation();
+                    this.gridController.mainController.soundController.playDropSound();  
                 } else {
-                    alert("you cant place your item right here");
+                    alert("You can't place your item right here!");
+
                     if(element.parentNode.classList.contains("dropzone")) {
                         this.gridController.moveItem(element.parentNode.id, element.id);
                     }
                 }
                 this.gridController.refreshGrid();
-                
-               
             });       
         }
         
@@ -1416,15 +1789,23 @@ class GridView {
             // e.stopImmediatePropagation();
             if(element.parentNode.classList.contains("dropzone")) {
                 this.gridController.dropBack(element.id);
+                this.gridController.mainController.soundController.playDropSound();
             } else {
-                alert("you cant place your item right here");
+                alert("You can't place your item right here!");
             }
             this.gridController.refreshGrid();
         })
-        }
-        
+    }
 
-        
+        lockEvents(){
+            let draggableItems = document.getElementsByClassName('draggable-item');
+            
+            for(let i = 0; i < draggableItems.length;i++) {
+                draggableItems[i].addEventListener('click', (e) => {
+                    this.gridController.setConfigurationField(e.target.parentNode.id);                   
+                });
+            }
+        }
 }
 
 /***/ }),
@@ -1440,11 +1821,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Helper)
 /* harmony export */ });
 class Helper {
-    static getButton(name, onclick) {
+    static getButton(name, id, onclick) {
         let button = document.createElement("button");
         button.innerHTML = name;
         button.className = 'p-2 bg-green-500 hover:bg-green-800 hover:text-white w-full';
         button.onclick = onclick;
+        button.id = id;
         return button;
     }
     static getLabel(text, forname) {
@@ -1472,20 +1854,33 @@ class Helper {
         childs.forEach(child => {parent.appendChild(child)});
     }
 
-    static clearErrors() {
-        let errorbox = document.getElementById("errorbox");
+    static clearStepErrors() {
+        let errorbox = document.getElementById("stepErrorbox");
         errorbox.style.display = "none";
         errorbox.innerHTML = "";
     }
 
-    static setErrors(errors) {
+    static setStepErrors(errors) {
         if(errors != null) {
-                let errorbox = document.getElementById("errorbox");
+                let errorbox = document.getElementById("stepErrorbox");
                 errorbox.style.display = "block";
                 errorbox.innerHTML = errors;
         }
     }
-    
+
+    static clearConfigErrors() {
+        let errorbox = document.getElementById("configErrorbox");
+        errorbox.style.display = "none";
+        errorbox.innerHTML = "";
+    }
+
+    static setConfigErrors(errors) {
+        if(errors != null) {
+                let errorbox = document.getElementById("configErrorbox");
+                errorbox.style.display = "block";
+                errorbox.innerHTML = errors;
+        }
+    }
 }
 
 let helper = new Helper();
@@ -1517,7 +1912,7 @@ class MainView {
     }
 
     error(error) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.setErrors(error);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors(error);
     }
     
 } 
@@ -1544,7 +1939,6 @@ class NavigationView {
         const addLocationButton = document.getElementById('addLocation');
         
         addLocationButton.addEventListener('click', () => {this.navigationController.addLocation()});
-        
     }
     refreshNavigation(data) {
         
@@ -1575,12 +1969,14 @@ class NavigationView {
             
             let navButton = document.createElement("button");
             navButton.innerHTML = name;
+            navButton.id = 'navButton' + i;
             navButton.addEventListener('click', () => { this.navigationController.setCurrentLocation(i); });
 
             navButton.className = `navbutton bg-gray-200 p-3 pb-2 hover:bg-gray-500 hover:text-white flex flex-row`;
                        
             let deleteButton = document.createElement("button");
             deleteButton.addEventListener('click', () => { if(confirm('Are you sure you want to delete this location?')) this.navigationController.deleteLocation(i); });
+            deleteButton.id = 'deleteButton' + i;
             deleteButton.className = ` bg-red-500 hover:bg-red-800 hover:text-white pl-3 pr-3`;
             deleteButton.innerHTML = `X`;
 
@@ -1622,13 +2018,10 @@ class StepView {
 
     init(stepController) {
         
-       
         this.stepController = stepController;
-        
 
-        
         document.getElementById("resetConfig").addEventListener('click' , () => {stepController.resetConfig();})
-        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearErrors();
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
     }
     generateStep1() {
         let block = document.getElementById("configuration_block");
@@ -1642,11 +2035,11 @@ class StepView {
         let nameInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Name: ', 'nameInput');
         let inputblock1 = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(nameInputLabel, nameInput);
 
-        let visitorInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('vistorInput', 'number');
+        let visitorInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('visitorInput', 'number');
         let visitorInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Visitors: ', 'visitorInput');
         let inputblock2 = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(visitorInputLabel, visitorInput);
         
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step1(nameInput.value, visitorInput.value)});
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step1-button", () => {this.stepController.step1(nameInput.value, visitorInput.value)});
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock1, inputblock2, submitButton], block);
     }
 
@@ -1661,7 +2054,7 @@ class StepView {
         let tentInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of tents: ', 'tentInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(tentInputLabel, tentInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step2(tentInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step2-button", () => {this.stepController.step2(tentInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton], block);
     }
@@ -1673,10 +2066,10 @@ class StepView {
         }
 
         let eatingStallsInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('eatingStallInput', 'number');
-        let eatingStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of teating stalls: ', 'eatingStallInput');
+        let eatingStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of eating stalls: ', 'eatingStallInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(eatingStallInputLabel, eatingStallsInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step3(eatingStallInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step3-button", () => {this.stepController.step3(eatingStallInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton], block);
     }
@@ -1689,10 +2082,10 @@ class StepView {
         }
 
         let drinkStallsInput = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getInputField('drinkStallInput', 'number');
-        let drinkStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of tdrink stalls: ', 'drinkStallInput');
+        let drinkStallInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of drinking stalls: ', 'drinkStallInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(drinkStallInputLabel, drinkStallsInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step4(drinkStallInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step4-button", () => {this.stepController.step4(drinkStallInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton], block);
     }
@@ -1716,7 +2109,7 @@ class StepView {
         let shadowTreeInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of shadow trees(3x3): ', 'shadowTreeInput');
         let inputBlock3 = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(shadowTreeInputLabel, shadowTreeInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step5(highTreeInput.value, wideTreeInput.value, shadowTreeInput.value)});
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step5-button", () => {this.stepController.step5(highTreeInput.value, wideTreeInput.value, shadowTreeInput.value)});
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputBlock1, inputBlock2, inputBlock3, submitButton], block)
 
@@ -1734,7 +2127,7 @@ class StepView {
         let toiletBuildingsInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of toilet buildings: ', 'toiletBuildingsInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(toiletBuildingsInputLabel, toiletBuildingsInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step6(toiletBuildingsInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step6-button", () => {this.stepController.step6(toiletBuildingsInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton] , block);
 
@@ -1751,7 +2144,7 @@ class StepView {
         let trashCanInputLabel = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getLabel('Amount of trashcans (max: ' + maximumAmountOfTrashcans + '): ', 'trashCanInput');
         let inputblock = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getDivForInput(trashCanInputLabel, trashCanInput);
 
-        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", () => {this.stepController.step7(trashCanInput.value); });
+        let submitButton = _Helper__WEBPACK_IMPORTED_MODULE_0__.default.getButton("next step", "step7-button", () => {this.stepController.step7(trashCanInput.value); });
 
         _Helper__WEBPACK_IMPORTED_MODULE_0__.default.appendChilds([inputblock, submitButton] , block);
 
@@ -1862,7 +2255,6 @@ __webpack_require__.r(__webpack_exports__);
 
 let jsonString = localStorage.getItem('data');
 let dataobject = JSON.parse(jsonString);
-console.log(dataobject);
 
 const data = new _Models_Data_js__WEBPACK_IMPORTED_MODULE_7__.default(dataobject);
 

@@ -3,7 +3,6 @@ import WaitingLine from "./Simulation/WaitingLine.js"
 
 export default class Data {
     constructor(dataobject) {
-        console.log(dataobject);
         if(dataobject == null) {
             this.locations = [new Location({})];
             this.currentLocation = 1;
@@ -50,6 +49,7 @@ export default class Data {
     }
     resetCurrentLocation() {
         this.locations[this.currentLocation - 1] = new Location({});
+        this.locations[this.currentLocation - 1].setRegionLocked(false);
     }
     setOpenWaitingLines(lines) {
         this.openWaitingLines = lines;

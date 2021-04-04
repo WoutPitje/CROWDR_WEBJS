@@ -4,6 +4,7 @@ import WaitingLineView from '../../Views/simulation/WaitingLineView.js'
 import SimulationView from '../../Views/simulation/SimulationView.js'
 import LocationView from '../../Views/simulation/LocationView.js'
 import Data from '../../Models/Data.js'
+import Weather from '../../Models/Simulation/Weather.js'
 
 export default class SimulationController {
 
@@ -17,7 +18,6 @@ export default class SimulationController {
         
 
         this.startSimulation();
-        
     }
 
     startSimulation() {

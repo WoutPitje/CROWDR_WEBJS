@@ -9,18 +9,23 @@ export default class NavigationController {
     }
 
     addLocation() {
-        this.data.addLocation(new Location({}));
-        this.data.setCurrentLocation(this.data.locations.length);
-        this.mainController.saveData();
 
-        this.navigationView.refreshNavigation(this.data);
-        this.mainController.refreshLocationScreen();
-
+        if(this.data.locations.length < 6){
+            this.data.addLocation(new Location({}));
+            this.data.setCurrentLocation(this.data.locations.length);
+            this.mainController.saveData();
+    
+            this.navigationView.refreshNavigation(this.data);
+            this.mainController.refreshLocationScreen();
+        }
+        else{
+            alert('You already have the maximum amount of locations!');
+        }
     }
 
     deleteLocation(location) {
         if(this.data.locations.length <= 1) {
-            alert('You can not delete all locations');
+            alert('You can not delete all locations!');
             return;
         }
         this.data.deleteLocation(location);

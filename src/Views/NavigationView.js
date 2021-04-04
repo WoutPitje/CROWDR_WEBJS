@@ -8,7 +8,6 @@ export default class NavigationView {
         const addLocationButton = document.getElementById('addLocation');
         
         addLocationButton.addEventListener('click', () => {this.navigationController.addLocation()});
-        
     }
     refreshNavigation(data) {
         
@@ -39,12 +38,14 @@ export default class NavigationView {
             
             let navButton = document.createElement("button");
             navButton.innerHTML = name;
+            navButton.id = 'navButton' + i;
             navButton.addEventListener('click', () => { this.navigationController.setCurrentLocation(i); });
 
             navButton.className = `navbutton bg-gray-200 p-3 pb-2 hover:bg-gray-500 hover:text-white flex flex-row`;
                        
             let deleteButton = document.createElement("button");
             deleteButton.addEventListener('click', () => { if(confirm('Are you sure you want to delete this location?')) this.navigationController.deleteLocation(i); });
+            deleteButton.id = 'deleteButton' + i;
             deleteButton.className = ` bg-red-500 hover:bg-red-800 hover:text-white pl-3 pr-3`;
             deleteButton.innerHTML = `X`;
 
