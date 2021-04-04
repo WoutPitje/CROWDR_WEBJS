@@ -168,12 +168,25 @@ class WaitingLineController{
             this.data.setWaitingLines();
         }
         this.scanWaitingLines();
+        this.addVisitors();
         this.waitingLineView.refresh(this.data);
         this.amountOfVisitors = this.amountOfVisitors + 13;
+        
     }
 
     scanWaitingLines() {
         this.data.scanWaitingLines();
+    }
+
+    addVisitors() {
+        this.data.waitingLines.forEach(waitingLine => {
+            let amountOfPeople = Math.floor(Math.random() * 4) + 1;
+            let percentage = Math.floor(Math.random() * 4);
+            if(percentage < 1) {
+                let group = new _Models_Simulation_GroupOfPeople_js__WEBPACK_IMPORTED_MODULE_0__.default(amountOfPeople);
+                waitingLine.addGroupOfPeople(group);
+            }
+        })
     }
 
     setVisitors() {
@@ -183,7 +196,7 @@ class WaitingLineController{
             maxAmountOfVisitors += location.visitors;
         });
 
-        this.amountOfVisitors = Math.floor(Math.random() * maxAmountOfVisitors) + (3/4*maxAmountOfVisitors); 
+        this.amountOfVisitors = Math.floor(Math.random() * (1/20*maxAmountOfVisitors)); 
         for(let i = 0; i < this.amountOfVisitors; ) {
             let amountOfPeople = Math.floor(Math.random() * 4) + 1;
             
