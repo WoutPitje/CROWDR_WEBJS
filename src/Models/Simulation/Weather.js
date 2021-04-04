@@ -32,11 +32,14 @@ export default class Weather {
         
   }
   getCurrentWeather() {
-    
-    return this.weather.main;
+    if(typeof this.weather !== 'undefined') {
+      return this.weather.main;
+    }
   }
 
   getCurrentWeatherIcon() {
-    return this.weather.icon;
+    if(typeof this.weather !== 'undefined') {
+      return this.weather.icon;
+    }
   }
 }
