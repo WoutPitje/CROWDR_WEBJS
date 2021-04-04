@@ -114,7 +114,7 @@ class SimulationController {
     }
 
     setWeather()  {
-        this.simulationView.setWeather(this.weather.getCurrentWeather());
+        this.simulationView.setWeather(this.weather.getCurrentWeatherIcon());
     }
 
     changeLocation() {
@@ -1187,7 +1187,7 @@ class Weather {
             
             
             response.json().then((data) =>  {
-              self.weather = data.weather[0].main;
+              self.weather = data.weather[0];
             });
             
           }
@@ -1199,7 +1199,12 @@ class Weather {
         
   }
   getCurrentWeather() {
-    return this.weather;
+    
+    return this.weather.main;
+  }
+
+  getCurrentWeatherIcon() {
+    return this.weather.icon;
   }
 }
 
@@ -1483,6 +1488,10 @@ class LocationView {
             groupRow.className = "font-bold"
             infoblock.appendChild(groupRow);
             group.people.forEach(person => {
+                let image = new Image(50,50);
+                image.className = "ml-4";
+                image.src = person.picture;
+                infoblock.appendChild(image);
                 let personRow = document.createElement("span");
                 personRow.className = "ml-4"
                 personRow.innerHTML = person.getName() + " (" + person.getAge() + ") ("+ person.getGender() + ") ";
@@ -1537,8 +1546,12 @@ refresh() {
     this.setWeather();
 }
 setWeather(weather) {
-    let weatheroutput = document.getElementById("weather");
-    weatheroutput.innerHTML = weather;
+    if(typeof weather !== "undefined") {    
+        let weatheroutput = document.getElementById("weather");
+        weatheroutput.className = "bg-gray-300";
+        weatheroutput.src = "http://openweathermap.org/img/wn/"+ weather + "@2x.png";
+}
+    
 }
 
 getPlace() {

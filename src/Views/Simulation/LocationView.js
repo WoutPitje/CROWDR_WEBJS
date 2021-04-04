@@ -185,6 +185,10 @@ export default class LocationView {
             groupRow.className = "font-bold"
             infoblock.appendChild(groupRow);
             group.people.forEach(person => {
+                let image = new Image(50,50);
+                image.className = "ml-4";
+                image.src = person.picture;
+                infoblock.appendChild(image);
                 let personRow = document.createElement("span");
                 personRow.className = "ml-4"
                 personRow.innerHTML = person.getName() + " (" + person.getAge() + ") ("+ person.getGender() + ") ";

@@ -29,8 +29,12 @@ refresh() {
     this.setWeather();
 }
 setWeather(weather) {
-    let weatheroutput = document.getElementById("weather");
-    weatheroutput.innerHTML = weather;
+    if(typeof weather !== "undefined") {    
+        let weatheroutput = document.getElementById("weather");
+        weatheroutput.className = "bg-gray-300";
+        weatheroutput.src = "http://openweathermap.org/img/wn/"+ weather + "@2x.png";
+}
+    
 }
 
 getPlace() {

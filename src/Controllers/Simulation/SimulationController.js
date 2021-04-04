@@ -42,7 +42,7 @@ export default class SimulationController {
     }
 
     setWeather()  {
-        this.simulationView.setWeather(this.weather.getCurrentWeather());
+        this.simulationView.setWeather(this.weather.getCurrentWeatherIcon());
     }
 
     changeLocation() {

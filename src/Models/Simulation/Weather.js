@@ -20,7 +20,7 @@ export default class Weather {
             
             
             response.json().then((data) =>  {
-              self.weather = data.weather[0].main;
+              self.weather = data.weather[0];
             });
             
           }
@@ -32,6 +32,11 @@ export default class Weather {
         
   }
   getCurrentWeather() {
-    return this.weather;
+    
+    return this.weather.main;
+  }
+
+  getCurrentWeatherIcon() {
+    return this.weather.icon;
   }
 }
