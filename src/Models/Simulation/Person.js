@@ -15,7 +15,7 @@ export default class Person {
       
             response.json().then(function(data) {
                 console.log(data.results[0]);
-              self.name = data.results[0].title + " " + data.results[0].name.first + " " + data.results[0].name.last;
+              self.name = data.results[0].name.title + " " + data.results[0].name.first + " " + data.results[0].name.last;
               self.gender = data.results[0].gender;
               self.age = data.results[0].dob.age;
               self.picture = data.results[0].picture.thumbnail;

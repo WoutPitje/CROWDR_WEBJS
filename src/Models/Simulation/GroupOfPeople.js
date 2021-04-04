@@ -7,4 +7,9 @@ export default class GroupOfPeople {
             this.people.push(new Person());
         }
     }
+
+    getAmountOfPeople() {
+        return this.people.length;
+    }
+
 }

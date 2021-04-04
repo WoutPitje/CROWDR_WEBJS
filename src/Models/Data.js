@@ -25,6 +25,7 @@ export default class Data {
         }
         this.peopleInLine = [];
         this.waitingLines = [];
+        this.leftpeople = [];
     }
 
     addLocation(location) {
@@ -73,8 +74,48 @@ export default class Data {
     }
 
     scanWaitingLines() {
+        let scannedPeople = [];
         for(let i = 0; i < this.waitingLines.length; i++) {
-            this.waitingLines[i].scan();
+            let groupOfPeople  = this.waitingLines[i].scan();
+            if(typeof groupOfPeople !== 'undefined') {
+                scannedPeople.push(groupOfPeople);
+            }
         }
+        this.locateGroupsOfPeople(scannedPeople);
+    }
+    locateGroupsOfPeople(people) {
+    
+        people.forEach(group =>  {
+            let location = Math.floor(Math.random() * this.locations.length);
+            let x = Math.floor(Math.random() * 15);
+            let y = Math.floor(Math.random() * 15);
+            
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
+                x = Math.floor(Math.random() * 14);
+                y = Math.floor(Math.random() * 14);
+            }
+            this.locations[location].addGroupOfPeople(x,y,group)
+        })
+        
+    }
+
+    leavePeople(percentage) {
+    
+        this.locations.forEach(location => {
+            let grid = location.grid.array;
+            for (let i = 0; i < grid.length; i++) {
+                for(let j = 0; j < grid.length; j++) {
+                    grid[i][j].groupsOfPeople.forEach(group => {
+                        let number = Math.floor(Math.random() * 101) + 1;
+                        if(number <= percentage) {
+                            grid[i][j].groupsOfPeople.shift();
+                        }
+                    })
+                    
+                }
+            }
+        });
+
+        
     }
 }

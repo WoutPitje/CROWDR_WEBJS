@@ -615,6 +615,7 @@ class Data {
         }
         this.peopleInLine = [];
         this.waitingLines = [];
+        this.leftpeople = [];
     }
 
     addLocation(location) {
@@ -663,9 +664,49 @@ class Data {
     }
 
     scanWaitingLines() {
+        let scannedPeople = [];
         for(let i = 0; i < this.waitingLines.length; i++) {
-            this.waitingLines[i].scan();
+            let groupOfPeople  = this.waitingLines[i].scan();
+            if(typeof groupOfPeople !== 'undefined') {
+                scannedPeople.push(groupOfPeople);
+            }
         }
+        this.locateGroupsOfPeople(scannedPeople);
+    }
+    locateGroupsOfPeople(people) {
+    
+        people.forEach(group =>  {
+            let location = Math.floor(Math.random() * this.locations.length);
+            let x = Math.floor(Math.random() * 15);
+            let y = Math.floor(Math.random() * 15);
+            
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
+                x = Math.floor(Math.random() * 14);
+                y = Math.floor(Math.random() * 14);
+            }
+            this.locations[location].addGroupOfPeople(x,y,group)
+        })
+        
+    }
+
+    leavePeople(percentage) {
+    
+        this.locations.forEach(location => {
+            let grid = location.grid.array;
+            for (let i = 0; i < grid.length; i++) {
+                for(let j = 0; j < grid.length; j++) {
+                    grid[i][j].groupsOfPeople.forEach(group => {
+                        let number = Math.floor(Math.random() * 101) + 1;
+                        if(number <= percentage) {
+                            grid[i][j].groupsOfPeople.shift();
+                        }
+                    })
+                    
+                }
+            }
+        });
+
+        
     }
 }
 
@@ -729,15 +770,16 @@ class Grid {
     
     constructor(grid) {
 
-        this.array = [];
+        this.array = new Array(15);
         for (var i = 0; i < 15; i++) {
-            this.array[i] = [];
+            this.array[i] = new Array(15);
             for (var j = 0; j < 15; j++) {
                 if(grid == null) {
                     this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default({});
                 } else{
-                this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default(grid.array[i][j]);
+                    this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default(grid.array[i][j]);
                 }
+                
             }
         }
     }
@@ -746,6 +788,19 @@ class Grid {
 
     getItem(x,y) {
         return this.array[x][y].getFillType();
+    }
+
+    addGroupOfPeople(x,y, people) {
+        this.array[x][y].addGroupOfPeople(people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.array[x][y].getAmountOfPeople();
+    }
+
+
+    getGridBlock(x,y) {
+        return this.array[x - 1][ y-1];
     }
 
     getObject(x,y) {
@@ -956,8 +1011,7 @@ class Grid {
         }
         return true;
     }
-
-        
+     
 
 
 }
@@ -978,6 +1032,7 @@ class GridBlock {
     
     constructor(gridblock) {
         this.fillType = null;
+        this.groupsOfPeople = [];
         this.object = null;
         
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
@@ -989,6 +1044,41 @@ class GridBlock {
 
     getFillType() {
         return this.fillType;
+    }
+    addGroupOfPeople(group) {
+        this.groupsOfPeople.push(group);
+    }
+
+    getAmountOfPeople() {
+        let amount = 0;
+        
+        this.groupsOfPeople.forEach(group => {
+            amount += group.getAmountOfPeople();
+        })
+
+        return amount;
+    }
+
+    canPlace(amount, maxAmountOfPeople) {
+        console.log(amount, maxAmountOfPeople)
+        if(this.fillType == "tent" || this.fillType == "drinkStand" || this.fillType=="drinkStandSurface" || this.fillType == "toilet"|| this.fillType=="highTree" || this.fillType == "wideTree" 
+        || this.fillType=="shadowTree" || this.fillType =="foodStand" || this.fillType =="trashcan" || (amount + this.getAmountOfPeople() >= maxAmountOfPeople)) {
+            return false;
+        }
+        return true;
+
+    }
+
+    getAllPeople() {
+        let people = [];
+        this.groupsOfPeople.forEach(group => {
+            group.people.forEach(person => {
+
+                people.push(person);
+            })
+        });
+
+        return people;
     }
 
     setObject(newObject) {
@@ -1216,6 +1306,19 @@ class Location {
         return this.grid.getItem(x,y);
     }
 
+    getGridBlock(x,y) {
+        return this.grid.array[x][y];
+    }
+    addGroupOfPeople(x,y, people) {
+        
+     
+        this.grid.addGroupOfPeople(x,y,people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.grid.getAmountOfPeople(x,y);
+    }
+
     getObject(x,y) {
         return this.grid.getObject(x,y);
     }
@@ -1249,6 +1352,8 @@ class WaitingLine {
 
     constructor() {
         this.people = [];
+        this.scanSpeed = Math.floor(Math.random() * 3) + 1;
+        this.seconds = 0;
     }
 
     addGroupOfPeople(group) {
@@ -1256,7 +1361,17 @@ class WaitingLine {
     }
 
     scan() {
-        this.people.shift();
+        this.seconds++;
+        if(this.people.length > 0) {
+        let amountOfPeople = this.people[0].people.length;
+        
+        if(this.seconds >= amountOfPeople * this.scanSpeed) {
+            this.seconds = 0;
+            return this.people.shift();
+            
+        }
+    }
+        
     }
 }
 
@@ -2145,8 +2260,6 @@ const data = new _Models_Data_js__WEBPACK_IMPORTED_MODULE_7__.default(dataobject
 
 
 localStorage.setItem('data', JSON.stringify(data));
-
-
 
 new _Controllers_MainController_js__WEBPACK_IMPORTED_MODULE_0__.default(data);
 

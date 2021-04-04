@@ -60,6 +60,12 @@ export default class WaitingLineView {
         
         
         waitingLines.forEach(waitingLine => {
+                block.fillStyle = "white";
+                block.font = "15px Arial";
+               
+                block.fillText(waitingLine.scanSpeed, (line - 1) * this.waitingLineWidth + this.waitingLineWidth / 2 - 4, this.waitingLineBlockHeight / 2);
+                block.font = "10px Arial";
+                block.fillText("sec", (line - 1) * this.waitingLineWidth + this.waitingLineWidth / 2 -7, this.waitingLineBlockHeight / 2 + 10);
             waitingLine.people.forEach(waitingGroup => {
                 block.strokeStyle = "red";
                 block.beginPath();
@@ -69,7 +75,7 @@ export default class WaitingLineView {
                 block.font = "12px Arial";
                
                 block.fillText(waitingGroup.people.length, (line - 1)* this.waitingLineWidth + this.waitingLineWidth /2 -3 , y + this.waitingLineBlockHeight + 5 + 5);
-                 y+= radius * 2;
+                 y+= radius * 2 + 3;
             });
             y = radius;
             line++;

@@ -19,7 +19,18 @@ class LocationController {
     constructor(data, simulationController) {
         this.data = data;
         this.simulationController = simulationController;
+        this.locationView = simulationController.locationView;
     }
+
+    refresh() {
+        this.locationView.refresh(this.data);
+        this.leavePeople();
+    }
+
+    leavePeople() {
+        this.data.leavePeople(1);
+    }
+
 
 
 }
@@ -39,8 +50,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _LocationController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LocationController.js */ "./src/Controllers/Simulation/LocationController.js");
 /* harmony import */ var _WaitingLineController_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WaitingLineController.js */ "./src/Controllers/Simulation/WaitingLineController.js");
 /* harmony import */ var _Views_simulation_WaitingLineView_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../Views/simulation/WaitingLineView.js */ "./src/Views/simulation/WaitingLineView.js");
-/* harmony import */ var _Models_Data_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../Models/Data.js */ "./src/Models/Data.js");
-/* harmony import */ var _Models_Simulation_Weather_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../Models/Simulation/Weather.js */ "./src/Models/Simulation/Weather.js");
+/* harmony import */ var _Views_simulation_SimulationView_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../Views/simulation/SimulationView.js */ "./src/Views/simulation/SimulationView.js");
+/* harmony import */ var _Views_simulation_LocationView_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../Views/simulation/LocationView.js */ "./src/Views/simulation/LocationView.js");
+/* harmony import */ var _Models_Data_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../Models/Data.js */ "./src/Models/Data.js");
+/* harmony import */ var _Models_Simulation_Weather_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../Models/Simulation/Weather.js */ "./src/Models/Simulation/Weather.js");
+
+
 
 
 
@@ -50,58 +65,41 @@ __webpack_require__.r(__webpack_exports__);
 class SimulationController {
 
     constructor(data) {
-        this.data = new _Models_Data_js__WEBPACK_IMPORTED_MODULE_3__.default(data);
+        this.data = new _Models_Data_js__WEBPACK_IMPORTED_MODULE_5__.default(data);
         this.waitingLineView = new _Views_simulation_WaitingLineView_js__WEBPACK_IMPORTED_MODULE_2__.default(this.waitingLineController);
-        this.wocationController = new _LocationController_js__WEBPACK_IMPORTED_MODULE_0__.default(this.data, this);
+        this.simulationView = new _Views_simulation_SimulationView_js__WEBPACK_IMPORTED_MODULE_3__.default(this);
+        this.locationView = new _Views_simulation_LocationView_js__WEBPACK_IMPORTED_MODULE_4__.default(this);
+        this.locationController = new _LocationController_js__WEBPACK_IMPORTED_MODULE_0__.default(this.data, this);
         this.waitingLineController = new _WaitingLineController_js__WEBPACK_IMPORTED_MODULE_1__.default(this.data, this);
+        
 
         this.startSimulation();
     }
 
     startSimulation() {
-        this.setLocations();
+        this.simulationView.setMainView(this.data);
+        this.locationView.init(this.data);
         this.waitingLineController.init();
         this.timer = setInterval(() => this.refresh() , 1000);
     }
 
     refresh() {
-        console.log("refresh");
-        this.waitingLineController.refresh();  
+        if(this.paused) {
+            return;
+        }
+        this.simulationView.refresh();
+        this.waitingLineController.refresh();
+        this.locationController.refresh();
+        
+
+       
     }
 
     setNavigation()  {
 
     }
 
-    setLocations() {
-        // let waitingLineBlock = document.getElementById("waitingLineBlock");
-        // let waitingLineHeader = document.createElement("span");
-        // waitingLineHeader.innerHTML = "Waiting Line";
-        // let waitingLine = document.createElement("canvas");
-        // waitingLine.id = "waitingLine";
-        // waitingLine.setAttribute("width", "300px");
-        // waitingLine.setAttribute("height", "600px");
-        // waitingLine.className = "bg-gray-300";
-        // waitingLineBlock.appendChild(waitingLineHeader);
-        // waitingLineBlock.appendChild(waitingLine);
-        
-        let locationsblock = document.getElementById("locations-block");
-        console.log(locationsblock);
-
-        this.data.locations.forEach((location) => {
-            let nameTag = document.createElement("span");
-            nameTag.innerHTML = location.name;
-            let locationBlock = document.createElement("canvas");
-            locationBlock.id = location.name;
-            locationBlock.setAttribute("width", "300px");
-            locationBlock.setAttribute("height", "300px");
-            locationBlock.className = "locationblock bg-gray-100"
-            let div = document.createElement("div");
-            div.appendChild(nameTag);
-            div.appendChild(locationBlock);
-            locationsblock.appendChild(div);
-        });
-    }
+    
 }
 
 /***/ }),
@@ -145,6 +143,7 @@ class WaitingLineController{
         }
         this.scanWaitingLines();
         this.waitingLineView.refresh(this.data);
+        this.amountOfVisitors = this.amountOfVisitors + 13;
     }
 
     scanWaitingLines() {
@@ -158,7 +157,7 @@ class WaitingLineController{
             maxAmountOfVisitors += location.visitors;
         });
 
-        this.amountOfVisitors = Math.floor(Math.random() * maxAmountOfVisitors) + Math.floor(maxAmountOfVisitors / 4 * 3); 
+        this.amountOfVisitors = Math.floor(Math.random() * maxAmountOfVisitors) + (3/4*maxAmountOfVisitors); 
         for(let i = 0; i < this.amountOfVisitors; ) {
             let amountOfPeople = Math.floor(Math.random() * 4) + 1;
             
@@ -218,6 +217,7 @@ class Data {
         }
         this.peopleInLine = [];
         this.waitingLines = [];
+        this.leftpeople = [];
     }
 
     addLocation(location) {
@@ -266,9 +266,49 @@ class Data {
     }
 
     scanWaitingLines() {
+        let scannedPeople = [];
         for(let i = 0; i < this.waitingLines.length; i++) {
-            this.waitingLines[i].scan();
+            let groupOfPeople  = this.waitingLines[i].scan();
+            if(typeof groupOfPeople !== 'undefined') {
+                scannedPeople.push(groupOfPeople);
+            }
         }
+        this.locateGroupsOfPeople(scannedPeople);
+    }
+    locateGroupsOfPeople(people) {
+    
+        people.forEach(group =>  {
+            let location = Math.floor(Math.random() * this.locations.length);
+            let x = Math.floor(Math.random() * 15);
+            let y = Math.floor(Math.random() * 15);
+            
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
+                x = Math.floor(Math.random() * 14);
+                y = Math.floor(Math.random() * 14);
+            }
+            this.locations[location].addGroupOfPeople(x,y,group)
+        })
+        
+    }
+
+    leavePeople(percentage) {
+    
+        this.locations.forEach(location => {
+            let grid = location.grid.array;
+            for (let i = 0; i < grid.length; i++) {
+                for(let j = 0; j < grid.length; j++) {
+                    grid[i][j].groupsOfPeople.forEach(group => {
+                        let number = Math.floor(Math.random() * 101) + 1;
+                        if(number <= percentage) {
+                            grid[i][j].groupsOfPeople.shift();
+                        }
+                    })
+                    
+                }
+            }
+        });
+
+        
     }
 }
 
@@ -332,15 +372,16 @@ class Grid {
     
     constructor(grid) {
 
-        this.array = [];
+        this.array = new Array(15);
         for (var i = 0; i < 15; i++) {
-            this.array[i] = [];
+            this.array[i] = new Array(15);
             for (var j = 0; j < 15; j++) {
                 if(grid == null) {
                     this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default({});
                 } else{
-                this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default(grid.array[i][j]);
+                    this.array[i][j] = new _Models_GridBlock__WEBPACK_IMPORTED_MODULE_0__.default(grid.array[i][j]);
                 }
+                
             }
         }
     }
@@ -349,6 +390,19 @@ class Grid {
 
     getItem(x,y) {
         return this.array[x][y].getFillType();
+    }
+
+    addGroupOfPeople(x,y, people) {
+        this.array[x][y].addGroupOfPeople(people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.array[x][y].getAmountOfPeople();
+    }
+
+
+    getGridBlock(x,y) {
+        return this.array[x - 1][ y-1];
     }
 
     getObject(x,y) {
@@ -559,8 +613,7 @@ class Grid {
         }
         return true;
     }
-
-        
+     
 
 
 }
@@ -581,6 +634,7 @@ class GridBlock {
     
     constructor(gridblock) {
         this.fillType = null;
+        this.groupsOfPeople = [];
         this.object = null;
         
         if(typeof gridblock.fillType !== 'undefined') this.fillType = gridblock.fillType;
@@ -592,6 +646,41 @@ class GridBlock {
 
     getFillType() {
         return this.fillType;
+    }
+    addGroupOfPeople(group) {
+        this.groupsOfPeople.push(group);
+    }
+
+    getAmountOfPeople() {
+        let amount = 0;
+        
+        this.groupsOfPeople.forEach(group => {
+            amount += group.getAmountOfPeople();
+        })
+
+        return amount;
+    }
+
+    canPlace(amount, maxAmountOfPeople) {
+        console.log(amount, maxAmountOfPeople)
+        if(this.fillType == "tent" || this.fillType == "drinkStand" || this.fillType=="drinkStandSurface" || this.fillType == "toilet"|| this.fillType=="highTree" || this.fillType == "wideTree" 
+        || this.fillType=="shadowTree" || this.fillType =="foodStand" || this.fillType =="trashcan" || (amount + this.getAmountOfPeople() >= maxAmountOfPeople)) {
+            return false;
+        }
+        return true;
+
+    }
+
+    getAllPeople() {
+        let people = [];
+        this.groupsOfPeople.forEach(group => {
+            group.people.forEach(person => {
+
+                people.push(person);
+            })
+        });
+
+        return people;
     }
 
     setObject(newObject) {
@@ -819,6 +908,19 @@ class Location {
         return this.grid.getItem(x,y);
     }
 
+    getGridBlock(x,y) {
+        return this.grid.array[x][y];
+    }
+    addGroupOfPeople(x,y, people) {
+        
+     
+        this.grid.addGroupOfPeople(x,y,people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.grid.getAmountOfPeople(x,y);
+    }
+
     getObject(x,y) {
         return this.grid.getObject(x,y);
     }
@@ -858,6 +960,11 @@ class GroupOfPeople {
             this.people.push(new _Person_js__WEBPACK_IMPORTED_MODULE_0__.default());
         }
     }
+
+    getAmountOfPeople() {
+        return this.people.length;
+    }
+
 }
 
 
@@ -890,7 +997,7 @@ class Person {
       
             response.json().then(function(data) {
                 console.log(data.results[0]);
-              self.name = data.results[0].title + " " + data.results[0].name.first + " " + data.results[0].name.last;
+              self.name = data.results[0].name.title + " " + data.results[0].name.first + " " + data.results[0].name.last;
               self.gender = data.results[0].gender;
               self.age = data.results[0].dob.age;
               self.picture = data.results[0].picture.thumbnail;
@@ -940,6 +1047,8 @@ class WaitingLine {
 
     constructor() {
         this.people = [];
+        this.scanSpeed = Math.floor(Math.random() * 3) + 1;
+        this.seconds = 0;
     }
 
     addGroupOfPeople(group) {
@@ -947,7 +1056,17 @@ class WaitingLine {
     }
 
     scan() {
-        this.people.shift();
+        this.seconds++;
+        if(this.people.length > 0) {
+        let amountOfPeople = this.people[0].people.length;
+        
+        if(this.seconds >= amountOfPeople * this.scanSpeed) {
+            this.seconds = 0;
+            return this.people.shift();
+            
+        }
+    }
+        
     }
 }
 
@@ -1066,6 +1185,256 @@ class Trashcan {
 
 /***/ }),
 
+/***/ "./src/Views/simulation/LocationView.js":
+/*!**********************************************!*\
+  !*** ./src/Views/simulation/LocationView.js ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ LocationView)
+/* harmony export */ });
+class LocationView {
+    constructor(locationController) {
+        this.locationController = locationController;
+        this.locationBlocks = [];
+        this.locationBlockWidth = 350;
+        this.locationBlockHeight = 350;
+        this.gridWidth = this.locationBlockWidth / 15;
+        this.gridHeight = this.locationBlockHeight / 15;
+        this.groupWidth = 8;
+    }
+    init(data) {
+        let locationsblock = document.getElementById("locations-block");
+        console.log(locationsblock);
+
+        data.locations.forEach((location) => {
+            let nameTag = document.createElement("span");
+            nameTag.innerHTML = location.name;
+            let locationBlock = document.createElement("canvas");
+            locationBlock.id = location.name;
+            locationBlock.setAttribute("width", "" + this.locationBlockWidth);
+            locationBlock.setAttribute("height", "" + this.locationBlockHeight);
+            locationBlock.className = "locationblock bg-gray-100"
+            let div = document.createElement("div");
+            let canvas = locationBlock.getContext("2d");
+            canvas.translate(0.5,0.5);
+            this.locationBlocks.push(canvas);
+            div.appendChild(nameTag);
+            div.appendChild(locationBlock);
+            locationBlock.addEventListener("mousemove", (e) => this.hoverPeople(location, e.clientX - locationBlock.offsetLeft - locationBlock.scrollLeft, e.clientY - locationBlock.offsetTop - locationBlock.scrollTop));
+            locationsblock.appendChild(div);
+        });
+
+        this.drawLocations(data);
+        
+
+        
+    }
+
+    refresh(data) {
+        this.drawLocations(data);
+        this.clickEvents(data);
+    }
+
+    drawLocations(data) {
+       
+        for(let i = 0; i < this.locationBlocks.length; i++) {
+            this.drawLocation(data.locations[i] , this.locationBlocks[i]);
+        }
+    }
+
+    drawLocation(locationData, block) {
+        
+        block.clearRect(0, 0, this.locationBlockWidth, this.locationBlockHeight);
+        for(let x = 0; x < 15; x++) {
+            for(let y = 0; y < 15; y++) {
+                   this.drawBackgroundItem(locationData.grid.array[x][y].getFillType(), block,  x, y);
+                    
+            }
+        }
+        for(let x = 0; x < 15; x++) {
+            for(let y = 0; y < 15; y++) {
+                this.drawPeople(locationData.grid.array[x][y].getAmountOfPeople(), block, x, y);
+            }
+        }
+        
+    }
+
+    drawPeople(amount, block,x,y) {
+        if(amount > 0) this.drawGroup(amount,block, x, y);
+        
+    }
+
+    drawGroup(amount, block, x, y) {
+       
+        block.strokeStyle = "red";
+        block.beginPath();
+        block.arc(x * this.gridWidth + this.gridWidth /2, y * this.gridHeight + this.gridHeight /2 , this.groupWidth, 0, 2 * Math.PI);
+        block.fillStyle = "white";
+        block.fill();
+        block.stroke();   
+        block.fillStyle = "black";
+        block.font = "12px Arial";
+       
+        block.fillText(amount, x * this.gridWidth + this.gridWidth /2 - 3, y * this.gridHeight + this.gridHeight /2 + 4);
+    }
+    drawBackgroundItem(type, block,x,y) {
+        if(type != null) {
+            let color = null;
+            let image = null;
+            //colors
+            if(type == "tentSurface" || type == "tent") {
+                color = "yellow";
+            } else if(type =="drinkStandSurface" || type == "drinkStand") {
+                color = "red";
+            } else if(type =="toiletSurface" || type == "toilet") {
+                color = "gray";
+            } else if(type =="highTreeSurface" || type =="wideTreeSurface" || type == "shadowTreeSurface" || type=="highTree" || type == "wideTree" || type=="shadowTree") {
+                color = "green";
+            } else if(type =="foodStand") {
+                color = "brown";
+            }
+             else if(type =="trashcan") {
+                color = "gray";
+            }
+            //images
+            if(type == "tent" || type =="drinkStand" || type =="toilet" || type=="highTree" || type == "wideTree" || type=="shadowTree" || type=="foodStand" || type =="trashcan") {
+                image = type;
+            }
+
+            this.drawGridPane(x,y,color,image,block);
+        }            
+    }
+
+    drawGridPane(x,y,color,image, block) {
+        
+        block.fillStyle = color;
+        block.fillRect(x * this.gridWidth, y * this.gridHeight, this.gridWidth, this.gridHeight);
+        
+        if(image != null) {
+            let drawing = new Image();
+            drawing.src = "../src/Images/" + image + ".png"; 
+            
+            drawing.onload = () => {
+                block.drawImage(drawing,x * this.gridWidth, y * this.gridHeight, this.gridWidth, this.gridHeight);
+            }
+
+            
+        }
+    }
+
+    clickEvents(data) {
+        for(let i = 0; i < this.locationBlocks.length; i++) {
+            this.clickEventsLocation(data.locations[i] , this.locationBlocks[i]);
+        }
+    }
+
+    clickEventsLocation(locationdata, block) {
+        
+        
+    }
+
+    hoverPeople(location,x,y) {
+        if(x < 0 || y < 0) {
+            return;
+        }
+        let infoblock = document.getElementById("people-info-block");
+
+        while (infoblock.firstChild) {
+           infoblock.removeChild(infoblock.firstChild);
+        }
+
+        x = Math.floor(x / 23.3);
+        y = Math.floor(y /23.3);
+
+
+
+        let infoheader = document.createElement("h1");
+        infoheader.className = "font-bold"
+        infoheader.innerHTML = "Info about block x" + (x+1) + ", y"+(y+1) + " (" + location.name +")";
+
+        infoblock.appendChild(infoheader);
+
+        let gridBlock = location.grid.getGridBlock(x + 1,y + 1);
+
+
+        let personinfoheader = document.createElement("span");
+        personinfoheader.innerHTML = "People in this block"
+        personinfoheader.className = "italic";
+        infoblock.appendChild(personinfoheader);
+        if(gridBlock.getAmountOfPeople() <= 0) { 
+            let personRow = document.createElement("span");
+            personRow.innerHTML = "-";
+
+            infoblock.appendChild(personRow);
+        }
+        let i =  1; 
+        gridBlock.groupsOfPeople.forEach(group => {
+            let groupRow = document.createElement("span");
+            groupRow.innerHTML = "group " + i;
+            groupRow.className = "font-bold"
+            infoblock.appendChild(groupRow);
+            group.people.forEach(person => {
+                let personRow = document.createElement("span");
+                personRow.className = "ml-4"
+                personRow.innerHTML = person.getName() + " (" + person.getAge() + ") ("+ person.getGender() + ") ";
+                infoblock.appendChild(personRow);
+            });
+            i++;
+        });
+        
+    }
+}
+
+/***/ }),
+
+/***/ "./src/Views/simulation/SimulationView.js":
+/*!************************************************!*\
+  !*** ./src/Views/simulation/SimulationView.js ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ SimulationView)
+/* harmony export */ });
+class SimulationView {
+
+    constructor(simulationController) {
+        this.simulationController = simulationController;
+    }
+    setMainView(data) {
+    this.paused = false;
+    let pauseButton = document.getElementById("pause-simulation");
+    pauseButton.addEventListener("click",() => this.pausePlaySimulation());
+    
+}
+
+pausePlaySimulation() {
+    
+    let pauseButton = document.getElementById("pause-simulation");
+    if(this.simulationController.paused) {
+        this.simulationController.paused = false;
+        pauseButton.className = "order-last p-3 bp-2 ml-10 bg-red-500 hover:bg-red-800 hover:text-white";
+        pauseButton.innerHTML = "pause simulation";
+    } else {
+        this.simulationController.paused = true;
+        pauseButton.className = "order-last p-3 bp-2 ml-10 bg-green-500 hover:bg-green-800 hover:text-white";
+        pauseButton.innerHTML = "start simulation";
+    }
+    
+}
+refresh() {
+    
+}
+
+}
+
+
+/***/ }),
+
 /***/ "./src/Views/simulation/WaitingLineView.js":
 /*!*************************************************!*\
   !*** ./src/Views/simulation/WaitingLineView.js ***!
@@ -1138,6 +1507,12 @@ class WaitingLineView {
         
         
         waitingLines.forEach(waitingLine => {
+                block.fillStyle = "white";
+                block.font = "15px Arial";
+               
+                block.fillText(waitingLine.scanSpeed, (line - 1) * this.waitingLineWidth + this.waitingLineWidth / 2 - 4, this.waitingLineBlockHeight / 2);
+                block.font = "10px Arial";
+                block.fillText("sec", (line - 1) * this.waitingLineWidth + this.waitingLineWidth / 2 -7, this.waitingLineBlockHeight / 2 + 10);
             waitingLine.people.forEach(waitingGroup => {
                 block.strokeStyle = "red";
                 block.beginPath();
@@ -1147,7 +1522,7 @@ class WaitingLineView {
                 block.font = "12px Arial";
                
                 block.fillText(waitingGroup.people.length, (line - 1)* this.waitingLineWidth + this.waitingLineWidth /2 -3 , y + this.waitingLineBlockHeight + 5 + 5);
-                 y+= radius * 2;
+                 y+= radius * 2 + 3;
             });
             y = radius;
             line++;

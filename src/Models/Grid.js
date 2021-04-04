@@ -7,15 +7,16 @@ export default class Grid {
     
     constructor(grid) {
 
-        this.array = [];
+        this.array = new Array(15);
         for (var i = 0; i < 15; i++) {
-            this.array[i] = [];
+            this.array[i] = new Array(15);
             for (var j = 0; j < 15; j++) {
                 if(grid == null) {
                     this.array[i][j] = new GridBlock({});
                 } else{
-                this.array[i][j] = new GridBlock(grid.array[i][j]);
+                    this.array[i][j] = new GridBlock(grid.array[i][j]);
                 }
+                
             }
         }
     }
@@ -24,6 +25,19 @@ export default class Grid {
 
     getItem(x,y) {
         return this.array[x][y].getFillType();
+    }
+
+    addGroupOfPeople(x,y, people) {
+        this.array[x][y].addGroupOfPeople(people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.array[x][y].getAmountOfPeople();
+    }
+
+
+    getGridBlock(x,y) {
+        return this.array[x - 1][ y-1];
     }
 
     getObject(x,y) {
@@ -234,8 +248,7 @@ export default class Grid {
         }
         return true;
     }
-
-        
+     
 
 
 }
