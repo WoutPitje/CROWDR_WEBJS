@@ -40,6 +40,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _WaitingLineController_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WaitingLineController.js */ "./src/Controllers/Simulation/WaitingLineController.js");
 /* harmony import */ var _Views_simulation_WaitingLineView_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../Views/simulation/WaitingLineView.js */ "./src/Views/simulation/WaitingLineView.js");
 /* harmony import */ var _Models_Data_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../Models/Data.js */ "./src/Models/Data.js");
+/* harmony import */ var _Models_Simulation_Weather_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../Models/Simulation/Weather.js */ "./src/Models/Simulation/Weather.js");
+
 
 
 
@@ -54,7 +56,6 @@ class SimulationController {
         this.waitingLineController = new _WaitingLineController_js__WEBPACK_IMPORTED_MODULE_1__.default(this.data, this);
 
         this.startSimulation();
-        
     }
 
     startSimulation() {
@@ -65,8 +66,7 @@ class SimulationController {
 
     refresh() {
         console.log("refresh");
-        this.waitingLineController.refresh();
-       
+        this.waitingLineController.refresh();  
     }
 
     setNavigation()  {
@@ -858,7 +858,6 @@ class GroupOfPeople {
             this.people.push(new _Person_js__WEBPACK_IMPORTED_MODULE_0__.default());
         }
     }
-
 }
 
 
@@ -878,19 +877,51 @@ class Person {
 
     constructor() {
         
-        // const api_url = 'https://randomuser.me/api/'
+        var self = this;
 
-        // async function getData() {
-        //     const response = await fetch(api_url);
-        //     const data = response.json();
+        fetch('https://randomuser.me/api/')
+        .then(
+          function(response) {
+            if (response.status !== 200) {
+              console.log('Looks like there was a problem. Status Code: ' +
+                response.status);
+              return;
+            }
+      
+            response.json().then(function(data) {
+                console.log(data.results[0]);
+              self.name = data.results[0].title + " " + data.results[0].name.first + " " + data.results[0].name.last;
+              self.gender = data.results[0].gender;
+              self.age = data.results[0].dob.age;
+              self.picture = data.results[0].picture.thumbnail;
+              self.country = data.results[0].location.country
+            });
+          }
+        )
+        .catch(function(err) {
+          console.log('Fetch Error :-S', err);
+        });
+    }   
 
-        //     console.log(data);
-        // }
-
-        this.name = "piet";
-        this.age = Math.floor(Math.random() * 100) + 1;
+    getName(){
+        return this.name;
     }
-    
+
+    getGender(){
+        return this.gender;
+    }
+
+    getAge(){
+        return this.age;
+    }
+
+    getPicture(){
+        return this.picture;
+    }
+
+    getCountry(){
+        return this.country;
+    }
 }
 
 /***/ }),
@@ -920,6 +951,48 @@ class WaitingLine {
     }
 }
 
+
+/***/ }),
+
+/***/ "./src/Models/Simulation/Weather.js":
+/*!******************************************!*\
+  !*** ./src/Models/Simulation/Weather.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Weather)
+/* harmony export */ });
+class Weather {
+
+    constructor() {
+        
+        var self = this;
+
+        fetch("http://api.openweathermap.org/data/2.5/weather?q='s-Hertogenbosch&appid=e68285f49070969fc85b1cc56080ab46")
+        .then(
+          function(response) {
+            if (response.status !== 200) {
+              console.log('Looks like there was a problem. Status Code: ' +
+                response.status);
+              return;
+            }
+      
+            response.json().then(function(data) {
+              self.currentWeather = data.weather[0].main;
+            });
+          }
+        )
+        .catch(function(err) {
+          console.log('Fetch Error :-S', err);
+        });
+    }   
+
+    getCurrentWeather(){
+      return this.currentWeather;
+  }
+}
 
 /***/ }),
 

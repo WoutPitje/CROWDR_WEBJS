@@ -7,5 +7,4 @@ export default class GroupOfPeople {
             this.people.push(new Person());
         }
     }
-
 }

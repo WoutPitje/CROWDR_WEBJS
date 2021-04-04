@@ -2,6 +2,7 @@ import LocationController from './LocationController.js'
 import WaitingLineController from './WaitingLineController.js'
 import WaitingLineView from '../../Views/simulation/WaitingLineView.js'
 import Data from '../../Models/Data.js'
+import Weather from '../../Models/Simulation/Weather.js'
 
 export default class SimulationController {
 
@@ -12,7 +13,6 @@ export default class SimulationController {
         this.waitingLineController = new WaitingLineController(this.data, this);
 
         this.startSimulation();
-        
     }
 
     startSimulation() {
@@ -23,8 +23,7 @@ export default class SimulationController {
 
     refresh() {
         console.log("refresh");
-        this.waitingLineController.refresh();
-       
+        this.waitingLineController.refresh();  
     }
 
     setNavigation()  {
