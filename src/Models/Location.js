@@ -198,9 +198,16 @@ export default class Location {
         return this.grid.getItem(x,y);
     }
 
+    getGridBlock(x,y) {
+        return this.grid.array[x][y];
+    }
     addGroupOfPeople(x,y, people) {
         
-        console.log(x + " " + y)
-        this.grid.array[x][y].addGroupOfPeople(people);
+     
+        this.grid.addGroupOfPeople(x,y,people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.grid.getAmountOfPeople(x,y);
     }
 }

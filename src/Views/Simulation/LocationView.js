@@ -26,16 +26,19 @@ export default class LocationView {
             this.locationBlocks.push(canvas);
             div.appendChild(nameTag);
             div.appendChild(locationBlock);
+            locationBlock.addEventListener("mousemove", (e) => this.hoverPeople(location, e.clientX - locationBlock.offsetLeft - locationBlock.scrollLeft, e.clientY - locationBlock.offsetTop - locationBlock.scrollTop));
             locationsblock.appendChild(div);
         });
 
         this.drawLocations(data);
+        
 
         
     }
 
     refresh(data) {
         this.drawLocations(data);
+        this.clickEvents(data);
     }
 
     drawLocations(data) {
@@ -56,17 +59,13 @@ export default class LocationView {
         }
         for(let x = 0; x < 15; x++) {
             for(let y = 0; y < 15; y++) {
-                this.drawPeople(locationData.grid.array[x][y].groupsOfPeople, block, x, y);
+                this.drawPeople(locationData.grid.array[x][y].getAmountOfPeople(), block, x, y);
             }
         }
         
     }
 
-    drawPeople(people, block,x,y) {
-        let amount = 0;
-        people.forEach(group => {
-            amount = amount + group.length;
-        });
+    drawPeople(amount, block,x,y) {
         if(amount > 0) this.drawGroup(amount,block, x, y);
         
     }
@@ -75,14 +74,14 @@ export default class LocationView {
        
         block.strokeStyle = "red";
         block.beginPath();
-        block.arc(x * this.gridWidth - this.gridWidth /2, y * this.gridHeight - this.gridHeight /2, this.groupWidth, 0, 2 * Math.PI);
+        block.arc(x * this.gridWidth + this.gridWidth /2, y * this.gridHeight + this.gridHeight /2 , this.groupWidth, 0, 2 * Math.PI);
         block.fillStyle = "white";
         block.fill();
         block.stroke();   
         block.fillStyle = "black";
         block.font = "12px Arial";
        
-        block.fillText(amount, x * this.gridWidth - this.gridWidth /2 - 3, y * this.gridHeight - this.gridHeight /2 + 4);
+        block.fillText(amount, x * this.gridWidth + this.gridWidth /2 - 3, y * this.gridHeight + this.gridHeight /2 + 4);
     }
     drawBackgroundItem(type, block,x,y) {
         if(type != null) {
@@ -121,9 +120,73 @@ export default class LocationView {
             let drawing = new Image();
             drawing.src = "../src/Images/" + image + ".png"; 
             
-            
+            drawing.onload = () => {
                 block.drawImage(drawing,x * this.gridWidth, y * this.gridHeight, this.gridWidth, this.gridHeight);
+            }
+
             
         }
+    }
+
+    clickEvents(data) {
+        for(let i = 0; i < this.locationBlocks.length; i++) {
+            this.clickEventsLocation(data.locations[i] , this.locationBlocks[i]);
+        }
+    }
+
+    clickEventsLocation(locationdata, block) {
+        
+        
+    }
+
+    hoverPeople(location,x,y) {
+        if(x < 0 || y < 0) {
+            return;
+        }
+        let infoblock = document.getElementById("people-info-block");
+
+        while (infoblock.firstChild) {
+           infoblock.removeChild(infoblock.firstChild);
+        }
+
+        x = Math.floor(x / 23.3);
+        y = Math.floor(y /23.3);
+
+
+
+        let infoheader = document.createElement("h1");
+        infoheader.className = "font-bold"
+        infoheader.innerHTML = "Info about block x" + (x+1) + ", y"+(y+1) + " (" + location.name +")";
+
+        infoblock.appendChild(infoheader);
+
+        let gridBlock = location.grid.getGridBlock(x + 1,y + 1);
+
+
+        let personinfoheader = document.createElement("span");
+        personinfoheader.innerHTML = "People in this block"
+        personinfoheader.className = "italic";
+        infoblock.appendChild(personinfoheader);
+        if(gridBlock.getAmountOfPeople() <= 0) { 
+            let personRow = document.createElement("span");
+            personRow.innerHTML = "-";
+
+            infoblock.appendChild(personRow);
+        }
+        let i =  1; 
+        gridBlock.groupsOfPeople.forEach(group => {
+            let groupRow = document.createElement("span");
+            groupRow.innerHTML = "group " + i;
+            groupRow.className = "font-bold"
+            infoblock.appendChild(groupRow);
+            group.people.forEach(person => {
+                let personRow = document.createElement("span");
+                personRow.className = "ml-4"
+                personRow.innerHTML = person.name + " (" + person.age + ")";
+                infoblock.appendChild(personRow);
+            });
+            i++;
+        });
+        
     }
 }

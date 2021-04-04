@@ -24,6 +24,15 @@ export default class Grid {
         return this.array[x][y].getFillType();
     }
 
+    addGroupOfPeople(x,y, people) {
+        this.array[x][y].addGroupOfPeople(people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.array[x][y].getAmountOfPeople();
+    }
+
+
     getGridBlock(x,y) {
         return this.array[x - 1][ y-1];
     }

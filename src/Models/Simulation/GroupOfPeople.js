@@ -8,4 +8,8 @@ export default class GroupOfPeople {
         }
     }
 
+    getAmountOfPeople() {
+        return this.people.length;
+    }
+
 }

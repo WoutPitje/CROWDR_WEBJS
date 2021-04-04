@@ -31,9 +31,11 @@ export default class SimulationController {
         if(this.paused) {
             return;
         }
+        this.simulationView.refresh();
         this.waitingLineController.refresh();
         this.locationController.refresh();
-        console.log("refresh");
+        
+
        
     }
 

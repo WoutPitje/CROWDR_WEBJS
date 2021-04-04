@@ -24,7 +24,13 @@ class LocationController {
 
     refresh() {
         this.locationView.refresh(this.data);
+        this.leavePeople();
     }
+
+    leavePeople() {
+        this.data.leavePeople(1);
+    }
+
 
 
 }
@@ -80,9 +86,11 @@ class SimulationController {
         if(this.paused) {
             return;
         }
+        this.simulationView.refresh();
         this.waitingLineController.refresh();
         this.locationController.refresh();
-        console.log("refresh");
+        
+
        
     }
 
@@ -148,7 +156,7 @@ class WaitingLineController{
             maxAmountOfVisitors += location.visitors;
         });
 
-        this.amountOfVisitors = Math.floor(Math.random() * 300) + 100; 
+        this.amountOfVisitors = Math.floor(Math.random() * maxAmountOfVisitors) + (3/4*maxAmountOfVisitors); 
         for(let i = 0; i < this.amountOfVisitors; ) {
             let amountOfPeople = Math.floor(Math.random() * 4) + 1;
             
@@ -209,6 +217,7 @@ class Data {
         }
         this.peopleInLine = [];
         this.waitingLines = [];
+        this.leftpeople = [];
     }
 
     addLocation(location) {
@@ -266,29 +275,38 @@ class Data {
         this.locateGroupsOfPeople(scannedPeople);
     }
     locateGroupsOfPeople(people) {
-        console.log(people);
+    
         people.forEach(group =>  {
             let location = Math.floor(Math.random() * this.locations.length);
-            let x = Math.floor(Math.random() * 14);
-            let y = Math.floor(Math.random() * 14);
-
+            let x = Math.floor(Math.random() * 15);
+            let y = Math.floor(Math.random() * 15);
             
-
-            let type = this.locations[location].grid.array[x][y].fillType;
-            
-            while(type == "tent" || type == "drinkStand" || type=="drinkStandSurface" || type == "toilet"|| type=="highTree" || type == "wideTree" || type=="shadowTree" || type =="foodStand" || type =="trashcan") {
-                location = Math.floor(Math.random() * this.locations.length);
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
                 x = Math.floor(Math.random() * 14);
                 y = Math.floor(Math.random() * 14);
-
-                type = this.locations[location].grid.array[x][y].fillType;
             }
-                
-            this.locations[location].addGroupOfPeople(x,y,people)
-            
-       
-            
+            this.locations[location].addGroupOfPeople(x,y,group)
         })
+        
+    }
+
+    leavePeople(percentage) {
+    
+        this.locations.forEach(location => {
+            let grid = location.grid.array;
+            for (let i = 0; i < grid.length; i++) {
+                for(let j = 0; j < grid.length; j++) {
+                    grid[i][j].groupsOfPeople.forEach(group => {
+                        let number = Math.floor(Math.random() * 101) + 1;
+                        if(number <= percentage) {
+                            grid[i][j].groupsOfPeople.shift();
+                        }
+                    })
+                    
+                }
+            }
+        });
+
         
     }
 }
@@ -331,6 +349,15 @@ class Grid {
     getItem(x,y) {
         return this.array[x][y].getFillType();
     }
+
+    addGroupOfPeople(x,y, people) {
+        this.array[x][y].addGroupOfPeople(people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.array[x][y].getAmountOfPeople();
+    }
+
 
     getGridBlock(x,y) {
         return this.array[x - 1][ y-1];
@@ -555,6 +582,38 @@ class GridBlock {
     addGroupOfPeople(group) {
         this.groupsOfPeople.push(group);
     }
+
+    getAmountOfPeople() {
+        let amount = 0;
+        
+        this.groupsOfPeople.forEach(group => {
+            amount += group.getAmountOfPeople();
+        })
+
+        return amount;
+    }
+
+    canPlace(amount, maxAmountOfPeople) {
+        console.log(amount, maxAmountOfPeople)
+        if(this.fillType == "tent" || this.fillType == "drinkStand" || this.fillType=="drinkStandSurface" || this.fillType == "toilet"|| this.fillType=="highTree" || this.fillType == "wideTree" 
+        || this.fillType=="shadowTree" || this.fillType =="foodStand" || this.fillType =="trashcan" || (amount + this.getAmountOfPeople() >= maxAmountOfPeople)) {
+            return false;
+        }
+        return true;
+
+    }
+
+    getAllPeople() {
+        let people = [];
+        this.groupsOfPeople.forEach(group => {
+            group.people.forEach(person => {
+
+                people.push(person);
+            })
+        });
+
+        return people;
+    }
 }
 
 /***/ }),
@@ -770,10 +829,17 @@ class Location {
         return this.grid.getItem(x,y);
     }
 
+    getGridBlock(x,y) {
+        return this.grid.array[x][y];
+    }
     addGroupOfPeople(x,y, people) {
         
-        console.log(x + " " + y)
-        this.grid.array[x][y].addGroupOfPeople(people);
+     
+        this.grid.addGroupOfPeople(x,y,people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.grid.getAmountOfPeople(x,y);
     }
 }
 
@@ -798,6 +864,10 @@ class GroupOfPeople {
         for(let i = 0; i < amountOfPeople; i++) {
             this.people.push(new _Person_js__WEBPACK_IMPORTED_MODULE_0__.default());
         }
+    }
+
+    getAmountOfPeople() {
+        return this.people.length;
     }
 
 }
@@ -914,16 +984,19 @@ class LocationView {
             this.locationBlocks.push(canvas);
             div.appendChild(nameTag);
             div.appendChild(locationBlock);
+            locationBlock.addEventListener("mousemove", (e) => this.hoverPeople(location, e.clientX - locationBlock.offsetLeft - locationBlock.scrollLeft, e.clientY - locationBlock.offsetTop - locationBlock.scrollTop));
             locationsblock.appendChild(div);
         });
 
         this.drawLocations(data);
+        
 
         
     }
 
     refresh(data) {
         this.drawLocations(data);
+        this.clickEvents(data);
     }
 
     drawLocations(data) {
@@ -944,17 +1017,13 @@ class LocationView {
         }
         for(let x = 0; x < 15; x++) {
             for(let y = 0; y < 15; y++) {
-                this.drawPeople(locationData.grid.array[x][y].groupsOfPeople, block, x, y);
+                this.drawPeople(locationData.grid.array[x][y].getAmountOfPeople(), block, x, y);
             }
         }
         
     }
 
-    drawPeople(people, block,x,y) {
-        let amount = 0;
-        people.forEach(group => {
-            amount = amount + group.length;
-        });
+    drawPeople(amount, block,x,y) {
         if(amount > 0) this.drawGroup(amount,block, x, y);
         
     }
@@ -963,14 +1032,14 @@ class LocationView {
        
         block.strokeStyle = "red";
         block.beginPath();
-        block.arc(x * this.gridWidth - this.gridWidth /2, y * this.gridHeight - this.gridHeight /2, this.groupWidth, 0, 2 * Math.PI);
+        block.arc(x * this.gridWidth + this.gridWidth /2, y * this.gridHeight + this.gridHeight /2 , this.groupWidth, 0, 2 * Math.PI);
         block.fillStyle = "white";
         block.fill();
         block.stroke();   
         block.fillStyle = "black";
         block.font = "12px Arial";
        
-        block.fillText(amount, x * this.gridWidth - this.gridWidth /2 - 3, y * this.gridHeight - this.gridHeight /2 + 4);
+        block.fillText(amount, x * this.gridWidth + this.gridWidth /2 - 3, y * this.gridHeight + this.gridHeight /2 + 4);
     }
     drawBackgroundItem(type, block,x,y) {
         if(type != null) {
@@ -1009,10 +1078,74 @@ class LocationView {
             let drawing = new Image();
             drawing.src = "../src/Images/" + image + ".png"; 
             
-            
+            drawing.onload = () => {
                 block.drawImage(drawing,x * this.gridWidth, y * this.gridHeight, this.gridWidth, this.gridHeight);
+            }
+
             
         }
+    }
+
+    clickEvents(data) {
+        for(let i = 0; i < this.locationBlocks.length; i++) {
+            this.clickEventsLocation(data.locations[i] , this.locationBlocks[i]);
+        }
+    }
+
+    clickEventsLocation(locationdata, block) {
+        
+        
+    }
+
+    hoverPeople(location,x,y) {
+        if(x < 0 || y < 0) {
+            return;
+        }
+        let infoblock = document.getElementById("people-info-block");
+
+        while (infoblock.firstChild) {
+           infoblock.removeChild(infoblock.firstChild);
+        }
+
+        x = Math.floor(x / 23.3);
+        y = Math.floor(y /23.3);
+
+
+
+        let infoheader = document.createElement("h1");
+        infoheader.className = "font-bold"
+        infoheader.innerHTML = "Info about block x" + (x+1) + ", y"+(y+1) + " (" + location.name +")";
+
+        infoblock.appendChild(infoheader);
+
+        let gridBlock = location.grid.getGridBlock(x + 1,y + 1);
+
+
+        let personinfoheader = document.createElement("span");
+        personinfoheader.innerHTML = "People in this block"
+        personinfoheader.className = "italic";
+        infoblock.appendChild(personinfoheader);
+        if(gridBlock.getAmountOfPeople() <= 0) { 
+            let personRow = document.createElement("span");
+            personRow.innerHTML = "-";
+
+            infoblock.appendChild(personRow);
+        }
+        let i =  1; 
+        gridBlock.groupsOfPeople.forEach(group => {
+            let groupRow = document.createElement("span");
+            groupRow.innerHTML = "group " + i;
+            groupRow.className = "font-bold"
+            infoblock.appendChild(groupRow);
+            group.people.forEach(person => {
+                let personRow = document.createElement("span");
+                personRow.className = "ml-4"
+                personRow.innerHTML = person.name + " (" + person.age + ")";
+                infoblock.appendChild(personRow);
+            });
+            i++;
+        });
+        
     }
 }
 
@@ -1054,7 +1187,12 @@ pausePlaySimulation() {
     }
     
 }
+refresh() {
+    
 }
+
+}
+
 
 /***/ }),
 

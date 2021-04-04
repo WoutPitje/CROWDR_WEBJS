@@ -26,6 +26,7 @@ export default class Data {
         }
         this.peopleInLine = [];
         this.waitingLines = [];
+        this.leftpeople = [];
     }
 
     addLocation(location) {
@@ -83,29 +84,38 @@ export default class Data {
         this.locateGroupsOfPeople(scannedPeople);
     }
     locateGroupsOfPeople(people) {
-        console.log(people);
+    
         people.forEach(group =>  {
             let location = Math.floor(Math.random() * this.locations.length);
-            let x = Math.floor(Math.random() * 14);
-            let y = Math.floor(Math.random() * 14);
-
+            let x = Math.floor(Math.random() * 15);
+            let y = Math.floor(Math.random() * 15);
             
-
-            let type = this.locations[location].grid.array[x][y].fillType;
-            
-            while(type == "tent" || type == "drinkStand" || type=="drinkStandSurface" || type == "toilet"|| type=="highTree" || type == "wideTree" || type=="shadowTree" || type =="foodStand" || type =="trashcan") {
-                location = Math.floor(Math.random() * this.locations.length);
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
                 x = Math.floor(Math.random() * 14);
                 y = Math.floor(Math.random() * 14);
-
-                type = this.locations[location].grid.array[x][y].fillType;
             }
-                
-            this.locations[location].addGroupOfPeople(x,y,people)
-            
-       
-            
+            this.locations[location].addGroupOfPeople(x,y,group)
         })
+        
+    }
+
+    leavePeople(percentage) {
+    
+        this.locations.forEach(location => {
+            let grid = location.grid.array;
+            for (let i = 0; i < grid.length; i++) {
+                for(let j = 0; j < grid.length; j++) {
+                    grid[i][j].groupsOfPeople.forEach(group => {
+                        let number = Math.floor(Math.random() * 101) + 1;
+                        if(number <= percentage) {
+                            grid[i][j].groupsOfPeople.shift();
+                        }
+                    })
+                    
+                }
+            }
+        });
+
         
     }
 }

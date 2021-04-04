@@ -10,7 +10,13 @@ export default class LocationController {
 
     refresh() {
         this.locationView.refresh(this.data);
+        this.leavePeople();
     }
+
+    leavePeople() {
+        this.data.leavePeople(1);
+    }
+
 
 
 }

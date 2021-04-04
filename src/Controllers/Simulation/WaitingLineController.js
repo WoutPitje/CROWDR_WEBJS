@@ -40,7 +40,7 @@ export default class WaitingLineController{
             maxAmountOfVisitors += location.visitors;
         });
 
-        this.amountOfVisitors = Math.floor(Math.random() * 300) + 100; 
+        this.amountOfVisitors = Math.floor(Math.random() * maxAmountOfVisitors) + (3/4*maxAmountOfVisitors); 
         for(let i = 0; i < this.amountOfVisitors; ) {
             let amountOfPeople = Math.floor(Math.random() * 4) + 1;
             

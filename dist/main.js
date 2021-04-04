@@ -531,6 +531,7 @@ class Data {
         }
         this.peopleInLine = [];
         this.waitingLines = [];
+        this.leftpeople = [];
     }
 
     addLocation(location) {
@@ -588,29 +589,38 @@ class Data {
         this.locateGroupsOfPeople(scannedPeople);
     }
     locateGroupsOfPeople(people) {
-        console.log(people);
+    
         people.forEach(group =>  {
             let location = Math.floor(Math.random() * this.locations.length);
-            let x = Math.floor(Math.random() * 14);
-            let y = Math.floor(Math.random() * 14);
-
+            let x = Math.floor(Math.random() * 15);
+            let y = Math.floor(Math.random() * 15);
             
-
-            let type = this.locations[location].grid.array[x][y].fillType;
-            
-            while(type == "tent" || type == "drinkStand" || type=="drinkStandSurface" || type == "toilet"|| type=="highTree" || type == "wideTree" || type=="shadowTree" || type =="foodStand" || type =="trashcan") {
-                location = Math.floor(Math.random() * this.locations.length);
+            while(!this.locations[location].getGridBlock(x,y).canPlace(group.getAmountOfPeople(), 7)) {
                 x = Math.floor(Math.random() * 14);
                 y = Math.floor(Math.random() * 14);
-
-                type = this.locations[location].grid.array[x][y].fillType;
             }
-                
-            this.locations[location].addGroupOfPeople(x,y,people)
-            
-       
-            
+            this.locations[location].addGroupOfPeople(x,y,group)
         })
+        
+    }
+
+    leavePeople(percentage) {
+    
+        this.locations.forEach(location => {
+            let grid = location.grid.array;
+            for (let i = 0; i < grid.length; i++) {
+                for(let j = 0; j < grid.length; j++) {
+                    grid[i][j].groupsOfPeople.forEach(group => {
+                        let number = Math.floor(Math.random() * 101) + 1;
+                        if(number <= percentage) {
+                            grid[i][j].groupsOfPeople.shift();
+                        }
+                    })
+                    
+                }
+            }
+        });
+
         
     }
 }
@@ -653,6 +663,15 @@ class Grid {
     getItem(x,y) {
         return this.array[x][y].getFillType();
     }
+
+    addGroupOfPeople(x,y, people) {
+        this.array[x][y].addGroupOfPeople(people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.array[x][y].getAmountOfPeople();
+    }
+
 
     getGridBlock(x,y) {
         return this.array[x - 1][ y-1];
@@ -877,6 +896,38 @@ class GridBlock {
     addGroupOfPeople(group) {
         this.groupsOfPeople.push(group);
     }
+
+    getAmountOfPeople() {
+        let amount = 0;
+        
+        this.groupsOfPeople.forEach(group => {
+            amount += group.getAmountOfPeople();
+        })
+
+        return amount;
+    }
+
+    canPlace(amount, maxAmountOfPeople) {
+        console.log(amount, maxAmountOfPeople)
+        if(this.fillType == "tent" || this.fillType == "drinkStand" || this.fillType=="drinkStandSurface" || this.fillType == "toilet"|| this.fillType=="highTree" || this.fillType == "wideTree" 
+        || this.fillType=="shadowTree" || this.fillType =="foodStand" || this.fillType =="trashcan" || (amount + this.getAmountOfPeople() >= maxAmountOfPeople)) {
+            return false;
+        }
+        return true;
+
+    }
+
+    getAllPeople() {
+        let people = [];
+        this.groupsOfPeople.forEach(group => {
+            group.people.forEach(person => {
+
+                people.push(person);
+            })
+        });
+
+        return people;
+    }
 }
 
 /***/ }),
@@ -1092,10 +1143,17 @@ class Location {
         return this.grid.getItem(x,y);
     }
 
+    getGridBlock(x,y) {
+        return this.grid.array[x][y];
+    }
     addGroupOfPeople(x,y, people) {
         
-        console.log(x + " " + y)
-        this.grid.array[x][y].addGroupOfPeople(people);
+     
+        this.grid.addGroupOfPeople(x,y,people);
+    }
+
+    getAmountOfPeople(x,y) {
+        return this.grid.getAmountOfPeople(x,y);
     }
 }
 
@@ -1810,8 +1868,6 @@ const data = new _Models_Data_js__WEBPACK_IMPORTED_MODULE_7__.default(dataobject
 
 
 localStorage.setItem('data', JSON.stringify(data));
-
-
 
 new _Controllers_MainController_js__WEBPACK_IMPORTED_MODULE_0__.default(data);
 
