@@ -495,7 +495,7 @@ class StepController {
     //post step5
     step5(highTrees, wideTrees, shadowTrees) {
         _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.clearStepErrors();
-        if(highTrees <= 0 || wideTrees <= 0 || shadowTrees <= 0) {
+        if(highTrees < 0 || wideTrees < 0 || shadowTrees < 0) {
             _Views_Helper__WEBPACK_IMPORTED_MODULE_0__.default.setStepErrors("Please fill in an amount at every tree");
             return;
         }

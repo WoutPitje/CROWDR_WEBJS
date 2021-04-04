@@ -149,7 +149,7 @@ export default class StepController {
     //post step5
     step5(highTrees, wideTrees, shadowTrees) {
         Helper.clearStepErrors();
-        if(highTrees <= 0 || wideTrees <= 0 || shadowTrees <= 0) {
+        if(highTrees < 0 || wideTrees < 0 || shadowTrees < 0) {
             Helper.setStepErrors("Please fill in an amount at every tree");
             return;
         }
