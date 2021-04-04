@@ -1,3 +1,5 @@
+import Trashcan from "../../Models/Trashcan"
+
 export default class LocationView {
     constructor(locationController) {
         this.locationController = locationController;
@@ -38,7 +40,7 @@ export default class LocationView {
 
     refresh(data) {
         this.drawLocations(data);
-        this.clickEvents(data);
+        
     }
 
     drawLocations(data) {
@@ -53,8 +55,12 @@ export default class LocationView {
         block.clearRect(0, 0, this.locationBlockWidth, this.locationBlockHeight);
         for(let x = 0; x < 15; x++) {
             for(let y = 0; y < 15; y++) {
-                   this.drawBackgroundItem(locationData.grid.array[x][y].getFillType(), block,  x, y);
-                    
+                this.drawBackgroundItem(locationData.grid.array[x][y].getFillType(), block,  x, y);
+                
+                if(locationData.getGridBlock(x,y).object instanceof Trashcan) {
+                    console.log("jes")
+                    this.drawTrashcan(x,y,block,locationData.getGridBlock(x,y).object.filled);
+                }
             }
         }
         for(let x = 0; x < 15; x++) {
@@ -64,6 +70,13 @@ export default class LocationView {
         }
         
     }
+    drawTrashCan(x, y, block, filled) {
+        
+        block.fillStyle = "green";
+        block.fillRect(x ,y - this.gridHeight / filled,this.gridWidth, this.gridHeight);
+        block.fill();
+        block.stroke();  
+    }
 
     drawPeople(amount, block,x,y) {
         if(amount > 0) this.drawGroup(amount,block, x, y);
@@ -71,7 +84,6 @@ export default class LocationView {
     }
 
     drawGroup(amount, block, x, y) {
-       
         block.strokeStyle = "red";
         block.beginPath();
         block.arc(x * this.gridWidth + this.gridWidth /2, y * this.gridHeight + this.gridHeight /2 , this.groupWidth, 0, 2 * Math.PI);
@@ -101,6 +113,7 @@ export default class LocationView {
             }
              else if(type =="trashcan") {
                 color = "gray";
+
             }
             //images
             if(type == "tent" || type =="drinkStand" || type =="toilet" || type=="highTree" || type == "wideTree" || type=="shadowTree" || type=="foodStand" || type =="trashcan") {
@@ -128,16 +141,7 @@ export default class LocationView {
         }
     }
 
-    clickEvents(data) {
-        for(let i = 0; i < this.locationBlocks.length; i++) {
-            this.clickEventsLocation(data.locations[i] , this.locationBlocks[i]);
-        }
-    }
-
-    clickEventsLocation(locationdata, block) {
-        
-        
-    }
+    
 
     hoverPeople(location,x,y) {
         if(x < 0 || y < 0) {

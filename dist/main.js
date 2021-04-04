@@ -230,6 +230,10 @@ class MainController {
     saveData() {
         localStorage.setItem('data', JSON.stringify(this.data));
     }
+
+    runSimulation() {
+        window.location.href = "simulation.html";
+    }
 }
 
 
@@ -655,7 +659,6 @@ class Data {
             this.waitingLines.push(new _Simulation_WaitingLine_js__WEBPACK_IMPORTED_MODULE_1__.default());
         }
         
-        
         for(let i = 0; i < this.peopleInLine.length; i++) {
             let line = Math.floor(Math.random() * openLines) ;
 
@@ -668,6 +671,7 @@ class Data {
         for(let i = 0; i < this.waitingLines.length; i++) {
             let groupOfPeople  = this.waitingLines[i].scan();
             if(typeof groupOfPeople !== 'undefined') {
+                
                 scannedPeople.push(groupOfPeople);
             }
         }
@@ -707,6 +711,18 @@ class Data {
         });
 
         
+    }
+
+    allLocationsLocked() {
+        
+        this.locations.forEach(location => {
+            console.log(location.getRegionLocked())
+            if(!location.getRegionLocked()) {
+                
+                return false;
+            }
+        });
+        return true;
     }
 }
 
@@ -1460,9 +1476,14 @@ class Trashcan {
     constructor() {
         this.kiloCapacity = 5;
         this.emptyTime = "08:00";
+        this.filled = 0;
     }
     setKiloCapacity(newKiloCapacity) {
         this.kiloCapacity = newKiloCapacity;
+    }
+
+    setFilled() {
+        this.filled = 0;
     }
 
     getKiloCapacity() {
@@ -1475,6 +1496,11 @@ class Trashcan {
     
     getEmptyTime() {
         return this.emptyTime;
+    }
+
+    fill() {
+        this.filled ++;
+        if(this.filled >= 10) this.filled = 0;
     }
 }
 
@@ -1553,6 +1579,7 @@ class GridView {
 
         let runSimulation = document.createElement("button");
         runSimulation.innerHTML = "Run simulation";
+        runSimulation.addEventListener("click" , () => {this.runSimulation()})
         runSimulation.className = "p-5 bg-green-500 hover:bg-green-800 hover:text-white w-full";
 
         div.appendChild(dropbackzone);
@@ -1562,7 +1589,9 @@ class GridView {
         block.appendChild(itemLegenda);
         block.appendChild(div);
     }
-
+    runSimulation() {
+        this.gridController.mainController.runSimulation();
+    }
     
     generateGrid() {
         let paneSize = this.paneSize;

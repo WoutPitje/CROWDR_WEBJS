@@ -12,6 +12,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ LocationController)
 /* harmony export */ });
+/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Models/Trashcan */ "./src/Models/Trashcan.js");
+
 
 
 class LocationController {
@@ -24,11 +26,25 @@ class LocationController {
 
     refresh() {
         this.locationView.refresh(this.data);
+        this.fillTrashCans();
         this.leavePeople();
     }
 
     leavePeople() {
         this.data.leavePeople(1);
+    }
+
+    fillTrashCans() {
+        this.data.locations.forEach(location => {
+            for(let i = 0; i < 15;i++) {
+                for(let j = 0; j < 15; j++) {
+                     let block = location.getGridBlock(i,j);
+                     if(block.object instanceof _Models_Trashcan__WEBPACK_IMPORTED_MODULE_0__.default) {
+                        block.object.fill();
+                     }
+                }
+            }
+        });
     }
 
 
@@ -71,15 +87,18 @@ class SimulationController {
         this.locationView = new _Views_simulation_LocationView_js__WEBPACK_IMPORTED_MODULE_4__.default(this);
         this.locationController = new _LocationController_js__WEBPACK_IMPORTED_MODULE_0__.default(this.data, this);
         this.waitingLineController = new _WaitingLineController_js__WEBPACK_IMPORTED_MODULE_1__.default(this.data, this);
+        this.weather = new _Models_Simulation_Weather_js__WEBPACK_IMPORTED_MODULE_6__.default();
         
 
         this.startSimulation();
+        
     }
 
     startSimulation() {
         this.simulationView.setMainView(this.data);
         this.locationView.init(this.data);
         this.waitingLineController.init();
+        
         this.timer = setInterval(() => this.refresh() , 1000);
     }
 
@@ -90,13 +109,20 @@ class SimulationController {
         this.simulationView.refresh();
         this.waitingLineController.refresh();
         this.locationController.refresh();
-        
+        this.setWeather();
+        console.log("refresh");
 
        
     }
 
-    setNavigation()  {
+    setWeather()  {
+        this.simulationView.setWeather(this.weather.getCurrentWeather());
+    }
 
+    changeLocation() {
+        let place = this.simulationView.getPlace().value;
+        
+        this.weather.setCurrentWeather(place);
     }
 
     
@@ -257,7 +283,6 @@ class Data {
             this.waitingLines.push(new _Simulation_WaitingLine_js__WEBPACK_IMPORTED_MODULE_1__.default());
         }
         
-        
         for(let i = 0; i < this.peopleInLine.length; i++) {
             let line = Math.floor(Math.random() * openLines) ;
 
@@ -270,6 +295,7 @@ class Data {
         for(let i = 0; i < this.waitingLines.length; i++) {
             let groupOfPeople  = this.waitingLines[i].scan();
             if(typeof groupOfPeople !== 'undefined') {
+                
                 scannedPeople.push(groupOfPeople);
             }
         }
@@ -309,6 +335,18 @@ class Data {
         });
 
         
+    }
+
+    allLocationsLocked() {
+        
+        this.locations.forEach(location => {
+            console.log(location.getRegionLocked())
+            if(!location.getRegionLocked()) {
+                
+                return false;
+            }
+        });
+        return true;
     }
 }
 
@@ -996,7 +1034,7 @@ class Person {
             }
       
             response.json().then(function(data) {
-                console.log(data.results[0]);
+                
               self.name = data.results[0].name.title + " " + data.results[0].name.first + " " + data.results[0].name.last;
               self.gender = data.results[0].gender;
               self.age = data.results[0].dob.age;
@@ -1087,29 +1125,37 @@ class Weather {
 
     constructor() {
         
-        var self = this;
+        
+    }   
 
-        fetch("http://api.openweathermap.org/data/2.5/weather?q='s-Hertogenbosch&appid=e68285f49070969fc85b1cc56080ab46")
+    setCurrentWeather(place){
+
+      var self = this;
+        fetch("http://api.openweathermap.org/data/2.5/weather?q="+ place +"&appid=e68285f49070969fc85b1cc56080ab46")
         .then(
-          function(response) {
+            function(response) {
             if (response.status !== 200) {
               console.log('Looks like there was a problem. Status Code: ' +
                 response.status);
+                alert("This location is not found")
               return;
             }
-      
-            response.json().then(function(data) {
-              self.currentWeather = data.weather[0].main;
+            
+            
+            response.json().then((data) =>  {
+              self.weather = data.weather[0].main;
             });
+            
           }
         )
         .catch(function(err) {
           console.log('Fetch Error :-S', err);
         });
-    }   
 
-    getCurrentWeather(){
-      return this.currentWeather;
+        
+  }
+  getCurrentWeather() {
+    return this.weather;
   }
 }
 
@@ -1165,9 +1211,14 @@ class Trashcan {
     constructor() {
         this.kiloCapacity = 5;
         this.emptyTime = "08:00";
+        this.filled = 0;
     }
     setKiloCapacity(newKiloCapacity) {
         this.kiloCapacity = newKiloCapacity;
+    }
+
+    setFilled() {
+        this.filled = 0;
     }
 
     getKiloCapacity() {
@@ -1180,6 +1231,11 @@ class Trashcan {
     
     getEmptyTime() {
         return this.emptyTime;
+    }
+
+    fill() {
+        this.filled ++;
+        if(this.filled >= 10) this.filled = 0;
     }
 }
 
@@ -1195,6 +1251,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ LocationView)
 /* harmony export */ });
+/* harmony import */ var _Models_Trashcan__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Models/Trashcan */ "./src/Models/Trashcan.js");
+
+
 class LocationView {
     constructor(locationController) {
         this.locationController = locationController;
@@ -1235,7 +1294,7 @@ class LocationView {
 
     refresh(data) {
         this.drawLocations(data);
-        this.clickEvents(data);
+        
     }
 
     drawLocations(data) {
@@ -1250,8 +1309,12 @@ class LocationView {
         block.clearRect(0, 0, this.locationBlockWidth, this.locationBlockHeight);
         for(let x = 0; x < 15; x++) {
             for(let y = 0; y < 15; y++) {
-                   this.drawBackgroundItem(locationData.grid.array[x][y].getFillType(), block,  x, y);
-                    
+                this.drawBackgroundItem(locationData.grid.array[x][y].getFillType(), block,  x, y);
+                
+                if(locationData.getGridBlock(x,y).object instanceof _Models_Trashcan__WEBPACK_IMPORTED_MODULE_0__.default) {
+                    console.log("jes")
+                    this.drawTrashcan(x,y,block,locationData.getGridBlock(x,y).object.filled);
+                }
             }
         }
         for(let x = 0; x < 15; x++) {
@@ -1261,6 +1324,13 @@ class LocationView {
         }
         
     }
+    drawTrashCan(x, y, block, filled) {
+        
+        block.fillStyle = "green";
+        block.fillRect(x ,y - this.gridHeight / filled,this.gridWidth, this.gridHeight);
+        block.fill();
+        block.stroke();  
+    }
 
     drawPeople(amount, block,x,y) {
         if(amount > 0) this.drawGroup(amount,block, x, y);
@@ -1268,7 +1338,6 @@ class LocationView {
     }
 
     drawGroup(amount, block, x, y) {
-       
         block.strokeStyle = "red";
         block.beginPath();
         block.arc(x * this.gridWidth + this.gridWidth /2, y * this.gridHeight + this.gridHeight /2 , this.groupWidth, 0, 2 * Math.PI);
@@ -1298,6 +1367,7 @@ class LocationView {
             }
              else if(type =="trashcan") {
                 color = "gray";
+
             }
             //images
             if(type == "tent" || type =="drinkStand" || type =="toilet" || type=="highTree" || type == "wideTree" || type=="shadowTree" || type=="foodStand" || type =="trashcan") {
@@ -1325,16 +1395,7 @@ class LocationView {
         }
     }
 
-    clickEvents(data) {
-        for(let i = 0; i < this.locationBlocks.length; i++) {
-            this.clickEventsLocation(data.locations[i] , this.locationBlocks[i]);
-        }
-    }
-
-    clickEventsLocation(locationdata, block) {
-        
-        
-    }
+    
 
     hoverPeople(location,x,y) {
         if(x < 0 || y < 0) {
@@ -1409,7 +1470,8 @@ class SimulationView {
     this.paused = false;
     let pauseButton = document.getElementById("pause-simulation");
     pauseButton.addEventListener("click",() => this.pausePlaySimulation());
-    
+    let weatherButton = document.getElementById("set-location");
+    weatherButton.addEventListener("click",() => this.simulationController.changeLocation());
 }
 
 pausePlaySimulation() {
@@ -1427,10 +1489,18 @@ pausePlaySimulation() {
     
 }
 refresh() {
-    
+    this.setWeather();
+}
+setWeather(weather) {
+    let weatheroutput = document.getElementById("weather");
+    weatheroutput.innerHTML = weather;
 }
 
+getPlace() {
+    return document.getElementById("place");
 }
+}
+
 
 
 /***/ }),

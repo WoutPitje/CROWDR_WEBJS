@@ -15,15 +15,18 @@ export default class SimulationController {
         this.locationView = new LocationView(this);
         this.locationController = new LocationController(this.data, this);
         this.waitingLineController = new WaitingLineController(this.data, this);
+        this.weather = new Weather();
         
 
         this.startSimulation();
+        
     }
 
     startSimulation() {
         this.simulationView.setMainView(this.data);
         this.locationView.init(this.data);
         this.waitingLineController.init();
+        
         this.timer = setInterval(() => this.refresh() , 1000);
     }
 
@@ -34,13 +37,20 @@ export default class SimulationController {
         this.simulationView.refresh();
         this.waitingLineController.refresh();
         this.locationController.refresh();
-        
+        this.setWeather();
+        console.log("refresh");
 
        
     }
 
-    setNavigation()  {
+    setWeather()  {
+        this.simulationView.setWeather(this.weather.getCurrentWeather());
+    }
 
+    changeLocation() {
+        let place = this.simulationView.getPlace().value;
+        
+        this.weather.setCurrentWeather(place);
     }
 
     

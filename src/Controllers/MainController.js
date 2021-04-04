@@ -39,4 +39,8 @@ export default class MainController {
     saveData() {
         localStorage.setItem('data', JSON.stringify(this.data));
     }
+
+    runSimulation() {
+        window.location.href = "simulation.html";
+    }
 }

@@ -7,7 +7,8 @@ export default class SimulationView {
     this.paused = false;
     let pauseButton = document.getElementById("pause-simulation");
     pauseButton.addEventListener("click",() => this.pausePlaySimulation());
-    
+    let weatherButton = document.getElementById("set-location");
+    weatherButton.addEventListener("click",() => this.simulationController.changeLocation());
 }
 
 pausePlaySimulation() {
@@ -25,7 +26,15 @@ pausePlaySimulation() {
     
 }
 refresh() {
-    
+    this.setWeather();
+}
+setWeather(weather) {
+    let weatheroutput = document.getElementById("weather");
+    weatheroutput.innerHTML = weather;
 }
 
+getPlace() {
+    return document.getElementById("place");
 }
+}
+

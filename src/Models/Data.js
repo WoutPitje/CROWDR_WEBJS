@@ -65,7 +65,6 @@ export default class Data {
             this.waitingLines.push(new WaitingLine());
         }
         
-        
         for(let i = 0; i < this.peopleInLine.length; i++) {
             let line = Math.floor(Math.random() * openLines) ;
 
@@ -78,6 +77,7 @@ export default class Data {
         for(let i = 0; i < this.waitingLines.length; i++) {
             let groupOfPeople  = this.waitingLines[i].scan();
             if(typeof groupOfPeople !== 'undefined') {
+                
                 scannedPeople.push(groupOfPeople);
             }
         }
@@ -117,5 +117,17 @@ export default class Data {
         });
 
         
+    }
+
+    allLocationsLocked() {
+        
+        this.locations.forEach(location => {
+            console.log(location.getRegionLocked())
+            if(!location.getRegionLocked()) {
+                
+                return false;
+            }
+        });
+        return true;
     }
 }
